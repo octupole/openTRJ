@@ -85,10 +85,10 @@
 #include "RhoSaxsBSP.h"
 #include "LagrangeInterpolation.h"
 #include "PickSelection.h"
-#include "TrjReadSaxs.h"
 #include "ExecbSaxs.h"
 #include "ExecbSaxsTraj.h"
 #include "ExecbSaxsPost.h"
+#include "Execute/Saxs/TrjRead.h"
 #include "myEnums.hpp"
 #include "Timer.h"
 using namespace Topol_NS;

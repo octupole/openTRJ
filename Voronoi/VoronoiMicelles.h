@@ -8,7 +8,7 @@
 #ifndef VORONOIMICELLES_H_
 #define VORONOIMICELLES_H_
 
-#include <Voronoi.h>
+#include "Voronoi.h"
 namespace Voro{
 class VoronoiMicelles: public Voro::Voronoi {
 protected:

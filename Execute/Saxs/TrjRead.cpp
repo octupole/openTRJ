@@ -5,7 +5,7 @@
  *      Author: marchi
  */
 
-#include "TrjReadSaxs.h"
+#include "TrjRead.h"
 namespace trj {
 Parallel::NewMPI * TrjRead::CurrMPI=nullptr;
 

@@ -8,7 +8,7 @@
 #ifndef SRC_TRJREAD_H_
 #define SRC_TRJREAD_H_
 
-#include "trjInputSaxs.h"
+#include "trjInput.h"
 #include <iostream>
 #include <iomanip>
 #include <fstream>

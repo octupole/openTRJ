@@ -5,7 +5,7 @@
  *      Author: marchi
  */
 
-#include <VoronoiMicelles.h>
+#include "VoronoiMicelles.h"
 
 namespace Voro{
 const double SURFFACTOR{0.08};

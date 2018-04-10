@@ -5,7 +5,7 @@
  *      Author: marchi
  */
 
-#include "trjInputSaxs.h"
+#include "trjInput.h"
 
 namespace trj {
 trjInput::trjInput(int ntot,char ** v) {

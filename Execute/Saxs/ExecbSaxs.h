@@ -25,7 +25,7 @@
 #include "RhoSaxsBSP.h"
 #include "LagrangeInterpolation.h"
 #include "PickSelection.h"
-#include "TrjReadSaxs.h"
+#include "TrjRead.h"
 #include "fftw++.h"
 #include "NewMPI.h"
 #include "Finalize.h"

@@ -78,6 +78,7 @@ include_directories("data")
 include_directories("${PROJECT_SOURCE_DIR}/xdr/include")
 include_directories("${PROJECT_SOURCE_DIR}/voro++/include")
 include_directories("${PROJECT_SOURCE_DIR}/alglib/include")
+include_directories("${PROJECT_SOURCE_DIR}/libtraj")
 
 add_subdirectory(alglib)
 add_subdirectory(xdr)
@@ -88,16 +89,31 @@ add_subdirectory(Voronoi)
 add_subdirectory(Properties)
 add_subdirectory(Execute)
 add_subdirectory(Saxs)
+#--------------------------------  Include directories for specific targets -----------------------
+target_include_directories(Execute PUBLIC "${PROJECT_SOURCE_DIR}/Properties" "${PROJECT_SOURCE_DIR}/Molecules" "${PROJECT_SOURCE_DIR}/Voronoi")
+target_include_directories(ExecuteSaxs PUBLIC "${PROJECT_SOURCE_DIR}/Properties" "${PROJECT_SOURCE_DIR}/Molecules" "${PROJECT_SOURCE_DIR}/Saxs" )
+target_include_directories(Properties PUBLIC "${PROJECT_SOURCE_DIR}/Molecules")
+target_include_directories(mols PUBLIC "${PROJECT_SOURCE_DIR}/Properties")
+target_include_directories(saxs PUBLIC "${PROJECT_SOURCE_DIR}/Properties" "${PROJECT_SOURCE_DIR}/Molecules")
+target_include_directories(Voronoi PUBLIC "${PROJECT_SOURCE_DIR}/Molecules" "${PROJECT_SOURCE_DIR}/Properties" )
 
-include_directories("${PROJECT_SOURCE_DIR}/Properties" "${PROJECT_SOURCE_DIR}/Execute" 
-	"${PROJECT_SOURCE_DIR}/Voronoi" "${PROJECT_SOURCE_DIR}/Molecules" "${PROJECT_SOURCE_DIR}/libtraj")
+
 add_executable(trjVoronoi trjVoronoi.cpp)
 add_executable(trjProp trjProp.cpp)
-include_directories("${PROJECT_SOURCE_DIR}/Saxs" "${PROJECT_SOURCE_DIR}/Execute/Saxs")
 add_executable(trjSaxs trjSaxs.cpp)
+
+#--------------------------------  Include directories for specific executables -----------------------
+
+target_include_directories(trjVoronoi PUBLIC "${PROJECT_SOURCE_DIR}/Execute")
+target_include_directories(trjProp PUBLIC "${PROJECT_SOURCE_DIR}/Execute")
+target_include_directories(trjSaxs PUBLIC "${PROJECT_SOURCE_DIR}/Execute/Saxs")
+
+#--------------------------------  Link libraries in the appropriate order ! -----------------------
+
 target_link_libraries(trjVoronoi Execute Voronoi voro++ mols traj Properties alglib xdrfile)
 target_link_libraries(trjProp Execute Voronoi voro++ mols traj Properties alglib xdrfile)
 target_link_libraries(trjSaxs ExecuteSaxs saxs mols traj Properties alglib xdrfile )
+
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set (CMAKE_INSTALL_PREFIX "$ENV{HOME}" CACHE PATH "default install path" FORCE )
 endif()

@@ -27,7 +27,7 @@
 #include "Percolation.h"
 #include "PercolationJSON.h"
 #include "myEnums.hpp"
-#include "CenterMassBW3.h"
+#include <CenterMassBW3.h>
 
 
 using namespace DVECT;

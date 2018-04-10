@@ -5,7 +5,7 @@
  *      Author: marchi
  */
 
-#include <RhoSaxs.h>
+#include "RhoSaxs.h"
 bool RhoSaxs::firstTime=true;
 void RhoSaxs::Density(const int pq, const AtomsD * y, vector<size_t> & ind, string myType){
 	vector<double> wei(ind.size(),1.0);
