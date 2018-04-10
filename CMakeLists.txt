@@ -5,11 +5,15 @@ cmake_minimum_required( VERSION 3.5)
 # Project name
 project(openTRJ CXX C)
 
+
 include(${CMAKE_SOURCE_DIR}/cmake/macros.cmake)
 
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
 endif()
+include(CheckCXXCompilerFlag)
+include(CheckIncludeFileCXX)
+include(CheckCXXSymbolExists)
 
 if (NOT NO_PARALLEL)
    find_package(MPI)
@@ -99,7 +103,7 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 install(TARGETS trjVoronoi trjProp RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" COMPONENT executable)
 message( STATUS)
-message( STATUS "========== OpenTRAJ Build Information ==========")
+message( STATUS "========== OpenTRJ Build Information ===========")
 message( STATUS "Current date/time .......... = ${BUILD_DATE}")
 message( STATUS "CMAKE_SYSTEM ............... = ${CMAKE_SYSTEM}")
 message( STATUS "================================================")
@@ -118,3 +122,10 @@ endif()
 
 message( STATUS "FFTW3_INCLUDE_DIR .......... = ${FFTW3_INCLUDE_DIR}")
 message( STATUS "FFTW3_LIBRARIES ............ = ${FFTW3_LIBRARIES}")
+message( STATUS "To override these options, add -D{OPTION_NAME}=... to the cmake command" )
+message( STATUS "Particularly useful defines are for:")
+message( STATUS )
+message( STATUS "  -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} (where OpenTRJ executables will be installed)")
+message( STATUS "            -DFFTW3_ROOT=/path/to/fftw3")
+message( STATUS )
+
