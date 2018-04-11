@@ -9,7 +9,10 @@ endif()
 ##	ExecuteProp.cpp trjInput.cpp ClearUsage.cpp)
 set(SOURCE ExecuteVoronoi.cpp TrjRead.cpp  trjInput.cpp ClearUsage.cpp 
 	ExecuteProp.cpp trjInput.cpp ClearUsage.cpp)
+	
 set(SOURCE_SAXS Saxs/TrjRead.cpp Saxs/trjInput.cpp Saxs/ExecbSaxs.cpp Saxs/ExecbSaxsPost.cpp Saxs/ExecbSaxsTraj.cpp)
+set(SOURCE_FIT FitSaxs/TrjRead.cpp FitSaxs/trjInput.cpp)
 	
 add_library(Execute STATIC ${SOURCE})
 add_library(ExecuteSaxs STATIC ${SOURCE_SAXS})
+add_library(ExecuteFit STATIC ${SOURCE_FIT})
