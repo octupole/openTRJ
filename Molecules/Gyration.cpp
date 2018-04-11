@@ -16,6 +16,12 @@ template <typename T>
 Gyration<T>::~Gyration(){};
 
 template <typename T>
+json & Gyration<T>::gJson(){return myJson;}
+
+template <typename T>
+void Gyration<T>::setTime(double tt){time_c=tt;};
+
+template <typename T>
 void Gyration<T>::__Writeit(ostream & fout, string label, int o){
 	fout << label<< fixed << setw(3) << o;
 	fout << "  time = "<< fixed << setw(8) << setprecision(4) << time_c;

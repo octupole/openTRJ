@@ -85,7 +85,7 @@ protected:
 	Matrix CO,OC;
 
 public:
-	static void setPercoCutoff(double cut){PercoCutoff=cut;}
+	static void setPercoCutoff(double);
 	Percolation(){};
 	Percolation(const listcon & , const vector<string> &, const vector<double> &);
 	Percolation(const vector<vector<int> > & , const vector<double> &, const vector<string> &);

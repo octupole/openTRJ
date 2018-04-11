@@ -41,7 +41,7 @@ public:
 	Gyration(double a,Dvect & b, Dvect & c, Dvect & d, Dvect & xcm, map<string,size_t> & hashtag): Radg(a),I(b),G(c), axis(d), xcmx{new Dvect{xcm}}, str_hash(hashtag) {};
 	virtual ~Gyration();
 	double gRadg(){return Radg;}
-	static json & gJson(){return myJson;}
+	static json & gJson();
 	Dvect gI(){return I;}
 	Dvect gG(){return G;}
 	Dvect gaxis(){return axis;}
@@ -69,7 +69,7 @@ public:
 		axis=y.axis;
 		return *this;
 	}
-	static void setTime(double tt){time_c=tt;};
+	static void setTime(double);
 	Gyration operator/(int n){
 		Gyration tmp;
 		tmp.Radg=Radg/static_cast<double>(n);

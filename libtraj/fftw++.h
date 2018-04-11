@@ -174,19 +174,19 @@ protected:
   fftw_plan plan;
   bool inplace;
   
-  unsigned int Dist(unsigned int n, unsigned int stride, unsigned int dist) {
+  static unsigned int Dist(unsigned int n, unsigned int stride, unsigned int dist) {
     return dist ? dist : ((stride == 1) ? n : 1);
   }
   
-  unsigned int realsize(unsigned int n, Complex *in, Complex *out=NULL) {
+  static unsigned int realsize(unsigned int n, Complex *in, Complex *out=NULL) {
     return (!out || in == out) ? 2*(n/2+1) : n;
   }
   
-  unsigned int realsize(unsigned int n, Complex *in, double *out) {
+  static unsigned int realsize(unsigned int n, Complex *in, double *out) {
     return realsize(n,in,(Complex *) out);
   }
   
-  unsigned int realsize(unsigned int n, double *in, Complex *out) {
+  static unsigned int realsize(unsigned int n, double *in, Complex *out) {
     return realsize(n,(Complex *) in,out);
   }
   

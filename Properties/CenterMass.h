@@ -63,7 +63,7 @@ protected:
   virtual CenterMass * doClone() const=0;
 public:
   CenterMass(): DoneOnce{false} {cm.clear();cmm.clear();};
-  static void setTime(double tt){time_c=tt;};
+  static void setTime(double);
   void setCOs(Matrix co, Matrix oc){ CO(co);OC(oc);}
   void setAxis(T x, T y, T z){Axis[XX]=x;Axis[YY]=y;Axis[ZZ]=z;}
   virtual void setup(size_t m){

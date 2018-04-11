@@ -7,6 +7,9 @@ template <typename T>
 double CenterMass<T>::Dt=0.0;
 
 template <typename T>
+void CenterMass<T>::setTime(double tt){time_c=tt;};
+
+template <typename T>
 void CenterMass<T>::WriteIt(ostream & fout) {
 	  size_t beg0=0, end0=cm.size();
 	 // if( rcm.Size() != ) return fout;

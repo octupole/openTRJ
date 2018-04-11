@@ -11,6 +11,7 @@ int Atoms<T>::calls=0;
 template <typename T>
 int Atoms<T>::cPrint_calls=0;
 
+
 template <typename T>
 vector<string> * Atoms<T>::ResList0=nullptr;
 
@@ -151,6 +152,9 @@ float   Atoms<T>::prec_c=0.0;
 
 template<typename T>
 float Atoms<T>::time_c=0.0;
+
+template<typename T>
+float Atoms<T>::getTime(){return time_c;}
 
 template<typename T>
 void Atoms<T>::CompCM(){

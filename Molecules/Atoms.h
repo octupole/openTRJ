@@ -177,7 +177,7 @@ public:
 	void InitSelection(vector<string> & y, Topol_NS::Topol & MyTop);
 	void initLists(Topol_NS::TopolPDB &,vector<string> &);
 	void CompCM();
-	float getTime(){return time_c;}
+	float getTime();
 	template <Enums::myWriteOptions OPT>
 	void SetupPercolate(Topol_NS::Topol &x);
 	int Percolate();

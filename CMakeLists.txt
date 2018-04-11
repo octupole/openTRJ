@@ -47,12 +47,15 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         message(FATAL_ERROR "Clang version must be at least 3.2!")
     endif()
     set(CMAKE_CXX_FLAGS "-std=c++11 -O3 ${OpenMP_CXX_FLAGS}")        ## Optimize	
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+   set(CMAKE_CXX_FLAGS "-std=c++11 -ffast-math -fno-math-errno ${OpenMP_CXX_FLAGS}")  
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.4)
         message(FATAL_ERROR "GCC version must be at least 5.4")
     endif()
    set(CMAKE_CXX_FLAGS "-std=c++11 -O3 -ffast-math -fno-math-errno ${OpenMP_CXX_FLAGS}")  
 endif()
+
 if (OpenMP_CXX_FLAGS)
 	add_definitions(-DHAVE_OPENMP=1)
 	find_package(FFTW3 COMPONENTS "double" "threads")
@@ -73,6 +76,23 @@ endif (FFTW3_FOUND)
 
 
 LONG_TODAY(BUILD_DATE)
+
+#set(DEST "All" CACHE STRING "test string")
+#set(ALL_LIST trjVoronoi trjProp trjSaxs fitSaxs)
+#
+#if(${DEST} STREQUAL All)
+#  set(MY_LIST trjVoronoi trjProp trjSaxs fitSaxs)
+#else()
+#  separate_arguments(MY_LIST NATIVE_COMMAND ${DEST})
+#endif()
+#
+#FOREACH(FILE IN LISTS MY_LIST)
+#	list(FIND ALL_LIST ${FILE} element)
+#    if(${element} LESS 0)
+#    	message(FATAL_ERROR "${FILE} not on the list of possible targets")
+#    endif()
+#endforeach()
+  
 include_directories("include")
 include_directories("data")
 include_directories("${PROJECT_SOURCE_DIR}/xdr/include")
@@ -97,11 +117,13 @@ target_include_directories(mols PUBLIC "${PROJECT_SOURCE_DIR}/Properties")
 target_include_directories(saxs PUBLIC "${PROJECT_SOURCE_DIR}/Properties" "${PROJECT_SOURCE_DIR}/Molecules")
 target_include_directories(Voronoi PUBLIC "${PROJECT_SOURCE_DIR}/Molecules" "${PROJECT_SOURCE_DIR}/Properties" )
 
-
+#foreach(FILE IN LISTS MY_LIST)
+#	add_executable(${FILE} ${FILE}.cpp)
+#endforeach()
 add_executable(trjVoronoi trjVoronoi.cpp)
 add_executable(trjProp trjProp.cpp)
 add_executable(trjSaxs trjSaxs.cpp)
-add_executable(fitSaxs FitSaxs.cpp)
+add_executable(fitSaxs fitSaxs.cpp)
 
 #--------------------------------  Include directories for specific executables -----------------------
 
@@ -113,7 +135,7 @@ target_include_directories(fitSaxs PUBLIC "${PROJECT_SOURCE_DIR}/Execute/FitSaxs
 #--------------------------------  Link libraries in the appropriate order ! -----------------------
 
 target_link_libraries(trjVoronoi Execute Voronoi voro++ mols traj Properties alglib xdrfile)
-target_link_libraries(trjProp Execute Voronoi voro++ mols traj Properties alglib xdrfile)
+target_link_libraries(trjProp Execute mols traj Properties alglib xdrfile)
 target_link_libraries(trjSaxs ExecuteSaxs saxs mols traj Properties alglib xdrfile )
 target_link_libraries(fitSaxs ExecuteFit traj alglib)
 
@@ -130,9 +152,13 @@ message( STATUS "CMAKE_BUILD_TYPE ........... = ${CMAKE_BUILD_TYPE}")
 message( STATUS "CMAKE_INSTALL_PREFIX ....... = ${CMAKE_INSTALL_PREFIX}")
 message( STATUS "CMAKE_C_COMPILER ........... = ${CMAKE_C_COMPILER}")
 message( STATUS "CMAKE_CXX_COMPILER ......... = ${CMAKE_CXX_COMPILER}")
+if(MPI_CXX_FOUND)
 message( STATUS "MPI_CXX_COMPILER ........... = ${MPI_CXX_COMPILER}")
 message( STATUS "MPI_CXX_INCLUDE_PATH ....... = ${MPI_CXX_INCLUDE_PATH}")
 message( STATUS "MPI_CXX_LIBRARIES .......... = ${MPI_CXX_LIBRARIES}")
+message( STATUS "MPI_CXX_VERSION ............ = ${MPI_CXX_VERSION}")
+message( STATUS "MPI_COMPILE_FLAGS .......... = ${CMAKE_CXX_FLAGS}")
+endif()
 if (OpenMP_CXX_FLAGS)
 	message(STATUS  "Compiled with OPENMP ....... = YES")
 else()

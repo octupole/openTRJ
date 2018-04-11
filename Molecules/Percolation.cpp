@@ -49,6 +49,10 @@ Percolation<T>::Percolation(const listcon & y,const  vector<string> & atnme, con
 	pRd=rd;
 	myPercoCutoff=[this](int i,int j){if(PercoCutoff){return PercoCutoff;};return (pRd[i]+pRd[j])*OFFSET;};
 }
+
+template <typename T>
+void Percolation<T>::setPercoCutoff(double cut){PercoCutoff=cut;}
+
 template <typename T>
 Percolation<T>::Percolation(const vector<vector<int> >& y,const  vector<double>  & rd,const   vector<string> & resn){
 	string tmp;
