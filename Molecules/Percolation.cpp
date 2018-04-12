@@ -260,11 +260,11 @@ void Percolation<T>::__Writeit(ostream & fout){
 			}
 		}
 		int ntot{0};
-		for(auto it{mapRes.begin()};it!= mapRes.end();it++){
+		for(auto it=mapRes.begin();it != mapRes.end();it++){
 			ntot+=it->second;
 		}
 		fout << "  Cluster = "<< std::fixed << std::setw(3) << o << " Size " << ntot << " : ";
-		for(auto it{mapRes.begin()};it!= mapRes.end();it++){
+		for(auto it=mapRes.begin();it!= mapRes.end();it++){
 			fout << it->first << "[" << it->second << "] ";
 		}
 		fout << endl;

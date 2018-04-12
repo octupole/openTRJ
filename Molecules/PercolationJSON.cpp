@@ -31,10 +31,11 @@ void PercolationJSON<T>::__Writeit(ostream & fout){
 			}
 		}
 		json tmp;
-		for(auto it{mapRes.begin()};it!= mapRes.end();it++){
+// cannot initialize to it{mapRes.begin()}, it is not accepted by the intel compiler
+		for(auto it=mapRes.begin();it!= mapRes.end();it++){
 			tmp[it->first]={it->second,mapResAtm[it->first]};
 		}
-		for(auto it{Tag.begin()};it!= Tag.end();it++){
+		for(auto it=Tag.begin();it!= Tag.end();it++){
 			std::stringstream ss;
 			vector<int> v=it->second;
 			std::sort(v.begin(),v.end());
