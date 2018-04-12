@@ -188,8 +188,8 @@ void Atoms<T>::CompCM(){
 template<typename T>
 void Atoms<T>::setDim(int n){
 	nr=n;
-	x=vector<Dvect>{n,T{0}};
-	xa=vector<Dvect>{n,T{0}};
+	x=vector<Dvect>(n,T{0});
+	xa=vector<Dvect>(n,T{0});
 }
 
 template <typename T>
@@ -763,7 +763,6 @@ void Atoms<T>::ReadaStep(FstreamC * fin){
 
 	FILE * fp=xdrfile_get_fp(xd);
 	XDR * myxdr=xdrfile_get_xdr(xd);
-
 	try{
 		if(firsttime){
 			firsttime=false;
@@ -783,7 +782,6 @@ void Atoms<T>::ReadaStep(FstreamC * fin){
 		cout << s << endl;
 		exit(-1);
 	}
-
 	prec_c=prec;
 	time_c=time;
 	step_c=step;
@@ -918,6 +916,23 @@ void Atoms<T>::SetupPercolate(Topol_NS::Topol & myTop){
 	}
 }
 
+template <typename T>
+void Atoms<T>::SetupPercolate(){
+	string Exclusion{"ISU ISO"};
+	vector<string> resn=vector<string>(PDBs.size());
+	vector<vector<int> > MySel;
+	for(size_t o=0;o<resn.size();o++){resn[o]=PDBs[o].resn;}
+	vector<string> atmss=vector<string>(nr);
+	for(size_t o=0;o<PDBs.size();o++)
+		atmss[o]=PDBs[o].atn;
+	for(auto o=0; o<SaxsSolute.size();o++){
+		auto i=SaxsSolute[o][0];
+		if(Exclusion.find(resn[i]) != string::npos)
+			continue;
+		MySel.push_back(SaxsSolute[o]);
+	}
+	Perco=new Percolation<T>(MySel,rd,resn,atmss);
+}
 
 template <typename T>
 int Atoms<T>::Percolate() {

@@ -180,6 +180,8 @@ public:
 	float getTime();
 	template <Enums::myWriteOptions OPT>
 	void SetupPercolate(Topol_NS::Topol &x);
+	void SetupPercolate();
+
 	int Percolate();
 	int Percolate(double y){
 		this->Perco->setRcut(y);

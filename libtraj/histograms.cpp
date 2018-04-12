@@ -5,7 +5,7 @@
  *      Author: marchi
  */
 
-#include "../libtraj/histograms.hpp"
+#include "histograms.hpp"
 
 
 
@@ -29,22 +29,17 @@ hist1D & Histogram1D::operator[](size_t n){
 		}
 	return hist.at(HisX+n);
 }
-
-Histogram1D & Histogram1D::operator*=(double y){
-	for(auto & op: hist)
-		op*=y;
-	return *this;
+Histogram1D Histogram1D::operator*(double y){
+	Histogram1D tmp=*this;
+	for(auto & op: tmp.hist)
+		op=hist1D(op.hisX*y,op.nhis);
+	return tmp;
 }
-Histogram1D & Histogram1D::operator/=(double y){
-	for(auto & op: hist)
-		op/=y;
-	return *this;
-}
-Histogram1D & Histogram1D::operator*=(size_t y){
-	double y1=static_cast<double>(y);
-	for(auto & op: hist)
-		op*=y1;
-	return *this;
+Histogram1D Histogram1D::operator*(size_t y){
+	Histogram1D tmp=*this;
+	for(auto & op: tmp.hist)
+		op=hist1D(op.hisX*y,op.nhis);
+	return tmp;
 }
 
 Histogram1D & Histogram1D::operator=(const Histogram1D & z){
@@ -86,39 +81,18 @@ void Histogram1D::clear(){
 void Histogram1D::WriteIt(ostream & fout){
 	fout << "# Radial density for Selection labeled " + Label + " "<< endl;
 	fout << "#  R       Rho(r) " << endl;
-	for(size_t o=0;o< HisX-2;o++){
+	for(int o=0;o< HisX-2;o++){
 		double ddx=dx*static_cast<double>(o);
+		if((*this)[o].isZero()) continue;
 		double f=(*this)[o].Ratio();
 		if(!f) continue;
-		fout << fixed << setw(8) << setprecision(5) << ddx;
+		fout << fixed << setw(8) << setprecision(5) << ddx*Factor;
 		fout << fixed << setw(12) << right << scientific << setprecision(4) << f;
 		fout << endl;
 	}
-
 }
 
 ostream & operator<<(ostream & fout, Histogram1D & y){
-	y.WriteIt(fout);
-	return fout;
-}
-
-void PairCorr1D::WriteIt(ostream & fout){
-	fout << "# Radial density for Selection labeled " + Label + " "<< endl;
-	fout << "#  R       Rho(r) " << endl;
-	for(size_t h=0;h< HisX-2;h++){
-		double r=dx*static_cast<double>(h);
-		double vol=4.0*M_PI*r*r*dx;
-		double fact=1.0/static_cast<double>(nMol)/vol;
-		double f=(*this)[h].Ratio()*fact;
-		if(!f) continue;
-		fout << fixed << setw(8) << setprecision(5) << r;
-		fout << fixed << setw(12) << right << scientific << setprecision(4) << f;
-		fout << endl;
-	}
-
-}
-
-ostream & operator<<(ostream & fout, PairCorr1D & y){
 	y.WriteIt(fout);
 	return fout;
 }

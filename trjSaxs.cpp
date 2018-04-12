@@ -163,6 +163,7 @@ int main(int argc, char ** argv)
 	
 	(*MyRun)(atm);
 	fout<<(*MyRun);
+
 	if(MyIn.bbOutBin()){
 		MyRun->bPrint(fout_bin);
 	}

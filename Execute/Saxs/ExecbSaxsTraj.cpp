@@ -177,7 +177,6 @@ void ExecbSaxsTraj::__SetUp(trj::TrjRead & MyIn){
 	if(!bDebye && !bDirect){
 		Rho_ex->setPadding(MyIn.gfftPadding().getMapResidue());
 	}
-
 	MySaxs->Allocate(nnx,nny,nnz);
 	if(bnoSplineOut)
 		MySaxs->SetSplineout();
@@ -280,6 +279,7 @@ void ExecbSaxsTraj::__RunTrajectory(MAtoms * atm){
 	if(Rcut_in < 0) Rcut_in=15.0;
 	Con0=new ContactsD(Rcut,Rcut_in);
 	bool firstTime=true;
+	static int b{0};
 	while((++iter_atm).isReferenced()){
 		MAtoms * atmA=iter_atm();
 		Con0->setR(Rcut_in,Rcut_in);
@@ -288,27 +288,31 @@ void ExecbSaxsTraj::__RunTrajectory(MAtoms * atm){
 
 		if(Clustering){
 			atmA->setrd(*Top);
-			static struct Once{Once(MAtoms * atmA,Topol_NS::Topol * myTop){atmA->SetupPercolate<Enums::noJSON>(*myTop);}} _Once(atmA,Top);
+			static struct Once{Once(MAtoms * atmA,Topol_NS::Topol * myTop){atmA->SetupPercolate();}} _Once(atmA,Top);
 			if(bOnce){
 				static struct Once_p{Once_p(MAtoms *atmA){atmA->Percolate();}} __Once_p(atmA);
 			}else atmA->Percolate();
 			atmA->Reconstruct(Con0);
 			atmA->CompCM();
-			cout << atmA->getCluster().size() <<endl;
 		}
 
 		__Compute(atmA);
-
 		int nStep=iter_atm.getTime();
 		double Step=atmA->getTime();
-		CurrMPI->AllGather(1,&nStep,i_recv);
-		CurrMPI->AllGather(1,&Step,d_recv);
-		for(auto o=0;o<MPIsize;o++){
-			cout << fixed << setw(5) << "----> Step No. " << setw(5) << right << fixed << i_recv[o]
-						<< " -- Time = " << d_recv[o] <<" ps \n";
-		}
+		if(MPIsize >1){
+			CurrMPI->AllGather(1,&nStep,i_recv);
+			CurrMPI->AllGather(1,&Step,d_recv);
+			for(auto o=0;o<MPIsize;o++){
+				cout << fixed << setw(5) << "----> Step No. " << setw(5) << right << fixed << i_recv[o]
+															 << " -- Time = " << d_recv[o] <<" ps \n";
+			}
+		}else{
+			cout << fixed << setw(5) << "----> Step No. " << setw(5) << right << fixed << nStep
+														 << " -- Time = " << Step <<" ps \n";
+			}
 		Rho_ex->Deallocate();
 	}
+
 	MySaxs->Reduce(CurrMPI);
 	MySaxs->Averages();
 	delete [] i_recv;

@@ -9,7 +9,6 @@
 
 
 void SaxsHistogramSpline::WriteIt(ostream & fout){
-  cout << dx<< " " << myUnits <<endl;
 	Spline1D::Spline1DInterpolant spline0(this,dx,myUnits);
 	fout << "# I(Q) Ntot = "<< Label <<endl;
 	for(int o=0;o< (HisX-1)*dx/myDq+1;o++){

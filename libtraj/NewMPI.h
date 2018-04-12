@@ -50,12 +50,13 @@ using std::endl;
 
 namespace MPI{
 const size_t zero{0};
+const size_t one{1};
 
 template <>
 class Intracom<false>{
 public:
 	Intracom(void *){};
-	size_t Get_size(){return zero;}
+	size_t Get_size(){return one;}
 	size_t Get_rank(){return zero;}
 	void Barrier(){};
 	void Reduce(...){};
