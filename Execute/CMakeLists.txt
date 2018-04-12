@@ -14,5 +14,7 @@ set(SOURCE_SAXS Saxs/TrjRead.cpp Saxs/trjInput.cpp Saxs/ExecbSaxs.cpp Saxs/Execb
 set(SOURCE_FIT FitSaxs/TrjRead.cpp FitSaxs/trjInput.cpp)
 	
 add_library(Execute STATIC ${SOURCE})
-add_library(ExecuteSaxs STATIC ${SOURCE_SAXS})
-add_library(ExecuteFit STATIC ${SOURCE_FIT})
+if(FFTW3_FOUND)
+	add_library(ExecuteSaxs STATIC ${SOURCE_SAXS})
+	add_library(ExecuteFit STATIC ${SOURCE_FIT})
+endif()

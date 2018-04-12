@@ -9,7 +9,7 @@ if (NOT CMAKE_BUILD_TYPE)
 endif()
 
 set(SOURCE FComms.cpp  Fstream.cpp  FstreamF.cpp  Metric.cpp  NewMPI.cpp  Timer.cpp
-	Finalize.cpp  FstreamC.cpp  HeaderTrj.cpp  MyUtilClass.cpp  Split.cpp  histograms.cpp fftw++.cpp
-	opgather.cpp BSpline.cpp BSpmod.cpp VecRotate.cpp Grid.cpp DiffCoeffs.cpp Spline1DInterpolant.cpp)
+	Finalize.cpp  FstreamC.cpp  HeaderTrj.cpp  MyUtilClass.cpp  Split.cpp  histograms.cpp
+	opgather.cpp BSpline.cpp BSpmod.cpp VecRotate.cpp DiffCoeffs.cpp Spline1DInterpolant.cpp)
 add_library(traj STATIC ${SOURCE})
 include_directories("./")
