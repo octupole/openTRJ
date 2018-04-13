@@ -162,6 +162,7 @@ int main(int argc, char ** argv)
 	timer::Timer myTime;
 	
 	(*MyRun)(atm);
+
 	fout<<(*MyRun);
 
 	if(MyIn.bbOutBin()){

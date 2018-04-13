@@ -24,8 +24,6 @@ SaxsHistogram & SaxsHistogram::operator=(SaxsHistogram y){
 	return *this;
 }
 void SaxsHistogram::WriteIt(ostream & fout){
-	cout << "saxshisto 1"<<endl;
-
 	fout << "# I(Q) Ntot = "<< Label <<endl;
 	for(int o=0;o< HisX-1;o++){
 		double ddx=dx*static_cast<double>(o);

@@ -1026,24 +1026,22 @@ void Atoms<T>::__ReconstructOneCluster(vector<bool> & atSolv){
 		}
 	}
 }
-
 template <typename T>
 void Atoms<T>::Reconstruct(Contacts<T> * con0){
-
 	vector<Dvect> nxyz=PBCvect<T>::getVec();
 	vector<vector<int> > mCluster=Perco->getCluster();
 	vector<vector<int> > mAtoms=Perco->getAtoms();
 
+
 	Matrix co=Mt.getCO();
 	Matrix oc=Mt.getOC();
-	T v[DIM];
+	double v[DIM];
 	v[XX]=co[XX][XX];v[YY]=co[YY][YY];v[ZZ]=co[ZZ][ZZ];
-
-	T MinCO=*min_element(v,v+3)*0.5;  // Half the smallest axis is the cutoff distance for atom shifts
+	double MinCO=*min_element(v,v+3)*0.5;  // Half the smallest axis is the cutoff distance for atom shifts
 	Dvect Xref;
 
 	// Reconstruct each one of the molecules
-	vector<Dvect> xcm(mAtoms.size(),0);
+	vector<Dvect> xcm(mAtoms.size(),Dvect{T{0.0}});
 
 	for(size_t o=0;o<mAtoms.size();o++){
 
@@ -1064,53 +1062,88 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 			Dvect xx=xa[mAtoms[o][p]];
 			xcm[o]+=xx;
 		}
-		xcm[o]/=static_cast<T>(mAtoms[o].size());
+		xcm[o]/=static_cast<double>(mAtoms[o].size());
+	}
+	vector<bool> atSolv(nr,true);
+	for(auto o=0;o<mAtoms.size();o++){
+		for(auto p=0;p<mAtoms[o].size();p++){
+			atSolv[mAtoms[o][p]]=false;
+		}
 	}
 
 	//
-	for(size_t o=0;o<mCluster.size();o++){
-		Dvect xcmC{0};
-		vector<Dvect> xcm0(mCluster[o].size());
+	vector<Dvect> xcmC(mCluster.size());
 
+
+	for(size_t o=0;o<mCluster.size();o++){
+//		if(mCluster[o].size() < 5) continue;
+		vector<Dvect> xcm0(mCluster[o].size());
 		for(size_t p=0;p<mCluster[o].size();p++){
 			xcm0[p]=xcm[mCluster[o][p]];
 		}
-
-//		Contacts * con0=new Contacts(xcm0,co,oc);
-
 		(*con0)(xcm0,co,oc);
 		con0->Neighbors();
-		size_t p=0,q=0,qq=0;
+		vector<vector<int>> & nnl=con0->NNL();
+
 // Start with a reference molecule p=0;
-		Xref=xcm0[p]; // Initial reference molecule is the first on the list
-		p=con0->next(); //p is now the next molecule closest to p-1
 
-		while (p < SIZE_T){
-			size_t n=mCluster[o][p];
-			Dvect x1=Xref-xcm0[p];
-			Dvect xc1=co*x1;
-
-			if(xc1.Norm() >= MinCO) {
+		for(size_t p=0;p<mCluster[o].size();p++){
+			size_t p0=mCluster[o][p];
+			Xref=xcm0[p]; // Initial reference molecule is the first on the list
+			for(size_t r=0;r<nnl[p].size();r++){
+				size_t n=nnl[p][r];
+				size_t n0=mCluster[o][n];
+				Dvect x1{Xref-xcm0[n]};
 				Dvect tmp=*min_element(nxyz.begin(),nxyz.end(),CellComp<T>(x1,co));
-				for(int q=0; q < DIM;q++) xcm[n][q]=xcm[n][q]-tmp[q];
-				for(int q=0; q < DIM;q++) xcm0[p][q]=xcm0[p][q]-tmp[q];
-
-				for(size_t i=0;i<mAtoms[n].size();i++){
-					int ia=mAtoms[n][i];
-					for(int q=0; q < DIM;q++) xa[ia][q]=xa[ia][q]-tmp[q];
-					}
+				//				Dvect tmp{PBC(Xref,xcm0[n])};
+				if(p>n) continue;
+				for(int q=0; q < DIM;q++) xcm0[n][q]=xcm0[n][q]-tmp[q];
+				for(int q=0; q < DIM;q++) xcm[n0][q]=xcm[n0][q]-tmp[q];
+				for(size_t i=0;i<mAtoms[n0].size();i++){
+				  int ia=mAtoms[n0][i];
+				  for(int q=0; q < DIM;q++) xa[ia][q]=xa[ia][q]-tmp[q];
+				}
 
 			}
-
-			Xref=xcm0[p];
-			p=con0->next(); //p is now the next molecule closest to p-1
-
-		};
-		// Compute the center of mass of the cluster
-		for(size_t p=0;p<mCluster[o].size();p++){
-			xcmC+=xcm0[p];
 		}
-		xcmC/=static_cast<T>(mCluster[o].size());
+
+
+		// Compute the center of mass of the cluster
+		xcmC[o]=0.0;
+		for(size_t p=0;p<mCluster[o].size();p++){
+			xcmC[o]+=xcm0[p];
+		}
+		xcmC[o]/=static_cast<double>(mCluster[o].size());
+	}
+	if(mCluster.size() == 1) return __ReconstructOneCluster(atSolv);
+
+	FindCell<T> myCell(Mt.getCO());
+	//> Translate the cell to get all images inside the cell.
+	Dvect Translation{myCell.Run(mCluster,mAtoms,xa,nr)};
+
+	//> Translate all coordinates as the center of the super cluster must be the center of the system
+
+	for(auto ia=0;ia<nr;ia++){
+		for(int o=0;o<DIM;o++){
+			xa[ia][o]+=Translation[o];
+			if(atSolv[ia]) xa[ia][o]-=rint(xa[ia][o]-HALF);
+		}
+	}
+	for(size_t o=0;o<mAtoms.size();o++){
+		// Compute molecule center of mass xcm
+		xcm[o]=0.0;
+		for(size_t p=0;p<mAtoms[o].size();p++){
+			Dvect xx=xa[mAtoms[o][p]];
+			xcm[o]+=xx;
+		}
+		xcm[o]/=static_cast<double>(mAtoms[o].size());
+	}
+	for(size_t o=0;o<mCluster.size();o++){
+		Dvect xcmC{T{0.0}};
+		for(size_t p=0;p<mCluster[o].size();p++){
+			xcmC+=xcm[mCluster[o][p]];
+		}
+		xcmC/=static_cast<double>(mCluster[o].size());
 		for(size_t p=0;p<mCluster[o].size();p++){
 			int n=mCluster[o][p];
 			for(size_t i=0;i<mAtoms[n].size();i++){
@@ -1121,24 +1154,128 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 			}
 
 		}
-
 	}
 
 	//> Obtain new Cartesian coordinates from reduced xa's
-
-	for(size_t i1=0;i1<mCluster.size();i1++){
-		for(size_t i2=0;i2<mCluster[i1].size();i2++){
-			int n=mCluster[i1][i2];
-			for(size_t i=0;i<mAtoms[n].size();i++){
-				int ia=mAtoms[n][i];
-				for(int o=0;o<DIM;o++){
-					xa[ia][o]=xa[ia][o]+0.5;
-					x[ia][o]=Mt.getCO()[o][XX]*xa[ia][XX]+Mt.getCO()[o][YY]*xa[ia][YY]+Mt.getCO()[o][ZZ]*xa[ia][ZZ];
-				}
-			}
+	for(auto ia=0;ia<nr;ia++){
+		for(int o=0;o<DIM;o++){
+			x[ia][o]=Mt.getCO()[o][XX]*xa[ia][XX]+Mt.getCO()[o][YY]*xa[ia][YY]+Mt.getCO()[o][ZZ]*xa[ia][ZZ];
 		}
 	}
 }
+
+//template <typename T>
+//void Atoms<T>::Reconstruct(Contacts<T> * con0){
+//
+//	vector<Dvect> nxyz=PBCvect<T>::getVec();
+//	vector<vector<int> > mCluster=Perco->getCluster();
+//	vector<vector<int> > mAtoms=Perco->getAtoms();
+//
+//	Matrix co=Mt.getCO();
+//	Matrix oc=Mt.getOC();
+//	T v[DIM];
+//	v[XX]=co[XX][XX];v[YY]=co[YY][YY];v[ZZ]=co[ZZ][ZZ];
+//
+//	T MinCO=*min_element(v,v+3)*0.5;  // Half the smallest axis is the cutoff distance for atom shifts
+//	Dvect Xref;
+//
+//	// Reconstruct each one of the molecules
+//	vector<Dvect> xcm(mAtoms.size(),0);
+//
+//	for(size_t o=0;o<mAtoms.size();o++){
+//
+//		Xref=xa[mAtoms[o][0]];
+//		for(size_t p=0;p<mAtoms[o].size();p++){
+//			int n=mAtoms[o][p];
+//			Dvect x1=Xref-xa[n];
+//			Dvect xp=xa[n];
+//			Dvect xc1=co*x1;
+//			if(xc1.Norm() > MinCO) {
+//				Dvect tmp=*min_element(nxyz.begin(),nxyz.end(),CellComp<T>(x1,co));
+//				for(int q=0; q < DIM;q++) xa[n][q]=xa[n][q]-tmp[q];
+//			}
+//			Xref=xa[n];
+//		}
+//		// Compute molecule center of mass xcm
+//		for(size_t p=0;p<mAtoms[o].size();p++){
+//			Dvect xx=xa[mAtoms[o][p]];
+//			xcm[o]+=xx;
+//		}
+//		xcm[o]/=static_cast<T>(mAtoms[o].size());
+//	}
+//
+//	//
+//	for(size_t o=0;o<mCluster.size();o++){
+//		Dvect xcmC{0};
+//		vector<Dvect> xcm0(mCluster[o].size());
+//
+//		for(size_t p=0;p<mCluster[o].size();p++){
+//			xcm0[p]=xcm[mCluster[o][p]];
+//		}
+//
+////		Contacts * con0=new Contacts(xcm0,co,oc);
+//
+//		(*con0)(xcm0,co,oc);
+//		con0->Neighbors();
+//		size_t p=0,q=0,qq=0;
+//// Start with a reference molecule p=0;
+//		Xref=xcm0[p]; // Initial reference molecule is the first on the list
+//		p=con0->next(); //p is now the next molecule closest to p-1
+//
+//		while (p < SIZE_T){
+//			size_t n=mCluster[o][p];
+//			Dvect x1=Xref-xcm0[p];
+//			Dvect xc1=co*x1;
+//
+//			if(xc1.Norm() >= MinCO) {
+//				Dvect tmp=*min_element(nxyz.begin(),nxyz.end(),CellComp<T>(x1,co));
+//				for(int q=0; q < DIM;q++) xcm[n][q]=xcm[n][q]-tmp[q];
+//				for(int q=0; q < DIM;q++) xcm0[p][q]=xcm0[p][q]-tmp[q];
+//
+//				for(size_t i=0;i<mAtoms[n].size();i++){
+//					int ia=mAtoms[n][i];
+//					for(int q=0; q < DIM;q++) xa[ia][q]=xa[ia][q]-tmp[q];
+//					}
+//
+//			}
+//
+//			Xref=xcm0[p];
+//			p=con0->next(); //p is now the next molecule closest to p-1
+//
+//		};
+//		// Compute the center of mass of the cluster
+//		for(size_t p=0;p<mCluster[o].size();p++){
+//			xcmC+=xcm0[p];
+//		}
+//		xcmC/=static_cast<T>(mCluster[o].size());
+//		for(size_t p=0;p<mCluster[o].size();p++){
+//			int n=mCluster[o][p];
+//			for(size_t i=0;i<mAtoms[n].size();i++){
+//				int ia=mAtoms[n][i];
+//				xa[ia][XX]=xa[ia][XX]-rint(xcmC[XX]-HALF);
+//				xa[ia][YY]=xa[ia][YY]-rint(xcmC[YY]-HALF);
+//				xa[ia][ZZ]=xa[ia][ZZ]-rint(xcmC[ZZ]-HALF);
+//			}
+//
+//		}
+//
+//	}
+//
+//	//> Obtain new Cartesian coordinates from reduced xa's
+//
+//	for(size_t i1=0;i1<mCluster.size();i1++){
+//		for(size_t i2=0;i2<mCluster[i1].size();i2++){
+//			int n=mCluster[i1][i2];
+//			for(size_t i=0;i<mAtoms[n].size();i++){
+//				int ia=mAtoms[n][i];
+//				for(int o=0;o<DIM;o++){
+//					xa[ia][o]=xa[ia][o]+0.5;
+//					x[ia][o]=Mt.getCO()[o][XX]*xa[ia][XX]+Mt.getCO()[o][YY]*xa[ia][YY]+Mt.getCO()[o][ZZ]*xa[ia][ZZ];
+//				}
+//			}
+//		}
+//	}
+//}
 template <typename T>
 DDvect<T> Atoms<T>::__FindCell(const vector<vector<int> > & mCluster, const vector<vector<int> > & mAtoms){
 	vector<Dvect> x(nr);

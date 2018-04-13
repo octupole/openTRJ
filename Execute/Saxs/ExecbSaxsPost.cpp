@@ -22,7 +22,7 @@ void ExecbSaxsPost::__SetUp(trj::TrjRead & MyIn){
 
 void ExecbSaxsPost::operator()(MAtoms * atm){
 	__Differences();
-	__GofR();
+//	__GofR();
 }
 void ExecbSaxsPost::__GofR(){
 	MySaxs->GofR();
@@ -45,6 +45,7 @@ void ExecbSaxsPost::__Differences(){
 	MySaxs=new Saxs(MySaxs1);
 	bnoSplineOut=true;
 	MySaxs->SetSplineout();
+
 };
 
 ExecbSaxsPost::~ExecbSaxsPost() {

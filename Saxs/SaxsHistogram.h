@@ -19,9 +19,9 @@ using namespace alglib;
 class SaxsHistogram: public Histogram1D{
 protected:
 	double myUnits{0.0};
-	double myDq{0.0};
 	virtual void WriteIt(ostream &);
 public:
+	double myDq{0.0};
 	SaxsHistogram():Histogram1D(){};
 	SaxsHistogram(double a,double b, double units):myUnits{units},Histogram1D(a,b){};
 	virtual SaxsHistogram & operator^=(const SaxsHistogram &);

@@ -35,7 +35,6 @@ Saxs & Saxs::operator-=(Saxs & y){
 		Spline1D::Spline1DInterpolant spline1(y.qdfx,y.dq,y.unitsQ);
 		spline0-=spline1;
 	}
-
 	qdfx->clear();
 	(*qdfx)(dq_orig,qcut);
 	for(auto o=0;o<qdfx->HisX;o++){
@@ -115,13 +114,11 @@ SaxsHistogram Saxs::__Qhistogram(){
 
 	double mw1,mw2,mw3,mw;
 	Dvect fx{(double)nfx-1,(double)nfy-1,(double)nfz-1};
-	Dvect mw0=oc*fx;
-	mw0*=2.0*M_PI;
-	mw=mw0.Norm();
 	double m_qcut{qcut},m_dq{dq};
-	double qcut=std::min(mw,this->qcut);
-	double fx0[]={2.0*M_PI*oc[XX][XX],2.0*M_PI*oc[YY][YY],2.0*M_PI*oc[ZZ][ZZ]};
-	double dq=std::max(mw/(1.2*pow((double)nx*ny*nz,1.0/3.0)),this->dq);
+	vector<double> mydq0={2.0*M_PI*oc[XX][XX],2.0*M_PI*oc[YY][YY],2.0*M_PI*oc[ZZ][ZZ],this->dq};
+	vector<double> mycut0={2.0*M_PI*oc[XX][XX]*fx[XX],2.0*M_PI*oc[YY][YY]*fx[YY],2.0*M_PI*oc[ZZ][ZZ]*fx[ZZ],this->qcut};
+	double dq=1.1*(*std::max_element(mydq0.begin(),mydq0.end()));
+	double qcut=*std::min_element(mycut0.begin(),mycut0.end());
 	int ntry{0};
 	try{
 		bool notok=false;
@@ -139,6 +136,7 @@ SaxsHistogram Saxs::__Qhistogram(){
 			if(ntry) msg+="\n";
 			msg+="    Cutoff was too large. Changed to maximum allowed " + ss.str();
 			notok=true;
+			this->qcut=qcut;
 			ntry++;
 		}
 		if(notok) throw msg;
@@ -611,7 +609,6 @@ void Saxs::ComputeSAXS(RhoSaxs * Rho_ex,const MAtoms * y){
 	default:
 		break;
 	}
-
 	size_t nnr=x0->getNR();
 	vector<vector<int> > g=y->getSaxsSolute();
 	int tot{0};

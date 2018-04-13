@@ -282,6 +282,7 @@ void ExecbSaxsTraj::__RunTrajectory(MAtoms * atm){
 	static int b{0};
 	while((++iter_atm).isReferenced()){
 		MAtoms * atmA=iter_atm();
+
 		Con0->setR(Rcut_in,Rcut_in);
 		__SuperCell(atmA);
 		__AllocateRho(atmA);

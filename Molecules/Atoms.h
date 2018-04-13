@@ -28,6 +28,7 @@
 #include "PercolationJSON.h"
 #include "myEnums.hpp"
 #include <CenterMassBW3.h>
+#include "FindCell.h"
 
 
 using namespace DVECT;
