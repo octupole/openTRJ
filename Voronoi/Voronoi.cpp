@@ -99,7 +99,6 @@ void Voronoi::doVoro__(){
 	c_loop_order_periodic vl(*Mycon,*porder);
 	voronoicell_neighbor c;
 
-	double vol0;
 	vector<int> nei;
 	vector<double> area0;
 	vector<double> norm0;
@@ -109,12 +108,13 @@ void Voronoi::doVoro__(){
 		Surface[cindex[n]].clear();
 	}
 
-	int ia=0;
 
 
-	if(vl.start())
+	if(vl.start()){
+		int ia=0;
 		do {
 			if(Mycon->compute_cell(c,vl)) {
+				double vol0;
 				vol0=c.volume();
 				c.neighbors(nei);
 				c.face_areas(area0);
@@ -125,6 +125,7 @@ void Voronoi::doVoro__(){
 			}
 			ia++;
 		} while(vl.inc());
+	}
 	nei.clear();
 	area0.clear();
 
@@ -172,9 +173,8 @@ void Voronoi::dmpVector(ofstream & f, vector<vector<T>> & v){
 	size_t ntmp=v.size();
 	f.write(as_byte(ntmp),sizeof(ntmp));
 	if(!ntmp) return;
-	size_t ntmp0;
 	for(size_t o{0};o<ntmp;o++){
-		ntmp0=v[o].size();
+		size_t ntmp0=v[o].size();
 		f.write(as_byte(ntmp0),sizeof(ntmp0));
 		if(ntmp0) f.write(as_byte(v[o][0]),sizeof(v[o][0])*ntmp0);
 	}

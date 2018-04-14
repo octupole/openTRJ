@@ -74,7 +74,7 @@ ExecuteProp<T>::ExecuteProp(trj::TrjRead & MyIn, Topol & Topology):
 	try{
 		if(finx) {
 			finx->seekg(0,"end");
-			len=finx->tellg();
+
 			finx->seekg(0,"beg");
 			*finx>>header;
 			try{
@@ -160,7 +160,7 @@ void ExecuteProp<T>::__RunTrajectory(Atoms<T> * atmx){
 				}
 			} _Once(atmA, Top,JSONOutput);
 			if(bOnce){
-				static struct Once_p{int nClusters{0};Once_p(Atoms<T> *atmA){nClusters=atmA->Percolate();}} __Once_p(atmA);
+				static struct Once_p{int nClusters{0};explicit Once_p(Atoms<T> *atmA){nClusters=atmA->Percolate();}} __Once_p(atmA);
 				nClusters=__Once_p.nClusters;
 			}else {
 				nClusters=atmA->Percolate();
@@ -219,7 +219,6 @@ void ExecuteProp<T>::__wrapOutfile(){
 		char * buffer0= strdup("./.tmpfileXXXXXX");
 		try{if(mkstemp(buffer0) == -1) throw "temporary file cannot be created";}
 		catch(const char * s){std::cout << s << std::endl;exit(-1);}
-		string tmpFile(buffer0);
 		fstream myfout(buffer0,fstream::out|fstream::trunc|fstream::binary);
 		fstream myfin(fileout.c_str(),fstream::in|fstream::binary);
 		myfin.seekg(0,ios::beg);
@@ -240,7 +239,6 @@ void ExecuteProp<T>::__wrapOutfile(){
 }
 template <typename T>
 void ExecuteProp<T>::__RunPDB(Atoms<T> * atm){
-	bool bTestVol{true};
 	vector<string> data;
 	fpdb->clear();
 	fpdb->seekg(0);
@@ -248,7 +246,6 @@ void ExecuteProp<T>::__RunPDB(Atoms<T> * atm){
 		data.push_back(str);
 	}
 	atm->pdb(data);
-	float ntime=atm->getTime();
 	if(this->JSONOutput)
 		atm->template Gyro<Enums::JSON>();
 	else

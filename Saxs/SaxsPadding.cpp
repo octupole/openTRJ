@@ -56,7 +56,6 @@ void SaxsPadding::setMapResidue(const map<string,vector<string> > & mapp){
  	cout << std::showpoint << std::fixed << std::left;
  	cout << std::setw(20) << "       Atom Name"<< std::setw(20) << "Cell Number Density [1/nm^{3}]\n" << endl;
 
- 	size_t AtomTotal=0;
 	for(auto it=MapResidue.begin();it != MapResidue.end();++it){
  		cout << std::left << std::fixed<< "         " <<std::setw(20) <<
  				it->first << "      " << std::setw(24) << it->second

@@ -224,9 +224,7 @@ struct Histogram2D: public Histogram1D {
 		fout << fixed << setw(8) << 2*y.HisX +1 << " " << 2*y.HisY+1 << " ";
 		fout <<endl;
 		for(int o=-y.HisX;o<= y.HisX;o++){
-			double ddx=y.dx*static_cast<double>(o);
 			for(int p=-y.HisY;p<=y.HisY;p++){
-				double ddy=y.dy*static_cast<double>(p);
 				double f=y[o][p].Ratio();
 				fout << fixed << setw(14) << right << scientific << setprecision(7) << f << " ";
 			}

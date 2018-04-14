@@ -39,7 +39,6 @@ void SaxsBSP::Setup(const vector<int> & Lst,const vector<string> & at,bool mySan
 }
 void SaxsBSP::Modulus(array3<Complex> & ro_k,array3<Complex> & ro_k1){
 	size_t nzp=nz/2+1;
-	int ia,ja,ka;
 	double mw1,mw2,mw3,mw;
 	size_t nfx,nfy,nfz;
 	nfx=(nx % 2 == 0)? nx/2: nx/2+1;
@@ -47,13 +46,10 @@ void SaxsBSP::Modulus(array3<Complex> & ro_k,array3<Complex> & ro_k1){
 	nfz=(nz % 2 == 0)? nz/2: nz/2+1;
 	Matrix oc=Mt.getOC();
 	for(auto i=0;i<nx;i++){
-		ia=(i<nfx)?i : i-nx;
 		double bsp_i=bsp_modx->ModuliX(i);
 		for(auto j=0;j<ny;j++){
-			ja=(j<nfy)?j : j-ny;
 			double bsp_j=bsp_modx->ModuliY(j);
 			for(auto k=0;k<nzp;k++){
-				ka=(k<nfz)?k : k-nz;
 				double bsp=bsp_i*bsp_j*bsp_modx->ModuliZ(k);
 				ro_k[i][j][k]*=conj(ro_k1[i][j][k])*bsp;
 			}

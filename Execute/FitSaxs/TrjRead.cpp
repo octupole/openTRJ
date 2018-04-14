@@ -67,8 +67,6 @@ void TrjRead::Input(){
 		exit(0);
 	}
 
-	string tmp1=fileout.substr(0,fileout.find_first_of("."));
-	string tmp2=".dat";
 	foutx=new ofstream(fileout.c_str(),ios::out);
 
 

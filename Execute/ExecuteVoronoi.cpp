@@ -75,13 +75,11 @@ template <typename T>
 ExecuteVoronoi<T>::ExecuteVoronoi(trj::TrjRead & MyIn, Topol & Topology):
  	 ExecuteVoronoi<T>::ExecuteVoronoi(MyIn){
 	Top=&Topology;
-	ios::streampos len;
 	HeaderTrj header;
 // Read header of dcd file
 	try{
 		if(finx) {
 			finx->seekg(0,"end");
-			len=finx->tellg();
 			finx->seekg(0,"beg");
 			*finx>>header;
 			try{
@@ -197,7 +195,7 @@ void ExecuteVoronoi<T>::__RunTrajectory(Atoms<T> * atmx){
 				}
 			} _Once(atmA, Top, this->JSONOutput);
 			if(bOnce){
-				static struct Once_p{int nClusters{0};Once_p(Atoms<T> *atmA){nClusters=atmA->Percolate();}} __Once_p(atmA);
+				static struct Once_p{int nClusters{0};explicit Once_p(Atoms<T> *atmA){nClusters=atmA->Percolate();}} __Once_p(atmA);
 				nClusters=__Once_p.nClusters;
 			}else {
 				nClusters=atmA->Percolate();

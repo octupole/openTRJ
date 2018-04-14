@@ -12,9 +12,9 @@ set<string> GyrationJSON<T>::Time;
 
 template <typename T>
 void GyrationJSON<T>::__Writeit(ostream & fout, string label, int o){
-	static bool firstTime{true};
 	string TimeC=std::to_string(this->time_c);
 	if(!Time.count(TimeC)){
+		static bool firstTime{true};
 		Time.insert(TimeC);
 		if(firstTime){
 			firstTime=false;

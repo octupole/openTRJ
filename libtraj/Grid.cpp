@@ -234,8 +234,8 @@ inline Grid<Ndim> & Grid<Ndim>::operator=(const array4<double> & a){
 template <unsigned int Ndim>
 inline void Grid<Ndim>::TriLinear(Real gx, Real gy, Real gz, Real q[Ndim]){
 	int n;
-	Real dd;
 	for(n=0;n<VERTEX;n++){
+		Real dd;
 		dd=TriDiff(gx,cube[n][XX])*TriDiff(gy,cube[n][YY])*TriDiff(gz,cube[n][ZZ]);
 		for(unsigned int o=0;o<Ndim;o++)
 			qq[n][o]=dd*q[o];

@@ -13,17 +13,15 @@ SaxsDebye::SaxsDebye() {
 }
 
 void SaxsDebye::ComputeSF(RhoSaxs * dummy,const MAtoms * y){
-	cout << " I am in Saxs Debye "<<endl;
 	const MAtoms & x=*y;
 	MetricD Mt=x.getMt();
 	Matrix OC{Mt.getOC()};
 	Matrix CO{Mt.getCO()};
 	mycut=0.5*(CO[XX][XX]+CO[YY][YY]+CO[ZZ][ZZ])/3.0;
 	double vol=Mt.getVol();
-	double tol=1.0e-10;
 	qdfx=new SaxsHistogram(dq,qcut,unitsQ);
 	SaxsHistogram & rdq=*qdfx;
-	cout << rdq.HisX*dq <<endl;
+
 	for(auto q=0;q<rdq.HisX;q++){
 		double qq=dq*q;
 		double sum=0.0;
@@ -32,7 +30,6 @@ void SaxsDebye::ComputeSF(RhoSaxs * dummy,const MAtoms * y){
 			auto ff0=it0->second;
 			vector<size_t> & ind0=iSfacts[it0->first];
 			vector<Dvect> xa(ind0.size());
-			double Na=ind0.size();
 			for (auto o = 0; o < ind0.size(); o++) {
 				size_t i=ind0[o];
 				Dvect xx=Dvect{x.getXA()[i]};
@@ -45,7 +42,6 @@ void SaxsDebye::ComputeSF(RhoSaxs * dummy,const MAtoms * y){
 				auto ff=ff0(qq)*ff1(qq);
 				vector<size_t> & ind1=iSfacts[it1->first];
 				double Nb=ind1.size();
-				double rho=Nb/vol;
 				vector<Dvect> xb(ind1.size());
 				for (auto o = 0; o < ind1.size(); o++) {
 					size_t i=ind1[o];

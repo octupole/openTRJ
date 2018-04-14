@@ -45,7 +45,6 @@ void VoronoiMicellesJSON::WriteIt(std::ofstream & fout){
 	json & myShell=myJson[std::to_string(time)]["Shell"];
 	json & myAClust=myJson[std::to_string(time)]["AClust"];
 	json & myGlobal=myJson[std::to_string(time)]["Global"];
-	int po=0;
 	if(VoronoiSetter::bPrintVols){
 		for(size_t o0=0;o0<this->SelectedResidues.size() ;o0++) {
 			int o=this->SelectedResidues[o0];

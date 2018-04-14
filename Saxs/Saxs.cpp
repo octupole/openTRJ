@@ -119,8 +119,8 @@ SaxsHistogram Saxs::__Qhistogram(){
 	vector<double> mycut0={2.0*M_PI*oc[XX][XX]*fx[XX],2.0*M_PI*oc[YY][YY]*fx[YY],2.0*M_PI*oc[ZZ][ZZ]*fx[ZZ],this->qcut};
 	double dq=1.1*(*std::max_element(mydq0.begin(),mydq0.end()));
 	double qcut=*std::min_element(mycut0.begin(),mycut0.end());
-	int ntry{0};
 	try{
+		int ntry{0};
 		bool notok=false;
 		stringstream ss;
 		string msg("");
@@ -151,11 +151,9 @@ SaxsHistogram Saxs::__Qhistogram(){
 	for(auto i=0;i<nx;i++){
 		int ia=(i<nfx)?i : i-nx;
 		size_t ib=i==0?0:nx-i;
-		bool i_notzero=i !=0;
 		for(auto j=0;j<ny;j++){
 			int ja=(j<nfy)?j : j-ny;
 			size_t jb=j==0?0:ny-j;
-			bool j_notzero=j != 0;
 			for(auto k=0;k<nzp;k++){
 				int ka=(k<nfz)?k : k-nz;
 				mw1=oc[XX][XX]*ia+oc[XX][YY]*ja+oc[XX][ZZ]*ka;
@@ -267,7 +265,6 @@ void Saxs::SetupQdf(){
 
 void Saxs::Setup(const vector<string> & at, bool mySans){
 	bSans=mySans;
-	size_t n=0;
 	vector<string> at_loc=at;
 	sort(at_loc.begin(),at_loc.end());
 	auto it=unique(at_loc.begin(),at_loc.end());
@@ -402,8 +399,7 @@ void Saxs::Compute<Enums::SANS>(RhoSaxs * x,MAtoms * y){
 }
 
 void Saxs::ComputeSANS(RhoSaxs * Rho_ex,const MAtoms * y){
-	AtomsD * x0=nullptr;
-	x0=new MAtoms(*y);
+	AtomsD * x0{new MAtoms(*y)};
 	if(SuperCell0 >1 )
 		if(!x0->CenterAtoms()) return;
 
@@ -645,7 +641,6 @@ void Saxs::ComputeSAXS(RhoSaxs * Rho_ex,const MAtoms * y){
 		Rho_e=0.0;
 		Rho_e.Density(order,x0,iSfacts[it->first],it->first);
 		(Rho_alt.*Padding)(Rho_ex,Nx,Ny,Nz);
-		int nn{0};
 		ro_k=Complex{0.0,0.0};
 		Forward3.fft(ro_r[0],ro_k);
 		auto ff=it->second;

@@ -18,13 +18,11 @@ void RhoSaxsBSP::__Density(const int pq,const AtomsD * y, vector<size_t> & ind, 
 	int nz0=static_cast<int>(nnz);
 	size_t natoms=ind.size();
 	vector<Dvect> xa=vector<Dvect>(natoms,0.0);
-	Real x1,y1,z1,r1,s1,t1,gx,gy,gz;
-	int mx,my,mz;
 	int ox,oy,oz,tx,ty,tz;
 	MetricD Mt=x.getMt();
 
 	setMetric(Mt.getCO());
-	double DV=RhoSaxs::getDV();
+
 	for (auto o = 0; o < ind.size(); o++) {
 		size_t i=ind[o];
 		xa[o][XX] = oc[XX][XX] * x[i][XX] + oc[XX][YY] * x[i][YY] + oc[XX][ZZ] * x[i][ZZ];
@@ -37,6 +35,8 @@ void RhoSaxsBSP::__Density(const int pq,const AtomsD * y, vector<size_t> & ind, 
 	BSpline MySplineZ;
 
 	for (auto s = 0; s < ind.size(); s++) {
+		int mx,my,mz;
+		Real x1,y1,z1,r1,s1,t1,gx,gy,gz;
 		auto chg=wei[s];
 		x1 = xa[s][XX];
 		y1 = xa[s][YY];

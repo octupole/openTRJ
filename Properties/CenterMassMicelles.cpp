@@ -15,7 +15,6 @@ Histogram1Db::Histogram1Db(double dx0, double cut0): Histogram1D() {
 		hist=vector<hist1D>(HisX+1);
 }
 void Histogram1Db::Normalize(double rho=1){
-		double Norm=0.0;
 		for(auto o=0;o<HisX;o++){
 			double r=dx*(o+1);
 			double Voldr=4.0*PI*r*r*dx;
