@@ -285,7 +285,6 @@ void Saxs::Setup(const vector<int> & Lst,const vector<string> & at1,bool mySans)
 	iSfacts.clear();
 	MyFs.clear();
 	MyNas.clear();
-	size_t n=0;
 	vector<string> at(at1.size(),"0");
 	for(auto o1=0;o1<Lst.size();o1++){
 		auto o=Lst[o1];
@@ -575,8 +574,7 @@ void Saxs::ComputeSq(RhoSaxs * Rho_ex,const MAtoms * y){
 	delete [] x;
 }
 void Saxs::ComputeSAXS(RhoSaxs * Rho_ex,const MAtoms * y){
-	AtomsD * x0=nullptr;
-	x0=new MAtoms(*y);
+	AtomsD * x0{new MAtoms(*y)};
 	if(SuperCell0 >1 )
 		if(!x0->CenterAtoms()) return;
 

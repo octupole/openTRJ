@@ -127,8 +127,7 @@ void SaxsBSPStatic::ComputeSANS(RhoSaxs * Rho_ex,const MAtoms * y){
 	delete x0;
 }
 void SaxsBSPStatic::ComputeSAXS(RhoSaxs * Rho_ex,const MAtoms * y){
-	AtomsD * x0=nullptr;
-	x0=new MAtoms(*y);
+	AtomsD * x0{new MAtoms(*y)};
 
 	if(!x0->CenterAtoms()) return;
 /*
@@ -206,7 +205,6 @@ void SaxsBSPStatic::ComputeSAXS(RhoSaxs * Rho_ex,const MAtoms * y){
 		for(it=Sfacts.begin();it!=Sfacts.end();it++){
 			Rho_est[Nsfact]/=static_cast<double> (nskip);
 			(Rho_alt.*Padding)(&Rho_est[Nsfact],Nx,Ny,Nz);
-			int nn{0};
 			ro_k=Complex{0.0,0.0};
 			Forward3.fft(ro_r[0],ro_k);
 			auto ff=it->second;

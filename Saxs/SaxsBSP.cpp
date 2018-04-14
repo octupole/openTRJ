@@ -40,10 +40,6 @@ void SaxsBSP::Setup(const vector<int> & Lst,const vector<string> & at,bool mySan
 void SaxsBSP::Modulus(array3<Complex> & ro_k,array3<Complex> & ro_k1){
 	size_t nzp=nz/2+1;
 	double mw1,mw2,mw3,mw;
-	size_t nfx,nfy,nfz;
-	nfx=(nx % 2 == 0)? nx/2: nx/2+1;
-	nfy=(ny % 2 == 0)? ny/2: ny/2+1;
-	nfz=(nz % 2 == 0)? nz/2: nz/2+1;
 	Matrix oc=Mt.getOC();
 	for(auto i=0;i<nx;i++){
 		double bsp_i=bsp_modx->ModuliX(i);

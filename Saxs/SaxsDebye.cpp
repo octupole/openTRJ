@@ -18,7 +18,6 @@ void SaxsDebye::ComputeSF(RhoSaxs * dummy,const MAtoms * y){
 	Matrix OC{Mt.getOC()};
 	Matrix CO{Mt.getCO()};
 	mycut=0.5*(CO[XX][XX]+CO[YY][YY]+CO[ZZ][ZZ])/3.0;
-	double vol=Mt.getVol();
 	qdfx=new SaxsHistogram(dq,qcut,unitsQ);
 	SaxsHistogram & rdq=*qdfx;
 
@@ -41,7 +40,6 @@ void SaxsDebye::ComputeSF(RhoSaxs * dummy,const MAtoms * y){
 				auto ff1=it1->second;
 				auto ff=ff0(qq)*ff1(qq);
 				vector<size_t> & ind1=iSfacts[it1->first];
-				double Nb=ind1.size();
 				vector<Dvect> xb(ind1.size());
 				for (auto o = 0; o < ind1.size(); o++) {
 					size_t i=ind1[o];

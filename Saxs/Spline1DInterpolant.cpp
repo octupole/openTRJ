@@ -70,7 +70,6 @@ double Spline1DInterpolant::operator()(double x){
 }
 Spline1DInterpolant & Spline1DInterpolant::operator-=(const Spline1DInterpolant & y0){
 	double lowL=std::max(x[0],y0.lowLimit());
-	int mm{0};
 	real_1d_array w,z;
 	int length=(int)cutoff/Dq+1;
 	w.setlength(length);
