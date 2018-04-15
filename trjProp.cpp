@@ -59,7 +59,7 @@
 #include <iterator>
 #include "TopolPDB.h"
 #include "Topol.h"
-#include "Timer.h"
+
 #include "myEnums.hpp"
 #include "Timer.h"
 #include "NewMPI.h"
