@@ -5,10 +5,11 @@ Created on Dec 23, 2017
 '''
 import sys
 
-import ujson as json    
+import ujson as json
 import numpy as np
-from math import *
-import collections as coll 
+from math import sqrt
+from math import pi
+import collections as coll
 from . import PolyPep as pep
 
 class Clusters(object):
@@ -24,6 +25,7 @@ class Clusters(object):
         '''
         Constructor
         '''
+        print(molecules)
         self.Rg = {'Pol': [], 'Tot': []}
         self.Rg_s = {'Pol': {}, 'Tot': {}}
         self.Wt = []
@@ -62,14 +64,19 @@ class Clusters(object):
             sys.exit(1)
         else:
             if 'Prot' in molecules:
-                molecules.remove('Prot')
+                if type(molecules) is list:
+                    molecules.remove('Prot')
+                else:
+                    molecules=[]
                 for ami in pep.standard_aa_names:
                     molecules.append(ami)
-                    
+
             self.molecules = molecules
             self.mols_first=molecules[0]
+        print(openfile)
 
     def read(self):
+        print(self.my_file)
         self.traj = json.load(self.my_file)
         self.List = [L for L in self.traj if float(L) >= self.Start and float(L) <= self.End]
         myStart = self.List[0]
@@ -103,12 +110,12 @@ class Clusters(object):
             for Type in gyros:
                 for gyro in range(len(gyros[Type])):
                     if MolType not in gyros[Type][gyro]['hsh']: continue
-                    myclust=gyros[Type][gyro]['hsh'][MolType]                        
+                    myclust=gyros[Type][gyro]['hsh'][MolType]
                     if myclust not in self.Rg_s[Type]:
-                        self.Rg_s[Type][myclust] = [] 
+                        self.Rg_s[Type][myclust] = []
                         self.ax[Type][myclust] = []
                         self.I[Type][myclust] = []
-                
+
             ok=True
             for Type in gyros:
                 for gyro in range(len(gyros[Type])):
@@ -166,11 +173,11 @@ class Clusters(object):
                 I=np.average(self.I[Type][n],0)
                 Imin=min(I)
                 Iavg=sum(I)/3.0
-                
+
                 ecc[Type][n]=(1 - Imin / Iavg)
                 axavg = axmin * axmin / (axM * axM)
                 ecc1[Type][n]=(sqrt(1-axavg))
-                
+
         for Type in self.Rg:
             myEcc=[ecc[Type][n] for n in ecc[Type]]
             myEcc1=[ecc1[Type][n] for n in ecc1[Type]]
@@ -186,7 +193,7 @@ class Clusters(object):
             sys.stdout.write(' \n')
         sys.stdout.write(' \n')
         sys.stdout.write(' \n')
-        
+
         for Type in self.Rg:
             sys.stdout.write(' Type   Cluster No.      Rg-Avg          ax            ay            az          Ecc-In        Ecc-ax   \n')
             sys.stdout.write('-' * 104 + '\n')
@@ -201,7 +208,7 @@ class Clusters(object):
                 ecc1_avg = ecc1[Type][n]
                 ax=np.average(ax0,0)
                 sys.stdout.write(' %-4s      %2d         ' % (Type, N))
-                sys.stdout.write('   %-10.3f    %-10.3f    %-10.3f     %-10.3f    %-10.3f    %-10.3f   %d' 
+                sys.stdout.write('   %-10.3f    %-10.3f    %-10.3f     %-10.3f    %-10.3f    %-10.3f   %d'
                                  % (Rg_avg, ax[0],ax[1],ax[2],ecc_avg, ecc1_avg,len(Rg)))
                 sys.stdout.write(' \n')
                 N+=1
@@ -231,7 +238,7 @@ class Clusters(object):
             for i in range(len(y)):
                 self.fileout.write(' %10.2f  %11.5f \n' % (0.5 * (x[i] + x[i + 1]), y[i]))
             self.fileout.write('&\n')
-            
+
     def aggregation(self):
         if self.fileout is sys.stdout:
             print('\n\n         Need output file to plot aggregation       \n')
@@ -252,11 +259,11 @@ class Clusters(object):
                 continue
             M=0
             for id0 in self.Wt_s:
-                fp.write('@    s%-d legend "Id No. %-s"\n' % (M,M))    
-                fp.write('@    s%-d symbol 1 \n' % (M))    
-                fp.write('@    s%-d symbol size 0.35 \n' % (M))    
-                fp.write('@    s%-d symbol fill pattern 1\n' % (M))    
-                fp.write('@    s%-d line type 0 \n' % (M))    
+                fp.write('@    s%-d legend "Id No. %-s"\n' % (M,M))
+                fp.write('@    s%-d symbol 1 \n' % (M))
+                fp.write('@    s%-d symbol size 0.35 \n' % (M))
+                fp.write('@    s%-d symbol fill pattern 1\n' % (M))
+                fp.write('@    s%-d line type 0 \n' % (M))
                 M+=1
         for id0 in self.Wt_s:
             Type=next(iter(self.Wt_s[id0]))
@@ -288,12 +295,12 @@ class Clusters(object):
                     fps[3].write('%-s  %10.3f\n'% (time,ecc1))
                 n+=1
             [fps[n].write('&\n') for n in range(4)]
-             
+
         for n in self.aggr:
             fps[4].write('%-s  %4d \n' % (n,self.aggr[n]))
         [fp.close() for fp in fps]
 
-        
+
 
 if __name__ == "__main__":
     filename = '/Users/marchi/AOT_RM10/mytest.json'
