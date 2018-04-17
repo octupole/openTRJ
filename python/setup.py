@@ -22,7 +22,7 @@ setup(
     description='the openTRJ python scripts',  # Required
     author='Massimo Marchi',  # Optional
     packages=['Micelles'],
-    install_requires=['numpy >= 1.10','ujson >=1.2','keyring','paramiko'],
+    install_requires=['numpy >= 1.10','ujson >=1.2'],
     entry_points = {
         'console_scripts': [
             'Rg = Rg:main',
