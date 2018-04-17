@@ -11,7 +11,6 @@
 
 template <typename T>
 CenterMass_t CMPick<T>::operator ()(CenterMass<T> * p){
-	size_t t=0;
 	if(dynamic_cast<CenterMassWigner<T> *> (p)){
 		return diffq;
 	} else if(dynamic_cast<CenterMassMicelles<T>*> (p)){

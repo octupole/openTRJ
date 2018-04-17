@@ -61,7 +61,6 @@ ExecbSaxsTraj::ExecbSaxsTraj(trj::TrjRead & MyIn, Topol & Topology):ExecbSaxs(My
 					"of the trajectory steps. Change and rerun. ");
 		}catch(const string & s) {cout << s <<endl;Finale::Finalize::Final();}
 		if(MyModel == Consecutive){
-			auto nend_init=nend;
 			auto nstart_init=nstart;
 			auto ntask=CurrMPI->Get_Size();
 			auto ntot=(nend-nstart+1);
@@ -69,8 +68,6 @@ ExecbSaxsTraj::ExecbSaxsTraj(trj::TrjRead & MyIn, Topol & Topology):ExecbSaxs(My
 			nend=nstart+ntot/ntask;
 		}
 		else if(MyModel == Chunks){
-			auto nend_init=nend;
-			auto nskip_init=nskip;
 			auto ntot=(nend-nstart+1)/nskip;
 			auto ntask=CurrMPI->Get_Size();
 			auto nChunk=(ntot/ntask)*nskip;
@@ -136,7 +133,6 @@ void ExecbSaxsTraj::__SetUp(trj::TrjRead & MyIn){
 // Read header of dcd file
 	if(finx) {
 		finx->seekg(0,"end");
-		len=finx->tellg();
 		finx->seekg(0,"beg");
 		*finx>>header;
 		try{
@@ -278,8 +274,7 @@ void ExecbSaxsTraj::__RunTrajectory(MAtoms * atm){
 	ContactsD * Con0;
 	if(Rcut_in < 0) Rcut_in=15.0;
 	Con0=new ContactsD(Rcut,Rcut_in);
-	bool firstTime=true;
-	static int b{0};
+
 	while((++iter_atm).isReferenced()){
 		MAtoms * atmA=iter_atm();
 
@@ -291,7 +286,7 @@ void ExecbSaxsTraj::__RunTrajectory(MAtoms * atm){
 			atmA->setrd(*Top);
 			static struct Once{Once(MAtoms * atmA,Topol_NS::Topol * myTop){atmA->SetupPercolate();}} _Once(atmA,Top);
 			if(bOnce){
-				static struct Once_p{Once_p(MAtoms *atmA){atmA->Percolate();}} __Once_p(atmA);
+				static struct Once_p{explicit Once_p(MAtoms *atmA){atmA->Percolate();}} __Once_p(atmA);
 			}else atmA->Percolate();
 			atmA->Reconstruct(Con0);
 			atmA->CompCM();

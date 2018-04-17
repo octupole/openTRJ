@@ -267,7 +267,6 @@ void CenterMassBW3<T>::Diffusion(ofstream & fout){
 	fout << "# " <<endl;
 	for(auto it=Diffs.begin();it != Diffs.end();++it){
 		long int accu=nDiffs[it->first];
-		string lab=it->first;
 		for(auto o=0;o<Ndim;o++){
 			it->second[o].x/=static_cast<T>(accu);
 			it->second[o].y/=static_cast<T>(accu);

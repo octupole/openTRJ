@@ -246,8 +246,6 @@ void TrjRead::Input(){
 		Finale::Finalize::Final();
 	}
 
-	string tmp1=fileout.substr(0,fileout.find_first_of("."));
-	string tmp2=".dat";
 	if(fileout.substr(fileout.find_first_of(".")+1).find("pdb") != string::npos){
 		fout_pdbx=new ofstream(fileout.c_str(),ios::out);
 		bClust=true;

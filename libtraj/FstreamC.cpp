@@ -52,7 +52,6 @@ void FstreamC::CompFrameNumber(){
 	XDR * myxdr=xdrfile_get_xdr(fin);
 
 	int bOK{0};
-	int f0=xtc_get_next_frame_number(fp,myxdr,natoms);
 
 	framenumber= xdr_xtc_get_last_frame_number(fp,myxdr,natoms,&bOK);
 

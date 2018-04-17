@@ -28,8 +28,6 @@ void RhoSaxs::__Density(const int pq, const AtomsD * y, vector<size_t> & ind, st
 	int nz0=static_cast<int>(nnz);
 	size_t natoms=ind.size();
 	vector<Dvect> xa=vector<Dvect>(natoms,0.0);
-	Real x1,y1,z1,r1,s1,t1,gx,gy,gz;
-	int mx,my,mz;
 	int ox,oy,oz,tx,ty,tz;
 	MetricD Mt=x.getMt();
 
@@ -42,6 +40,8 @@ void RhoSaxs::__Density(const int pq, const AtomsD * y, vector<size_t> & ind, st
 		xa[o][ZZ] = oc[ZZ][XX] * x[i][XX] + oc[ZZ][YY] * x[i][YY] + oc[ZZ][ZZ] * x[i][ZZ];
 	}
 	for (unsigned int i = 0; i < ind.size(); i++) {
+		Real x1,y1,z1,r1,s1,t1,gx,gy,gz;
+		int mx,my,mz;
 		Real chg[1];
 		chg[0]=static_cast<Real>(wei[i]);
 		x1 = xa[i][XX];

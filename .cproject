@@ -101,4 +101,5 @@
 			<resource resourceType="PROJECT" workspacePath="/openTRJ"/>
 		</configuration>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>

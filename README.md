@@ -1,5 +1,7 @@
 # openTRJ
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a2d6bcff43164c28b7f8c147334b4065)](https://app.codacy.com/app/octupole/openTRJ?utm_source=github.com&utm_medium=referral&utm_content=octupole/openTRJ&utm_campaign=badger)
+
 ## Synopsis
 
 openTRJ is an ensemble of programs to compute a few properties from MD simulation trajectories written in .dcd or .xtc format. It was created 

@@ -122,9 +122,9 @@ int  Percolation<T>::gCluster(){
 		std::set_difference(tmp1.begin(),tmp1.end(),tmp2.begin(),tmp2.end(),std::back_inserter(cluster));
 		Clusters.push_back(cluster);
 		do{
+			if(bAtoms[n]<0) break;
 			n++;
-		} while(bAtoms[n] > -1 && n < bAtoms.size() );
-		ma++;
+		} while(n < bAtoms.size() );
 	} while(n < bAtoms.size());
 	std::sort(Clusters.begin(),Clusters.end(),op_mysort());
 	ClustComp.clear();

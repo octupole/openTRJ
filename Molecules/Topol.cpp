@@ -394,9 +394,9 @@ void Topol::ExtractInfo(TopolPDB & data,bool bRD){
  		MySub[i].putN(pop[ss]);
  		if(bAuto) MySub[i].putB(MyGroup.getBeta(i));
  	}
- 	int ocount=0;
 
  	if(bAuto) {
+ 	 	int ocount{0};
  		for(size_t i=0;i<data.Size();i++){
  			string ss;
  			if(MySub[ocount].getB()) ss=" 1.00";
