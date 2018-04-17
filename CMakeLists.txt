@@ -1,5 +1,5 @@
 # Policy
-cmake_minimum_required( VERSION 3.5) 
+cmake_minimum_required( VERSION 3.0) 
 
 
 # Project name
@@ -31,6 +31,13 @@ if (PARALLEL)
    	  message(STATUS "==================================================")
    endif()
    IF ( MPI_CXX_FOUND )
+   	  if(${CMAKE_MINOR_VERSION} GREATER_EQUAL 10)
+   	  	if(NOT MPI_MPICXX_FOUND)
+   	  		message(FATAL_ERROR "Your MPI implementation does not accept MPI c++ bindings. Connot compile.")
+   	  	endif()
+   	  elseif()
+   	  	message(WARNING "Cannot figure out if your MPI implementation accept MPI c++ bindings. If it does not, it will not compile. Wait and see.")
+   	  endif()
       INCLUDE_DIRECTORIES(${MPI_CXX_INCLUDE_PATH})
       if(DEFINED $ENV{CXX})
         message(STATUS "Found MPI compiler, but using the CXX compiler set in the CXX environment variable, $ENV{CXX}")
