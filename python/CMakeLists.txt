@@ -33,9 +33,12 @@ else()
     message(WARNING "pip not found cannot install python scripts")
 endif()
 if(NOT CMD_PIP STREQUAL "NONE")
-    set(CMD_PIP "${CMD_PIP} install -e ${CMAKE_SOURCE_DIR}/python")
+    set(CMD_PIP "${CMD_PIP} install -e ${CMAKE_SOURCE_DIR}/python --user")
     message(STATUS "Installing python file with: ${CMD_PIP}")
     install(CODE "execute_process(COMMAND ${CMD_PIP} )")
+    install(CODE "execute_process(COMMAND ln -f -s ~/.local/bin/Rg ${CMAKE_INSTALL_PREFIX} )")
+    install(CODE "execute_process(COMMAND ln -f -s ~/.local/bin/Voro ${CMAKE_INSTALL_PREFIX})")
+    install(CODE "MESSAGE(STATUS \"Python3 scripts installed in ${CMAKE_INSTALL_PREFIX}/bin\")")
 endif()
 
 
