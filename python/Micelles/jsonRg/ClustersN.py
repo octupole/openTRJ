@@ -25,7 +25,6 @@ class Clusters(object):
         '''
         Constructor
         '''
-        print(molecules)
         self.Rg = {'Pol': [], 'Tot': []}
         self.Rg_s = {'Pol': {}, 'Tot': {}}
         self.Wt = []
@@ -73,10 +72,8 @@ class Clusters(object):
 
             self.molecules = molecules
             self.mols_first=molecules[0]
-        print(openfile)
 
     def read(self):
-        print(self.my_file)
         self.traj = json.load(self.my_file)
         self.List = [L for L in self.traj if float(L) >= self.Start and float(L) <= self.End]
         myStart = self.List[0]
@@ -195,8 +192,8 @@ class Clusters(object):
         sys.stdout.write(' \n')
 
         for Type in self.Rg:
-            sys.stdout.write(' Type   Cluster No.      Rg-Avg          ax            ay            az          Ecc-In        Ecc-ax   \n')
-            sys.stdout.write('-' * 104 + '\n')
+            sys.stdout.write(' Type   Cluster No.      Rg-Avg          ax            ay            az          Ecc-In        Ecc-ax      Occurence\n')
+            sys.stdout.write('-' * 118 + '\n')
             N=0
             for n in self.Rg_s[Type]:
                 Rg = self.Rg_s[Type][n]
@@ -222,9 +219,8 @@ class Clusters(object):
                 if Type in self.Wt_s[n]:
                     Wt = np.array(self.Wt_s[n][Type]).ravel()
                     Wt_avg0 = np.average(Wt[::2])
-                    Wt_avg1 = np.average(Wt[1::2])
-                    sys.stdout.write('%-s  %8.2f  %8.2f  ' % (Type, Wt_avg0, Wt_avg1))
-
+                    sys.stdout.write('%-s  %8.2f  ' % (Type, Wt_avg0))
+            sys.stdout.write('   %9d  ' % len(Wt[::2]))
             sys.stdout.write('\n')
             N+=1
     def histograms(self):

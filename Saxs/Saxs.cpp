@@ -529,8 +529,25 @@ void Saxs::ComputeSq(RhoSaxs * Rho_ex,const MAtoms * y){
 	MCO+=co;
 	MOC+=oc;
 	Vol+=Mt.getVol();
-
-	CenterMassD & xcm=y->getCM();
+	const vector<vector<int> > & mCluster=y->getCluster();
+	const vector<vector<int> > & mAtoms=y->getAtoms();
+	double nato{0};
+	vector<double> wei(mCluster.size(),0.0);
+	for(size_t o=0;o<mCluster.size();o++){
+		for(size_t p=0;p<mCluster[o].size();p++){
+			int n=mCluster[o][p];
+			nato+=(double) mAtoms[n].size();
+			wei[o]+=(double) mAtoms[n].size();
+		}
+	}
+	for(size_t o=0;o<mCluster.size();o++){
+		wei[o]*=(double) mCluster.size()/nato;
+	}
+	double tot{0.0};
+	for(size_t o=0;o<mCluster.size();o++){
+		tot+=wei[o];
+	}
+ 	CenterMassD & xcm=y->getCM();
 	size_t nr=xcm.Size();
 
 	x0.setDim(nr);
