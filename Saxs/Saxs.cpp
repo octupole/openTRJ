@@ -573,7 +573,7 @@ void Saxs::ComputeSq(RhoSaxs * Rho_ex,const MAtoms * y){
 	int n{0};
 	std::generate(indx.begin(),indx.end(),[&n](){return n++;});
 	Rho_e=0.0;
-	Rho_e.Density(order,&x0,indx,"DUM");
+	Rho_e.Density(order,&x0,indx,"DUM",wei);
 	(Rho_alt.*Padding)(Rho_ex,Nx,Ny,Nz);
 
 	//	Rho_alt=Rho_e;
