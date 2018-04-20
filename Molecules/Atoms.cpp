@@ -1083,7 +1083,9 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 		}
 		(*con0)(xcm0,co,oc);
 		con0->Neighbors();
+
 		vector<vector<int>> & nnl=con0->NNL();
+
 
 // Start with a reference molecule p=0;
 
