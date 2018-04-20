@@ -1076,7 +1076,7 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 
 
 	for(size_t o=0;o<mCluster.size();o++){
-//		if(mCluster[o].size() < 5) continue;
+		if(mCluster[o].size() < 5) continue;
 		vector<Dvect> xcm0(mCluster[o].size());
 		for(size_t p=0;p<mCluster[o].size();p++){
 			xcm0[p]=xcm[mCluster[o][p]];
