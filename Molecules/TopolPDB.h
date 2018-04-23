@@ -66,6 +66,7 @@ class TopolPDB {
 	};
 	map<string,double> Masses{
 			{"H",     1.00784}
+			,{"D", 2.01410177811}
 			,{"He",     4.00260}
 			,{"Li",     6.93800}
 			,{"Be",     9.01218}

@@ -166,7 +166,7 @@ vector<PDBdata> TopolPDB::SplitResidue(vector<string> & v0){
 			yout[o].first=v0[o].substr(0,61);
 			yout[o].last=v0[o].substr(66,14);
 			string atm=myName(yout[o].atn,yout[o].resn);
-			if(Masses.count(atm) != 1) throw string("Unknown atom found");
+			if(Masses.count(atm) != 1) throw string("Unknown atom found: "+yout[o].resn+":"+yout[o].atn+" does not exist in masses list");
 			yout[o].mass=Masses[atm];
 		}
 	}catch(const string & s){
