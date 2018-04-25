@@ -1,0 +1,37 @@
+i) compilation with the intel compiler. Do the following command
+
+module purge
+module load intel/18.0.1.163 
+module load fftw3/mkl/18.0.1.163
+module load cmake
+module load mpi/openmpi/1.8.8
+
+cd $WheremMyCodeIs
+
+mkdir build
+
+cd build
+
+CC=icc CXX=icpc cmake .. --DFFTW3_ROOT=/ccc/products/fftw3-3.3.6/default
+
+
+ii) Compilation with the gcc compiler. I general it compiles only if gcc>5.3, 
+    this is the case on cobalt:
+
+module load feature/openmpi/gnu
+module load gnu/7.1.0
+module load fftw3
+
+cd $WheremMyCodeIs
+
+mkdir build
+
+cd build
+
+CC=gcc XX=g++ cmake .. --DFFTW3_ROOT=/ccc/products/fftw3-3.3.6/default
+
+
+Then when you submit a job you have to add in the submitting script the
+module load you have used to compile the code.
+
+Compilation with g++ might be faster, but a little bit slower to execute (maybe 5 % less efficient!).
