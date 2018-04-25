@@ -45,6 +45,9 @@
 								<option id="gnu.cpp.compiler.option.optimization.level.1759037868" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.debugging.level.909003886" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.dialect.std.1791016509" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++11" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.include.paths.1149859337" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/openTRJ/data}&quot;"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1565566423" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.cross.assembler.708959516" name="Cross GCC Assembler" superClass="cdt.managedbuild.tool.gnu.cross.assembler">
@@ -74,15 +77,34 @@
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="openTRJ.cdt.managedbuild.target.gnu.cross.lib.2136244528" name="Static Library" projectType="cdt.managedbuild.target.gnu.cross.lib"/>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/openTRJ"/>
+		</configuration>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.724383371;cdt.managedbuild.config.gnu.cross.exe.debug.724383371.;cdt.managedbuild.tool.gnu.cross.c.compiler.1980468649;cdt.managedbuild.tool.gnu.c.compiler.input.1933301911">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.lib.release.39813781;cdt.managedbuild.config.gnu.cross.lib.release.39813781.;cdt.managedbuild.tool.gnu.c.compiler.base.2102423002;cdt.managedbuild.tool.gnu.c.compiler.input.750192109">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.lib.release.39813781;cdt.managedbuild.config.gnu.cross.lib.release.39813781.;cdt.managedbuild.tool.gnu.cross.c.compiler.424756234;cdt.managedbuild.tool.gnu.c.compiler.input.1789351687">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.release.367344736;cdt.managedbuild.config.gnu.cross.exe.release.367344736.;cdt.managedbuild.tool.gnu.cross.c.compiler.1469661367;cdt.managedbuild.tool.gnu.c.compiler.input.417327494">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.lib.release.39813781;cdt.managedbuild.config.gnu.cross.lib.release.39813781.;cdt.managedbuild.tool.gnu.cross.c.compiler.648540149;cdt.managedbuild.tool.gnu.c.compiler.input.250750804">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.lib.release.39813781;cdt.managedbuild.config.gnu.cross.lib.release.39813781.;cdt.managedbuild.tool.gnu.cross.cpp.compiler.951688647;cdt.managedbuild.tool.gnu.cpp.compiler.input.1565566423">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.lib.release.39813781;cdt.managedbuild.config.gnu.cross.lib.release.39813781.;cdt.managedbuild.tool.gnu.cpp.compiler.cygwin.1100260350;cdt.managedbuild.tool.gnu.cpp.compiler.input.cygwin.1485053317">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.724383371;cdt.managedbuild.config.gnu.cross.exe.debug.724383371.;cdt.managedbuild.tool.gnu.cross.cpp.compiler.1725317356;cdt.managedbuild.tool.gnu.cpp.compiler.input.1658700148">
@@ -95,11 +117,4 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
-	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="Release">
-			<resource resourceType="PROJECT" workspacePath="/openTRJ"/>
-		</configuration>
-	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>

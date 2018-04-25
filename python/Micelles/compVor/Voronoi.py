@@ -8,7 +8,6 @@ import ujson as json
 import Micelles.compVor.jsonIterator as jsonIterator
 import numpy as np
 import collections as coll
-from ipykernel.tests import tmp
 
 
 _Res='Res'
@@ -101,6 +100,11 @@ class Voronoi(object):
         shell={}
         while timeC != None:
             vols=root[timeC]['Shell']
+            if not isinstance(vols, dict):
+                print("\n--------- Cannot find Shell in json input, stop here  -------------\n")
+                sys.exit()
+                
+                
             for vol in vols:
                 if vol not in shell:
                     shell[vol]={'No': [],'Vol': []}
@@ -201,8 +205,8 @@ class Voronoi(object):
         self.histS=histS
 
     def pickRes(self,myPick):
-        if isinstance(myPick, int) or isinstance(myPick, str):
-            myPick=[myPick]
+
+        
         root=self.root
         if isinstance(myPick,list):
             if isinstance(myPick[0],int):
@@ -210,6 +214,7 @@ class Voronoi(object):
                 self.writePick(self.histS)
             elif isinstance(myPick[0],str):
                 res0=myPick
+                print(res0)
                 res=[]
                 res_n=[]
                 for res1 in res0:
@@ -234,7 +239,7 @@ class Voronoi(object):
                 indexPicks=[i for i in range(len(root[_Res][_List])) if root[_Res][_List][i] in res]
                 self.doTypes(indexPicks)
         else:
-            print('pickRes: Should enter an in, a str or a list of in or str instead entered a %-s ' % type(myPick))
+            print('pickRes: Should enter an int, a str or a list of in or str instead entered a %-s ' % type(myPick))
             sys.exit(-1)
     def avgAClust(self):
         root=self.root

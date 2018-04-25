@@ -119,6 +119,10 @@ void TrjRead::Input(){
 			if(inmap["-json"].size() > 2) throw string("\n More than one entry for " + inmap["-json"][0] + " option \n");
 			fileout=inmap["-json"][1];
 			bOutJSON=true;
+			bPrintAreas=true;
+			bPrintVols=true;
+			VoronoiSetter::bPrintShell=true;
+			VoronoiSetter::maxLevel=3;
 		}
 		if(!inmap["-b"].empty()) {
 			if(inmap["-b"].size() != 2) throw string(" Number of first frame needed for " + inmap["-b"][0] + " option ");

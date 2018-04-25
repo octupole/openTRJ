@@ -122,16 +122,38 @@ def main(argv=None):
             print("Can't find what to do: %-s not on the list" % opts.Which[0])
             sys.exit(1)
         else:
-            if len(opts.Which) != 2 and opts.Which[0] == 'Pick':
-                print("Need an argument for option 'Pick', but found None ")
+            if len(opts.Which) < 2 and opts.Which[0] == 'Pick':
+                print("Need an argument for option 'Pick', but found None")
                 sys.exit(1)
 
         myFile = openFile.openFile(filename=opts.filename, host=opts.hostname, user=opts.username)
-        myRg = Voronoi.Voronoi(openfile=myFile.fp(), fileout=opts.outfile, start=opts.Start, end=opts.End)
-        myRg.read()
-        whatToDo = myRg.what(opts.Which[0])
+        myVor = Voronoi.Voronoi(openfile=myFile.fp(), fileout=opts.outfile, start=opts.Start, end=opts.End)
+        myVor.read()
+        whatToDo = myVor.what(opts.Which[0])
         if len(opts.Which) == 2:
-            whatToDo(eval(opts.Which[1]))
+            try:
+                myEval=eval(opts.Which[1])
+                if isinstance(myEval, int):
+                    myList=[myEval]
+                else:
+                    myList=[what for what in myEval]
+
+            except:
+                myList=[opts.Which[1]]
+                
+            whatToDo(myList)
+                            
+        elif len(opts.Which) > 2:
+            try:
+                myEval=eval(opts.Which[1])
+                if isinstance(myEval, int):
+                    myList=[eval(what) for what in opts.Which[1:]]
+                else:
+                    myList=[what for what in opts.Which[1:]]
+
+            except:
+                myList=[what for what in opts.Which[1:]]
+            whatToDo(myList)
         else:
             whatToDo()
 
