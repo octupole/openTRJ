@@ -66,7 +66,6 @@ class Voronoi(object):
 
     def read(self):
         self.root=json.load(self.my_file)
-        print('Read in')
         self.Atom=self.root['Res']['List']
         self.myIter=jsonIterator.JSONIterator(self.root,self.start,self.end)
 
@@ -120,22 +119,30 @@ class Voronoi(object):
                                  (np.average(shell[keys][key]),np.std(shell[keys][key])))
             sys.stdout.write('\n')
 
-    def writePick(self,histS):
+    def writePick(self):
+        histS=self.histS
+        totAreaS=self.totAreaS
         n=0
         self.fileout.write('  No  Residue  ')
         myhistS=next(iter(histS.values()))
         for label in myhistS:
             self.fileout.write('      %-7s     '%label)
+        self.fileout.write('       %-10s     '%'Total Area')            
         self.fileout.write('\n')
         for resn in self.myPick:
             res=self.root[_Res][_List][resn]
             hist=histS[resn]
+            totArea=totAreaS[resn]
             self.fileout.write('%3d     %-3s    '% (resn,res))
             for label in hist:
                 avg=np.average(hist[label])
                 std=np.std(hist[label])
-#                print(len(hist[label]))
                 self.fileout.write(' %7.3f (%6.4f) '% (avg,std))
+
+                
+            avg=np.average(totArea)
+            std=np.std(totArea)
+            self.fileout.write('   %7.3f (%6.4f) '% (avg,std))
             self.fileout.write('\n')
             n+=1
 
@@ -168,6 +175,8 @@ class Voronoi(object):
         self.fileout.write('   Residue ')
         for label in hist:
             self.fileout.write('      %-7s     '%label)
+        
+        self.fileout.write('       %-10s     '%'Total Area')
         self.fileout.write('\n')
         for res in histS:
             self.fileout.write('    %-4s   '%res)
@@ -175,7 +184,11 @@ class Voronoi(object):
                 avg=np.average(histS[res][label])
                 std=np.std(histS[res][label])
                 self.fileout.write(' %7.3f (%6.4f) '% (avg,std))
+            avg=np.average(totAreaS[res])
+            std=np.std(totAreaS[res])
+            self.fileout.write('  %10.3f (%6.6f)' % (avg,std))
             self.fileout.write('\n')
+        
 
     def doLists(self,myPick):
         self.myPick=myPick
@@ -203,18 +216,16 @@ class Voronoi(object):
                 totArea.append(tot)
             timeC=myIter.next()
         self.histS=histS
+        self.totAreaS=totAreaS
 
     def pickRes(self,myPick):
-
-        
         root=self.root
         if isinstance(myPick,list):
             if isinstance(myPick[0],int):
                 self.doLists(myPick)
-                self.writePick(self.histS)
+                self.writePick()
             elif isinstance(myPick[0],str):
                 res0=myPick
-                print(res0)
                 res=[]
                 res_n=[]
                 for res1 in res0:

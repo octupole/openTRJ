@@ -79,8 +79,7 @@ trjInput::trjInput(int ntot,char ** v, ClearUsage & clr) {
 			"\t\tThe file filename contains two strings:\n"
 			"\t\t   i) the first string is the name of the detergent residue \n"
 			"\t\t   ii)the second string contains the polar atoms of the residue\n"
-			"\t\t*Important*: The polar atoms in the pdb and topology *MUST* all occur\n"
-			"\t\tbefore the hydrophobic atoms.\n";
+			"\t\t*Important*: The remaining atoms of the residues are considered as hydrophobic\n";
 	Usage[21]="\t -detP <string>// Define a name for the polar segment of a detergent residue \n";
 	Usage[22]="\t -detO <string>// Define a name for the hydrophobic segment of a detergent residue \n";
 	Usage[23]="\t -shell [2]<int n>// Compute number and average volume of the n-shell water\n"
