@@ -57,18 +57,18 @@ ExecuteVoronoi<T>::ExecuteVoronoi(trj::TrjRead & MyIn) {
 	}catch(const string & s) {cout << s <<endl;Finale::Finalize::Final();}
 
 	if(fin1x){
-		cout << JSONOutput<<endl;
 		if(JSONOutput)
 			vor=new VoronoiBinary<VoronoiMicellesJSON>(*fin1x);
 		else
 			vor=new VoronoiBinary<VoronoiMicelles>(*fin1x);
-
+		if(CurrMPI->Get_Size() > 1) vor->setRank(CurrMPI->Get_Rank());
 		ofstream & fout=*foutx;
 
 		CurrMPI->Barrier();
 		Comms=new Parallel::FComms(CurrMPI,fout,fileout,nstart,nend,1e8,1);
 		nstart=Comms->getStart();
 		nend=Comms->getEnd();
+
 	}
 }
 template <typename T>
@@ -123,6 +123,7 @@ ExecuteVoronoi<T>::ExecuteVoronoi(trj::TrjRead & MyIn, Topol & Topology):
 			vor=new VoronoiMicelles(Topology,bHyd);
 		}
 	}
+	if(CurrMPI->Get_Size() > 1) vor->setRank(CurrMPI->Get_Rank());
 	Percolation<T>::setPercoCutoff(MyIn.gPercoCutoff());
 
 	Clustering=MyIn.bbClust();
@@ -223,6 +224,8 @@ void ExecuteVoronoi<T>::__RunTrajectory(Atoms<T> * atmx){
 
 	vor->WriteLastJSON(Comms->getStream());
 	Comms->appendStreams();
+	if(CurrMPI->Get_Rank() == CurrMPI->Get_Size()-1) vor->WriteLastJSON(Comms->getStream());
+	CurrMPI->Barrier();
 	if(bDel) Comms->removeFiles();
 	Comms->closeStream();   // close stream!!!
 	CurrMPI->Barrier();

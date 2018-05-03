@@ -129,6 +129,7 @@ def main(argv=None):
         myFile = openFile.openFile(filename=opts.filename, host=opts.hostname, user=opts.username)
         myVor = Voronoi.Voronoi(openfile=myFile.fp(), fileout=opts.outfile, start=opts.Start, end=opts.End)
         myVor.read()
+        print("ulla")
         whatToDo = myVor.what(opts.Which[0])
         if len(opts.Which) == 2:
             try:

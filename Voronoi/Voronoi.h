@@ -88,6 +88,7 @@ protected:
 	vector<string> Residue;
 	vector<vector<int>> wShells;
 	vector<vector<int>> Clusters;
+	size_t VoroRank{0};
 	vector<int> atClusters;
 	double VolCell{0};
 	void gather(vector<int> & y);
@@ -124,7 +125,7 @@ public:
 	void Start(float, Atoms<T> &);
 	void doVoro__();
 	virtual void getData();
-
+	void setRank(size_t r){VoroRank=r;}
 	const Matrix & getCO(){return co;}
 	static float gTime(){return time;}
 	size_t nClusters(){return Clusters.size();}

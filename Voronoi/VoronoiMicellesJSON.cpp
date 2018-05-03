@@ -13,7 +13,7 @@ void VoronoiMicellesJSON::WriteIt(std::ofstream & fout){
 	static bool firsttime{true};
 	json myJson;
 
-	if(firsttime){
+	if(firsttime && this->VoroRank == 0){
 		fout << "{";
 		json myTypes;
 		for(int o=0;o<nc;o++) {
