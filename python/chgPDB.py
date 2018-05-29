@@ -6,14 +6,15 @@ def replaceI(filein,fileout):
     N=13
     for line in fp:
         newLine=line
-        if line.find('C1') > -1 or line.find('C6') > -1 or line.find('C7') > -1 or line.find('C8') > -1 or line.find('C5') > -1:
-            newLine=line[:N]+'Iz'+line[N+2:]
-        elif line.find('C2') > -1:
-            newLine=line[:N]+'C '+line[N+2:]
-        elif line.find('C3') > -1:
-            newLine=line[:N]+'Iy'+line[N+2:]
-        elif line.find('C4') > -1:
-            newLine=line[:N]+'Ix'+line[N+2:]
+        if line.find('ISU') > -1:
+            if line.find('C1') > -1 or line.find('C6') > -1 or line.find('C7') > -1 or line.find('C8') > -1 or line.find('C5') > -1:
+                newLine=line[:N]+'Iz'+line[N+2:]
+            elif line.find('C2') > -1:
+                newLine=line[:N]+'C '+line[N+2:]
+            elif line.find('C3') > -1:
+                newLine=line[:N]+'Iy'+line[N+2:]
+            elif line.find('C4') > -1:
+                newLine=line[:N]+'Ix'+line[N+2:]
         fpo.write(newLine)
 
 def replaceU(filein,fileout):
@@ -22,14 +23,15 @@ def replaceU(filein,fileout):
     N=13
     for line in fp:
         newLine=line
-        if line.find('C1') > -1 or line.find('C6') > -1 or line.find('C7') > -1 or line.find('C8') > -1 or line.find('C5') > -1:
-            newLine=line[:N]+'Uz'+line[N+2:]
-        elif line.find('C2') > -1:
-            newLine=line[:N]+'C '+line[N+2:]
-        elif line.find('C3') > -1:
-            newLine=line[:N]+'Uy'+line[N+2:]
-        elif line.find('C4') > -1:
-            newLine=line[:N]+'Ux'+line[N+2:]
+        if line.find('ISU') > -1:
+            if line.find('C1') > -1 or line.find('C6') > -1 or line.find('C7') > -1 or line.find('C8') > -1 or line.find('C5') > -1:
+                newLine=line[:N]+'Uz'+line[N+2:]
+            elif line.find('C2') > -1:
+                newLine=line[:N]+'C '+line[N+2:]
+            elif line.find('C3') > -1:
+                newLine=line[:N]+'Uy'+line[N+2:]
+            elif line.find('C4') > -1:
+                newLine=line[:N]+'Ux'+line[N+2:]
         fpo.write(newLine)        
 
 if __name__ == '__main__':
