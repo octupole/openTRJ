@@ -9,7 +9,7 @@
 
 namespace Voro{
 const double SURFFACTOR{0.08};
-
+bool tAcompf( const tArea & x, const tArea & y) {return x.n < y.n;};
 VoronoiMicelles::VoronoiMicelles(Topol & myTop, bool bH){
 	nr=myTop.Size();
 	Vol=vector<double>(nr);
@@ -92,7 +92,7 @@ void VoronoiMicelles::getData(){
 		vector<int> & cindex=CIndex[o];
 		double sum_v=0.0;
 		vector<tArea> cdx(cindex.begin(),cindex.end());
-		std::sort(cdx.begin(),cdx.end(),tAcomp());
+		std::sort(cdx.begin(),cdx.end(),tAcompf);
 		for(unsigned int ia=0;ia<cdx.size();ia++){
 			int i=cdx[ia].n;
 			vector<tArea> nei0,nei;
@@ -100,8 +100,8 @@ void VoronoiMicelles::getData(){
 			for(unsigned int p=0;p<Neighs[i].size();p++)
 				nei0.push_back(tArea(Neighs[i][p],Surface[i][p]));
 
-			sort(nei0.begin(),nei0.end(),tAcomp());
-			set_difference(nei0.begin(),nei0.end(),cdx.begin(),cdx.end(),back_inserter(nei),tAcomp());
+			sort(nei0.begin(),nei0.end(),tAcompf);
+			set_difference(nei0.begin(),nei0.end(),cdx.begin(),cdx.end(),back_inserter(nei),tAcompf);
 
 			vector<tArea>::iterator it=nei.begin();
 			for(;it != nei.end(); ++it)

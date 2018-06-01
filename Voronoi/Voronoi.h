@@ -49,7 +49,7 @@ struct tArea{
 	tArea(int m){n=m;a=0.0;}
 	tArea(int m, double b){n=m;a=b;}
 };
-
+// The following functor does NOT work on the intel c++ compiler version 18. Why??
 struct tAcomp{
 	bool operator()(const tArea & x, const tArea & y) const {return x.n < y.n;};
 };
