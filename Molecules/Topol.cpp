@@ -255,6 +255,7 @@ void Topol::InitSelection(vector<string> & y, Enums::myAtoms MM)
 	}
 	ReferenceResidues=tmp;
 }
+string myAtms{"H D C O S N P"};
 
 void Topol::ExtractInfo(TopolPDB & data,bool bRD){
 	atomname.clear();
@@ -321,6 +322,8 @@ void Topol::ExtractInfo(TopolPDB & data,bool bRD){
 			type1=type.substr(0,1)+tmp;
 		} else{
 			type1=type.substr(0,1);
+			if(myAtms.find(type1) == string::npos)
+			  type1=type.substr(0,2);
 		}
 
 		atSFactor.push_back(type1);
