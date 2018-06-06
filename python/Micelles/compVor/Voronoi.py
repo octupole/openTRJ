@@ -30,14 +30,17 @@ class Voronoi(object):
     classdocs
     '''
     Labels=['Vol','Shell','AClust','Pick']
-    def __init__(self, openfile=None,fileout=None,start=None,end=None):
+    def __init__(self, openfile=None,fileout=None,start=None,end=None,type='seq'):
         '''
         Constructor
         '''
         funcs=[self.avgVol,self.avgShell,self.avgAClust,self.pickRes]
+
         self.whatToDo=dict(zip(Voronoi.Labels,funcs))
+
         self.start=None
         self.end=None
+        self.type=type
         if start:
             self.start=float(start)
         if end:
@@ -53,6 +56,8 @@ class Voronoi(object):
         else:
             print('\nNo stream given, abort \n')
             sys.exit(1)
+
+        
     @classmethod
     def testLabels(cls,label):
         if label in cls.Labels:
@@ -65,20 +70,18 @@ class Voronoi(object):
         return None
 
     def read(self):
-        self.root=json.load(self.my_file)
-        self.Atom=self.root['Res']['List']
-        self.myIter=jsonIterator.JSONIterator(self.root,self.start,self.end)
+        self.myIter=jsonIterator.JSONIterator(self.my_file,self.start,self.end,self.type)
+        self.Atom=json.loads(json.dumps(self.myIter['Res']['List']))
 
     def avgVol(self):
-        root=self.root
         myIter=self.myIter
         Atom=self.Atom
 
         nType={}
         volTot={}
-        timeC=myIter.next()
+        timeC=next(myIter)
         while timeC != None:
-            vols=root[timeC]['Vol']
+            vols=myIter[timeC]['Vol']
             n=0
             for vol in vols:
                 typeA=Atom[n]
@@ -88,17 +91,17 @@ class Voronoi(object):
                 volTot[typeA].append(vol)
                 nType[typeA]+=1
                 n+=1
-            timeC=myIter.next()
+            timeC=next(myIter)
         for key in volTot:
             print(' %s  %10.3f %10.5f '% (key,np.average(volTot[key]), np.std(volTot[key])))
 
+
     def avgShell(self):
-        root=self.root
         myIter=self.myIter
-        timeC=myIter.next()
+        timeC=next(myIter)
         shell={}
         while timeC != None:
-            vols=root[timeC]['Shell']
+            vols=myIter[timeC]['Shell']
             if not isinstance(vols, dict):
                 print("\n--------- Cannot find Shell in json input, stop here  -------------\n")
                 sys.exit()
@@ -109,7 +112,7 @@ class Voronoi(object):
                     shell[vol]={'No': [],'Vol': []}
                 shell[vol]['No'].append(vols[vol]['No'])
                 shell[vol]['Vol'].append(vols[vol]['Vol'])
-            timeC=myIter.next()
+            timeC=next(myIter)
 
         sys.stdout.write('Level    No Wat     std          Vol/mol     std\n')
         for keys in shell:
@@ -130,7 +133,7 @@ class Voronoi(object):
         self.fileout.write('       %-10s     '%'Total Area')            
         self.fileout.write('\n')
         for resn in self.myPick:
-            res=self.root[_Res][_List][resn]
+            res=self.Atom[resn]
             hist=histS[resn]
             totArea=totAreaS[resn]
             self.fileout.write('%3d     %-3s    '% (resn,res))
@@ -148,20 +151,19 @@ class Voronoi(object):
 
     def doTypes(self,myPick):
         self.myPick=myPick
-        root=self.root
         myIter=self.myIter
-        timeC=myIter.next()
+        timeC=next(myIter)
         histS=coll.OrderedDict()
         totAreaS=coll.OrderedDict()
         while timeC != None:
             for resn in myPick:
-                res=self.root[_Res][_List][resn]
+                res=self.Atom[resn]
                 if res not in histS:
                     histS[res]={}
                     totAreaS[res]=[]
                 hist=histS[res]
                 totArea=totAreaS[res]
-                area=root[timeC][_Area][resn]
+                area=self.myIter[timeC][_Area][resn]
                 tot=0.0
                 for _type in area:
                     tot+=area[_type]
@@ -171,7 +173,7 @@ class Voronoi(object):
                         hist[_type]=[]
                     hist[_type].append(area[_type]/tot)
                 totArea.append(tot)
-            timeC=myIter.next()
+            timeC=next(myIter)
         self.fileout.write('   Residue ')
         for label in hist:
             self.fileout.write('      %-7s     '%label)
@@ -192,9 +194,8 @@ class Voronoi(object):
 
     def doLists(self,myPick):
         self.myPick=myPick
-        root=self.root
         myIter=self.myIter
-        timeC=myIter.next()
+        timeC=next(myIter)
         histS=coll.OrderedDict()
         totAreaS=coll.OrderedDict()
         while timeC != None:
@@ -204,7 +205,7 @@ class Voronoi(object):
                     totAreaS[resn]=[]
                 hist=histS[resn]
                 totArea=totAreaS[resn]
-                area=root[timeC][_Area][resn]
+                area=myIter[timeC][_Area][resn]
                 tot=0.0
                 for _type in area:
                     tot+=area[_type]
@@ -214,12 +215,12 @@ class Voronoi(object):
                         hist[_type]=[]
                     hist[_type].append(area[_type]/tot)
                 totArea.append(tot)
-            timeC=myIter.next()
+            timeC=next(myIter)
         self.histS=histS
         self.totAreaS=totAreaS
 
     def pickRes(self,myPick):
-        root=self.root
+        myIter=self.myIter
         if isinstance(myPick,list):
             if isinstance(myPick[0],int):
                 self.doLists(myPick)
@@ -230,13 +231,13 @@ class Voronoi(object):
                 res_n=[]
                 for res1 in res0:
                     ok=False
-                    if res1 in root[_Res]:
+                    if res1 in myIter[_Res]:
                         ok=True
                         res.append(res1)
-                    if res1+'_O' in root[_Res]:
+                    if res1+'_O' in myIter[_Res]:
                         ok=True
                         res.append(res1+'_O')
-                    if  res1+'_P' in root[_Res]:
+                    if  res1+'_P' in myIter[_Res]:
                         ok=True
                         res.append(res1+'_P')
                     if not ok:
@@ -247,20 +248,20 @@ class Voronoi(object):
                     for res1 in res_n:
                         print('Unfound %-s'% res1)
                     sys.exit(1)
-                indexPicks=[i for i in range(len(root[_Res][_List])) if root[_Res][_List][i] in res]
+                indexPicks=[i for i in range(len(myIter[_Res][_List])) if myIter[_Res][_List][i] in res]
                 self.doTypes(indexPicks)
         else:
             print('pickRes: Should enter an int, a str or a list of in or str instead entered a %-s ' % type(myPick))
             sys.exit(-1)
+
     def avgAClust(self):
-        root=self.root
         myIter=self.myIter
-        timeC=myIter.next()
+        timeC=next(myIter)
         area={}
 
         while timeC != None:
-            clusters=root[timeC]['AClust']
-            vClusters=root[timeC]['Clust']
+            clusters=myIter[timeC]['AClust']
+            vClusters=myIter[timeC]['Clust']
             for cluster in range(len(clusters)):
                 if clusters[cluster]['NoAtm'] < 200:
                     continue
@@ -273,7 +274,7 @@ class Voronoi(object):
                 if 'vol' not in area[cluster]:
                     area[cluster]['vol']=[]
                 area[cluster]['vol'].append(vClusters[cluster])
-            timeC=myIter.next()
+            timeC=next(myIter)
 
         for cluster in area:
             self.fileout.write('\n         Cluster No.    %s \n'% cluster)

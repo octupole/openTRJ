@@ -63,6 +63,8 @@ def parse_args(version,epilog,description):
                       help="set trajectory start point on the trajectory, if None use the first step [default: %default]")
     parser.add_option("-e", "--end", dest="End", default=None,
                       help="set trajectory end point. If None use the last step [default: %default]")
+    parser.add_option("-t", "--typejson", dest="Type", default='seq',
+                      help="Type of json file. Possible value are 'seq' and 'all' [default: %default]")
     Labels=Voronoi.Voronoi.Labels
     label="'"+"','".join(Labels)+"'"
     parser.add_option("--which", action="store", dest="Which",
@@ -111,7 +113,6 @@ def main(argv=None):
         else:
             print('No voronoi filename given, abort ')
             sys.exit(1)
-
         if opts.Which:
             opts.Which = [which for which in opts.Which.split()]
         else:
@@ -127,10 +128,10 @@ def main(argv=None):
                 sys.exit(1)
 
         myFile = openFile.openFile(filename=opts.filename, host=opts.hostname, user=opts.username)
-        myVor = Voronoi.Voronoi(openfile=myFile.fp(), fileout=opts.outfile, start=opts.Start, end=opts.End)
+        myVor = Voronoi.Voronoi(openfile=myFile.fp(), fileout=opts.outfile, start=opts.Start, end=opts.End,type=opts.Type)
         myVor.read()
-        print("ulla")
         whatToDo = myVor.what(opts.Which[0])
+
         if len(opts.Which) == 2:
             try:
                 myEval=eval(opts.Which[1])

@@ -6,14 +6,14 @@ Created on Dec 17, 2017
 import sys 
 import io
 import json
-
+import subprocess
 class JSONIterator(object):
     '''
     classdocs
     '''
     Keywords=['Res','Types']
     List=[]
-    def __init__(self, root,start_=None,end_=None):
+    def __init__(self, my_file,start_=None,end_=None,type='seq'):
         '''
         Constructor
         '''
@@ -24,10 +24,17 @@ class JSONIterator(object):
             self.Start=start_
         if end_ != None:
             self.End=end_
-        self.root=root
-
-        if isinstance(root,dict):
-            List=[L for L in root if L not in JSONIterator.Keywords ]
+        self.my_file=my_file
+        self.filename=my_file.name
+        self.type=type
+        self.N=0
+        if self.type =='seq':
+            self.iterate=json.loads(self.my_file.readline())
+            self.root=self.iterate
+        else:
+            self.root=json.load(self.my_file)
+            self.dict=True
+            List=[L for L in self.root if L not in JSONIterator.Keywords ]
             self.List=[L for L in List if float(L) >= self.Start and float(L) <= self.End]
             myStart=List[0]
             myEnd=List[len(List)-1]
@@ -39,42 +46,50 @@ class JSONIterator(object):
             if self.End > float(myEnd):
                 self.End=float(myEnd)
             
-            self.iterate=iter(self.List)
             self.n=0
             self.end=len(self.List)
             if end_ != None:
                 print('   Iterating from step %-11.2f through %-11.2f ' %(self.Start,self.End))
             if start_ == None and end_ == None:
                 print('   Iterating over the entire trajectory from step %-11.2f through %-11.2f ' %(self.Start,self.End))
-        elif isinstance(root,io.TextIOWrapper):
-            while True:
-                self.iterate=json.loads(root.readline())
-                if float(next(iter(self.iterate))) >= self.Start:
-                    break
+            self.iterate=iter(self.List)
+
+    def __getitem__(self,arg):
+        return self.root[arg]
 
     def __iter__(self):
         return self
     
-    def next(self):
-        if isinstance(self.root,dict):
-            try:
-                return next(self.iterate)
-            except StopIteration:
+    def __next__(self):
+        if self.type == 'seq':
+            line=self.my_file.readline()
+            if line:
+                self.iterate=json.loads(line)
+                self.root=self.iterate
+                timeC=next(iter(self.iterate))
+
+                if float(timeC) > self.End:
+                    sys.stdout.write('\n')        
+                    return None
+                while float(timeC) < self.Start:
+                    self.iterate=json.loads(line)
+
+                if self.N != 0 and self.N%100 == 0:
+                    sys.stdout.write('%10.2f-' % float(timeC))
+                    sys.stdout.flush()
+                self.N+=1                
+                return timeC
+            else:
+                sys.stdout.write('\n')        
                 return None
         else:
-            self.iterate=json.loads(self.root.readline)
-            return self.iterate
-#             
-#         print(self.n,self.end)
-#         if self.n < self.end:
-#             if self.List[self.n] in self.Keywords:
-#                 self.n+=1
-#                 self.next()
-#             else:
-#                 while True:
-#                     self.item=self.List[self.n]
-#                     self.n+=1
-#                     if float(self.item) >= self.Start and float(self.item) <= self.End:
-#                         break
-#         return self.item
-#         
+            try:
+                timeC=next(self.iterate)
+                if self.N != 0 and self.N%100 == 0:
+                    sys.stdout.write('%10.2f-' % float(timeC))
+                    sys.stdout.flush()
+                self.N+=1                
+                return timeC
+            except StopIteration:
+                sys.stdout.write('\n')        
+                return None
