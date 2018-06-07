@@ -24,17 +24,18 @@ _Dna='Dna'
 _DetPol='DetPol'
 _DetOil='DetOil'
 _Area='Area'
+_Vol='Vol'
 
 class Voronoi(object):
     '''
     classdocs
     '''
-    Labels=['Vol','Shell','AClust','Pick']
+    Labels=['Vol','Shell','AClust','Pick','TotVol']
     def __init__(self, openfile=None,fileout=None,start=None,end=None,type='seq'):
         '''
         Constructor
         '''
-        funcs=[self.avgVol,self.avgShell,self.avgAClust,self.pickRes]
+        funcs=[self.avgVol,self.avgShell,self.avgAClust,self.pickRes,self.TotVol]
 
         self.whatToDo=dict(zip(Voronoi.Labels,funcs))
 
@@ -71,7 +72,51 @@ class Voronoi(object):
 
     def read(self):
         self.myIter=jsonIterator.JSONIterator(self.my_file,self.start,self.end,self.type)
-        self.Atom=json.loads(json.dumps(self.myIter['Res']['List']))
+#        self.Atom=json.loads(json.dumps(self.myIter['Res']['List']))
+        self.AtomTypes=json.loads(json.dumps(self.myIter['Res']))
+        self.Atom=self.AtomTypes['List']
+
+    def TotVol(self):
+        myIter=self.myIter
+        Atom=self.Atom
+
+        volTot={}
+        natoTot={}
+        for type in self.AtomTypes:
+            if type != 'List':
+                typeB=self.AtomTypes[type][1]
+                volTot[typeB]=[]
+                natoTot[typeB]=0
+        types=[type for type in volTot]
+        timeC=next(myIter)
+        firstRound=True
+        while timeC != None:
+            vols=myIter[timeC]['Vol']
+            volTypes={}
+            for type in types:
+                volTypes[type]=[]
+            n=0
+            for vol in vols:
+                typeA=Atom[n]
+                typeB=self.AtomTypes[typeA][1]
+                volTypes[typeB].append(vol)
+                n+=1
+            if firstRound:
+                firstRound=False
+                n=0
+                for vol in vols:
+                    typeA=Atom[n]
+                    typeB=self.AtomTypes[typeA][1]
+                    natoTot[typeB]+=1
+                    n+=1
+
+            for type in types:
+                Tot=np.sum(volTypes[type])
+                volTot[type].append(Tot)
+            
+            timeC=next(myIter)
+        for key in volTot:
+            print(' %-6s  %10.3f %10.5f   natom = %7d'% (key,np.average(volTot[key]), np.std(volTot[key]),natoTot[key]))
 
     def avgVol(self):
         myIter=self.myIter
@@ -128,15 +173,22 @@ class Voronoi(object):
         n=0
         self.fileout.write('  No  Residue  ')
         myhistS=next(iter(histS.values()))
+        self.fileout.write('      %-7s     '%'Vol')
         for label in myhistS:
-            self.fileout.write('      %-7s     '%label)
+            self.fileout.write('      %-7s Area'%label)
         self.fileout.write('       %-10s     '%'Total Area')            
         self.fileout.write('\n')
         for resn in self.myPick:
             res=self.Atom[resn]
             hist=histS[resn]
             totArea=totAreaS[resn]
+
             self.fileout.write('%3d     %-3s    '% (resn,res))
+            totVol=self.totVolS[resn]
+            avg=np.average(totVol)
+            std=np.std(totVol)
+            self.fileout.write('   %7.3f (%6.4f) '% (avg,std))
+
             for label in hist:
                 avg=np.average(hist[label])
                 std=np.std(hist[label])
@@ -198,14 +250,18 @@ class Voronoi(object):
         timeC=next(myIter)
         histS=coll.OrderedDict()
         totAreaS=coll.OrderedDict()
+        totVolS=coll.OrderedDict()
         while timeC != None:
             for resn in myPick:
                 if resn not in histS:
                     histS[resn]={}
                     totAreaS[resn]=[]
+                    totVolS[resn]=[]
                 hist=histS[resn]
                 totArea=totAreaS[resn]
+                totVol=totVolS[resn]
                 area=myIter[timeC][_Area][resn]
+                totVol.append(myIter[timeC][_Vol][resn])
                 tot=0.0
                 for _type in area:
                     tot+=area[_type]
@@ -218,6 +274,7 @@ class Voronoi(object):
             timeC=next(myIter)
         self.histS=histS
         self.totAreaS=totAreaS
+        self.totVolS=totVolS
 
     def pickRes(self,myPick):
         myIter=self.myIter

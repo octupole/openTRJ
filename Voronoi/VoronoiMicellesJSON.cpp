@@ -14,7 +14,6 @@ void VoronoiMicellesJSON::WriteIt(std::ofstream & fout){
 	json myJson;
 
 	if(firsttime && this->VoroRank == 0){
-		fout << "{";
 		json myTypes;
 		for(int o=0;o<nc;o++) {
 			myTypes["Types"][ResidueTypes::getType(o)]=o;
@@ -29,13 +28,7 @@ void VoronoiMicellesJSON::WriteIt(std::ofstream & fout){
 			myTypes["Res"]["List"].push_back(l);
 		}
 
-		auto it=myTypes.begin();
-		for(;it!=myTypes.end();it++){
-			if(it != myTypes.begin()) fout << ",";
-			fout << "\""<<it.key()<<"\": ";
-			fout << *it;
-		}
-		fout <<","<<endl;
+		fout << myTypes<<endl;
 		firsttime=false;
 	}
 	json & myTime=myJson[std::to_string(time)];
@@ -138,17 +131,9 @@ void VoronoiMicellesJSON::WriteIt(std::ofstream & fout){
 	}
 
 // Append to JSON file
-	auto it=myJson.begin();
-	for(;it!=myJson.end();it++){
-		fout << "\""<<it.key()<<"\": ";
-		fout << *it;
-	}
-	fout << ",";
+	fout << myJson <<endl;
 }
 void VoronoiMicellesJSON::WriteLastJSON(std::ofstream & fout){
-	size_t pos=fout.tellp();
-	fout.seekp(pos-1);
-	fout<<"}"<<endl;
 }
 
 VoronoiMicellesJSON::~VoronoiMicellesJSON() {
