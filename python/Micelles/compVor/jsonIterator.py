@@ -31,6 +31,7 @@ class JSONIterator(object):
         if self.type =='seq':
             self.iterate=json.loads(self.my_file.readline())
             self.root=self.iterate
+            self.beforeStart=True
         else:
             self.root=json.load(self.my_file)
             self.dict=True
@@ -71,8 +72,16 @@ class JSONIterator(object):
                 if float(timeC) > self.End:
                     sys.stdout.write('\n')        
                     return None
-                while float(timeC) < self.Start:
+                
+                while self.beforeStart:
+                    if float(timeC) > self.Start:
+                        self.beforeStart=False
+                        print('Start at time = %s ' % timeC)
+                        break
+                    line=self.my_file.readline()
                     self.iterate=json.loads(line)
+                    self.root=self.iterate
+                    timeC=next(iter(self.iterate))
 
                 if self.N != 0 and self.N%100 == 0:
                     sys.stdout.write('%10.2f-' % float(timeC))

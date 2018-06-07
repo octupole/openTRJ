@@ -52,6 +52,17 @@ void Voronoi::Start(float frame, Atoms<T> & atm){
 	}
 	Percolation<T> * myPerco=atm.gPerco();
 	if(myPerco){
+		static struct Once{
+			vector<bool> myIdx;
+			Once(int nr,listcon ind){
+				myIdx=vector<bool>(nr,false);
+				for(size_t o{0};o<ind.size();o++)
+					for(size_t p{0};p<ind[o].size();p++){
+						myIdx[ind[o][p]]=true;
+					}
+			}
+		} ind_f(nr,CIndex);
+
 		Clusters.clear();
 		atClusters.clear();
 		VolClusters.clear();
@@ -64,10 +75,12 @@ void Voronoi::Start(float frame, Atoms<T> & atm){
 		for(size_t o{0};o<mClusters.size();o++)
 			for(size_t p{0};p<mClusters[o].size();p++){
 				int i0{mClusters[o][p]};
-				for(size_t n{0};n<CIndex[i0].size();n++){
-					int i{CIndex[i0][n]};
-					Clusters[o].push_back(i);
-					atClusters[i]=o;
+				for(size_t n{0};n<mAtoms[i0].size();n++){
+					int i{mAtoms[i0][n]};
+					if(ind_f.myIdx[i]){
+						Clusters[o].push_back(i);
+						atClusters[i]=o;
+					}
 				}
 			}
 		VolClusters=vector<double>(Clusters.size(),0.0);
