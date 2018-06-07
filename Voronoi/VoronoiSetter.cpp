@@ -7,8 +7,8 @@
 
 #include "VoronoiSetter.h"
 int VoronoiSetter::pGroup=-1;
-bool VoronoiSetter::bPrintVols=true;
-bool VoronoiSetter::bPrintAreas=true;
+bool VoronoiSetter::bPrintVols=false;
+bool VoronoiSetter::bPrintAreas=false;
 bool VoronoiSetter::bPrintShell=false;
 int VoronoiSetter::maxLevel=2;
 

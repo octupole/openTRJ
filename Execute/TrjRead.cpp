@@ -42,7 +42,7 @@ TrjRead::TrjRead(int nv,char ** v, ClearUsage & clr): trjInput::trjInput(nv,v,cl
 void TrjRead::Input(){
 	ifstream ftest,fdefdomain;
 	int pGroup{-1}; // From 0 to ngrps, ngrps no. of selected groups
-	bool bPrintVols{true};
+	bool bPrintVols{false};
 	bool bPrintAreas{false};
 	bool bpdbOut{false};
 	try{
