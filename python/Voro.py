@@ -43,7 +43,7 @@ PROFILE = 0
 def myCallback(option, opt, value, parser):
     setattr(parser.values, option.dest, value.split(' '))
 
-def parse_args(version,epilog,description):
+def parse_args(version,epilog,description,argv):
     """Function to handle building and parsing of command line arguments"""
     usage = "usage: %prog [options] -f  JSONfile"
 
@@ -70,7 +70,7 @@ def parse_args(version,epilog,description):
     parser.add_option("--which", action="store", dest="Which",
                       help="Choose what to do. Possible values are:  "+label)
 
-    options = parser.parse_args()
+    options = parser.parse_args(argv)
     if isinstance(options, tuple):
         args = options[0]
     else:
@@ -85,8 +85,10 @@ def main(argv=None):
     '''Command line options.'''
     if argv is None:
         argv = sys.argv[1:]
+    print('ula')
+    print(argv)
 
-    program_name = os.path.basename(sys.argv[0])
+    program_name = 'Voro.py'
     program_version = "v0.1"
     program_build_date = "%s" % __updated__
 
@@ -103,7 +105,9 @@ def main(argv=None):
 
 
     try:
-        opts = parse_args(version=program_version_string, epilog=program_longdesc, description=description)
+        print('babaluga 1')
+        opts = parse_args(version=program_version_string, epilog=program_longdesc, description=description,argv=argv)
+        print('babaluga 2')
         if opts.outfile:
             print("outfile = %s" % opts.outfile)
         if opts.hostname:
@@ -168,6 +172,5 @@ def main(argv=None):
         return 2
 
 
-if __name__ == "__main__":
-
+if __name__ == "__main__":  
     sys.exit(main())

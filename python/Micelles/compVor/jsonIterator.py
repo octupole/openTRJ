@@ -33,27 +33,9 @@ class JSONIterator(object):
             self.root=self.iterate
             self.beforeStart=True
         else:
-            self.root=json.load(self.my_file)
-            self.dict=True
-            List=[L for L in self.root if L not in JSONIterator.Keywords ]
-            self.List=[L for L in List if float(L) >= self.Start and float(L) <= self.End]
-            myStart=List[0]
-            myEnd=List[len(List)-1]
-            if not len(self.List):
-                print('Trajectory bounds wrong: Found %-s -- %-s, while given %10.3f -- %10.3f '%(myStart,myEnd,self.Start,self.End))
-                sys.exit(1)
-            if self.Start < float(myStart):
-                self.Start=float(myStart)
-            if self.End > float(myEnd):
-                self.End=float(myEnd)
-            
-            self.n=0
-            self.end=len(self.List)
-            if end_ != None:
-                print('   Iterating from step %-11.2f through %-11.2f ' %(self.Start,self.End))
-            if start_ == None and end_ == None:
-                print('   Iterating over the entire trajectory from step %-11.2f through %-11.2f ' %(self.Start,self.End))
-            self.iterate=iter(self.List)
+            self.lines=iter(self.my_file.readlines())
+            self.iterate=json.load(next(self.lines))
+            self.root=self.iterate
 
     def __getitem__(self,arg):
         return self.root[arg]
@@ -64,41 +46,33 @@ class JSONIterator(object):
     def __next__(self):
         if self.type == 'seq':
             line=self.my_file.readline()
-            if line:
+        else:
+            line=next(self.lines)
+
+        if line:
+            self.iterate=json.loads(line)
+            self.root=self.iterate
+            timeC=next(iter(self.iterate))
+
+            if float(timeC) > self.End:
+                sys.stdout.write('\n')        
+                return None
+                
+            while self.beforeStart:
+                if float(timeC) > self.Start:
+                    self.beforeStart=False
+                    print('Start at time = %s ' % timeC)
+                    break
+                line=self.my_file.readline()
                 self.iterate=json.loads(line)
                 self.root=self.iterate
                 timeC=next(iter(self.iterate))
 
-                if float(timeC) > self.End:
-                    sys.stdout.write('\n')        
-                    return None
-                
-                while self.beforeStart:
-                    if float(timeC) > self.Start:
-                        self.beforeStart=False
-                        print('Start at time = %s ' % timeC)
-                        break
-                    line=self.my_file.readline()
-                    self.iterate=json.loads(line)
-                    self.root=self.iterate
-                    timeC=next(iter(self.iterate))
-
-                if self.N != 0 and self.N%100 == 0:
-                    sys.stdout.write('%10.2f-' % float(timeC))
-                    sys.stdout.flush()
-                self.N+=1                
-                return timeC
-            else:
-                sys.stdout.write('\n')        
-                return None
+            if self.N != 0 and self.N%100 == 0:
+                sys.stdout.write('%10.2f-' % float(timeC))
+                sys.stdout.flush()
+            self.N+=1                
+            return timeC
         else:
-            try:
-                timeC=next(self.iterate)
-                if self.N != 0 and self.N%100 == 0:
-                    sys.stdout.write('%10.2f-' % float(timeC))
-                    sys.stdout.flush()
-                self.N+=1                
-                return timeC
-            except StopIteration:
-                sys.stdout.write('\n')        
-                return None
+            sys.stdout.write('\n')        
+            return None
