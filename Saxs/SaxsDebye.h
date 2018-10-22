@@ -18,7 +18,7 @@ public:
 	SaxsDebye(double dq0, double qcut0): Saxs(dq0,qcut0){};
 	SaxsDebye(int MyOrder,double dq0, double qcut0): Saxs(MyOrder,dq0,qcut0){};
 
-	virtual void ComputeSF(RhoSaxs *,const MAtoms *);
+	virtual void ComputeSAXS(RhoSaxs *,const MAtoms *);
 	virtual ~SaxsDebye();
 };
 

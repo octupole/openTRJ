@@ -12,7 +12,8 @@ SaxsDebye::SaxsDebye() {
 
 }
 
-void SaxsDebye::ComputeSF(RhoSaxs * dummy,const MAtoms * y){
+void SaxsDebye::ComputeSAXS(RhoSaxs * dummy,const MAtoms * y){
+
 	const MAtoms & x=*y;
 	MetricD Mt=x.getMt();
 	Matrix OC{Mt.getOC()};

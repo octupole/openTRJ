@@ -270,6 +270,7 @@ void Saxs::Setup(const vector<string> & at, bool mySans){
 	auto it=unique(at_loc.begin(),at_loc.end());
 	at_loc.resize(distance(at_loc.begin(),it));
 	ScatteringFactors * tmp;
+	cout << " ---------- Atoms Count ---------- \n\n";
 	if(bSans)
 		tmp=new ScatteringFactorsN;
 	else
@@ -277,7 +278,9 @@ void Saxs::Setup(const vector<string> & at, bool mySans){
 	for(auto atv: at_loc){
 		Sfacts[atv]=(*tmp)(atv);
 		iSfacts[atv]=opgather<string>{atv}(at);
+		cout << " -- Atoms  " <<atv << "    Count =  " << iSfacts[atv].size()<<endl;
 	}
+	cout << "\n"<<endl;
 }
 void Saxs::Setup(const vector<int> & Lst,const vector<string> & at1,bool mySans){
 	bSans=mySans;
@@ -301,10 +304,12 @@ void Saxs::Setup(const vector<int> & Lst,const vector<string> & at1,bool mySans)
 	else
 		tmp=new ScatteringFactors;
 
+	cout << " ---------- Atoms Count ---------- \n\n";
 	for(auto atv: at_loc){
 		if(atv == "0") continue;
 		Sfacts[atv]=(*tmp)(atv);
 		iSfacts[atv]=opgather<string>{atv}(at);
+		cout << " -- Atoms\t" <<atv << "    Count =\t" << iSfacts[atv].size()<<endl;
 	}
 	Ntot=0;
 	for(auto it=Sfacts.begin();it!=Sfacts.end();it++){
@@ -313,6 +318,7 @@ void Saxs::Setup(const vector<int> & Lst,const vector<string> & at1,bool mySans)
 		MyNas.push_back(Na);
 		Ntot+=Na;
 	}
+	cout << "\n"<<endl;
 	Lst_i=Lst;
 	at1_i=at1;
 }
@@ -687,6 +693,7 @@ void Saxs::ComputeSAXS(RhoSaxs * Rho_ex,const MAtoms * y){
 	Complex iD{1.0/N_t,0.0};
 	ro_ktot*=iD;
 	I_k+=ro_ktot;
+
 	count++;
 	delete x0;
 }

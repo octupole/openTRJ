@@ -11,8 +11,8 @@ SaxsDir::SaxsDir() {
 	// TODO Auto-generated constructor stub
 
 }
-void SaxsDir::ComputeSF(RhoSaxs * dummy,const MAtoms * y){
-	const MAtoms & x=*y;
+void SaxsDir::ComputeSAXS(RhoSaxs * dummy,const MAtoms * y){
+	MAtoms x=*y;
 	qdfx=new SaxsHistogram(dq,qcut,unitsQ);
 	SaxsHistogram & rdq=*qdfx;
 
@@ -27,10 +27,10 @@ void SaxsDir::ComputeSF(RhoSaxs * dummy,const MAtoms * y){
 		double Na=ind0.size();
 		for (auto o = 0; o < ind0.size(); o++) {
 			size_t i=ind0[o];
-			Dvect xx=Dvect{x.getX()[i]};
-			xa[o][XX] = xx[XX];
-			xa[o][YY] = xx[YY];
-			xa[o][ZZ] = xx[ZZ];
+
+			xa[o][XX] = x[i][XX];
+			xa[o][YY] = x[i][YY];
+			xa[o][ZZ] = x[i][ZZ];
 		}
 		for(auto it1=it0;it1!=Sfacts.end();it1++){
 			auto ff1=it1->second;

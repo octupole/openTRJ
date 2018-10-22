@@ -150,6 +150,7 @@ int main(int argc, char ** argv)
 		atm=new MAtoms(MyIn.WhichDiffusion);
 		int natoms=MyTop.Size();
 		atm->setDim(natoms);
+		atm->setTopol(MyTop);
 		atm->initLists(topPDB, MyIn.gSelRes());
 		atm->InitSelection<Enums::Selection>(MyIn.gSelRes(),MyTop);
 		atm->InitSelection<Enums::Reference>(MyIn.gReference(),MyTop);

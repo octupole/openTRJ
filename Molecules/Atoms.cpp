@@ -685,6 +685,7 @@ void Atoms<T>::cPrint(ostream & fout){
 		for(size_t s=0;s<mCluster[r].size();s++){
 			int t=mCluster[r][s];
 			for(size_t w=0;w<mAtoms[t].size();w++){
+
 				string tmp;
 				int n=mAtoms[t][w];
 				ss.str(string());
@@ -1025,9 +1026,12 @@ void Atoms<T>::__ReconstructOneCluster(vector<bool> & atSolv){
 			x[ia][o]=Mt.getCO()[o][XX]*xa[ia][XX]+Mt.getCO()[o][YY]*xa[ia][YY]+Mt.getCO()[o][ZZ]*xa[ia][ZZ];
 		}
 	}
+	cout << *this;
+	exit(1);
 }
 template <typename T>
 void Atoms<T>::Reconstruct(Contacts<T> * con0){
+
 	vector<Dvect> nxyz=PBCvect<T>::getVec();
 	vector<vector<int> > mCluster=Perco->getCluster();
 	vector<vector<int> > mAtoms=Perco->getAtoms();
@@ -1073,7 +1077,6 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 
 	//
 	vector<Dvect> xcmC(mCluster.size());
-
 
 	for(size_t o=0;o<mCluster.size();o++){
 		if(mCluster[o].size() < 5) continue;
@@ -1157,6 +1160,7 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 
 		}
 	}
+
 
 	//> Obtain new Cartesian coordinates from reduced xa's
 	for(auto ia=0;ia<nr;ia++){

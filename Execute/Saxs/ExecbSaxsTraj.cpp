@@ -169,8 +169,8 @@ void ExecbSaxsTraj::__SetUp(trj::TrjRead & MyIn){
 		MySaxs=new SaxsDir(MyOrder,Myd,Mycut);
 	}
 
-	Rho_ex->selectPadding(exPadding);
 	if(!bDebye && !bDirect){
+		Rho_ex->selectPadding(exPadding);
 		Rho_ex->setPadding(MyIn.gfftPadding().getMapResidue());
 	}
 	MySaxs->Allocate(nnx,nny,nnz);

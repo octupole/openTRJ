@@ -19,7 +19,7 @@ public:
 	SaxsDir(int MyOrder,double dq0, double qcut0): Saxs(MyOrder,dq0,qcut0){};
 
 
-	virtual void ComputeSF(RhoSaxs *,const MAtoms *);
+	virtual void ComputeSAXS(RhoSaxs *,const MAtoms *);
 	virtual ~SaxsDir();
 };
 
