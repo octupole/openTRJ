@@ -9,7 +9,7 @@ to treat systems undergoing self-aggregations, such as micelles, inverted micell
 create three programs:
 * trjVoronoi which computes the Voronoi volumes using voro++
 * trjProp    which computes radius of gyration and aggregation properties
-* trjSaxs    which computes the Saxs profiles of the system
+* trjSaxs    which computes the Saxs or Sans profiles of the system
 
 All programs require a .pdb file containing the coordinates of the whole system, including waters and ions if needed. trjVoronoi uses voro++ 
 by Chris H. Rycroft to compute properties of molecular systems in solution from molecular dynamics trajectories 
