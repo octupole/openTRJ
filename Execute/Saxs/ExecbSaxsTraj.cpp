@@ -118,14 +118,16 @@ void ExecbSaxsTraj::__SetUp(trj::TrjRead & MyIn){
 	ExecbSaxs::__SetUp(MyIn);
 	SuperCell0=MyIn.gSuperCellSide();
 
-	MyOrder=MyIn.gMyOrder();
-	bSaxsBSP=MyIn.bbSaxsBSP();
+	MyOrder=WhatToDo==Enums::ELDENS?4:MyIn.gMyOrder();
+	bSaxsBSP=WhatToDo==Enums::ELDENS?false:MyIn.bbSaxsBSP();
 	bFluct=MyIn.bbFluct();
 	bFixed=MyIn.bbFixed();
 	nacc=MyIn.gnacc();
 	bDebye=MyIn.bbDebye();
 	bDirect=MyIn.bbDirect();
 	exPadding=MyIn.WhichPadding;
+
+
 	if(exPadding == Enums::Periodic) Filter.Allocate(nnx,nny,nnz);
 
 	ios::streampos len;
@@ -149,13 +151,12 @@ void ExecbSaxsTraj::__SetUp(trj::TrjRead & MyIn){
 	 * Define and dimension RhoSaxs and Saxs classes
 	 */
 	if(!bDebye && !bDirect){
-		if(bSaxsBSP || !bFluct){
+		if((bSaxsBSP || !bFluct ) && WhatToDo!=Enums::ELDENS){
 			Rho_ex=new RhoSaxsBSP;
 			if(!bFluct && !bFixed)
 				MySaxs=new SaxsBSPStatic(nacc,MyOrder,Myd,Mycut);
-			else if(bFixed){
+			else if(bFixed)
 				MySaxs=new SaxsBSPfixed(MyOrder,Myd,Mycut);
-			}
 			else
 				MySaxs=new SaxsBSP(MyOrder,Myd,Mycut);
 		} else {
@@ -220,6 +221,10 @@ void ExecbSaxsTraj::__Compute(const MAtoms * atm){
 	case Enums::SQ:
 		MySaxs->ComputeSq(Rho_ex,atm);
 		break;
+	case Enums::ELDENS:
+		MySaxs->ComputeSAXS(Rho_ex,atm,true);
+		break;
+
 
 	}
 }
@@ -237,8 +242,8 @@ void ExecbSaxsTraj::__RunPDB(MAtoms * atm){
 		__SuperCell(atm);
 		__AllocateRho(atm);
 	}
-	bool bSans=WhatToDo==Enums::SANS;
-	MySaxs->Setup(atm->getIndx(),Top->get_atSFactor(),bSans);
+
+	MySaxs->Setup(atm->getIndx(),Top->get_atSFactor(),WhatToDo==Enums::SANS,WhatToDo==Enums::ELDENS);
 	ContactsD * Con0;
 	if(Rcut_in < 0) Rcut_in=15.0;
 	Con0=new ContactsD(Rcut,Rcut_in);
@@ -264,9 +269,7 @@ void ExecbSaxsTraj::__RunPDBtest(MAtoms * atm){
 	atm->pdb(data);
 }
 void ExecbSaxsTraj::__RunTrajectory(MAtoms * atm){
-	bool bSans=WhatToDo==Enums::SANS;
-	MySaxs->Setup(atm->getIndx(),Top->get_atSFactor(),bSans);
-
+	MySaxs->Setup(atm->getIndx(),Top->get_atSFactor(),WhatToDo==Enums::SANS,WhatToDo==Enums::ELDENS);
 	myiterators::IteratorAtoms<double> iter_atm(atm,finx,nstart,nend,nskip);
 	int MPIsize=CurrMPI->Get_Size();
 	int * i_recv=new int [MPIsize];
@@ -308,9 +311,9 @@ void ExecbSaxsTraj::__RunTrajectory(MAtoms * atm){
 			}
 		Rho_ex->Deallocate();
 	}
-
 	MySaxs->Reduce(CurrMPI);
 	MySaxs->Averages();
+
 	delete [] i_recv;
 	delete [] d_recv;
 }

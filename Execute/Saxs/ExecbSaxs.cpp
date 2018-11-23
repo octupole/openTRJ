@@ -41,7 +41,7 @@ void ExecbSaxs::__SetUp(trj::TrjRead & MyIn){
 	bContrast=MyIn.bbContrast();
 	Mycut=MyIn.gMyCut();
 	Myd=MyIn.gMyd();
-
+	bEdens=MyIn.bbedens();
 
 	fileout_bin=MyIn.gfileout_bin();
 	fout_binx=MyIn.gFout_binx();
@@ -50,8 +50,6 @@ void ExecbSaxs::__SetUp(trj::TrjRead & MyIn){
 	finx=MyIn.gFinx();
 	foutx=MyIn.gFoutx();
 
-	firl=MyIn.gFirl();
-	fidb=MyIn.gFidb();
 	fin_contrast=MyIn.gFin_contrast();
 	fout_saxsx=MyIn.gFoutsaxs();
 	Rcut=MyIn.gRcut();

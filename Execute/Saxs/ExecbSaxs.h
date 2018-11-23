@@ -71,6 +71,7 @@ protected:
 	bool bHyd{false};
 	bool bIsrd{false};
 	bool bSaxs{false};
+	bool bEdens{false};
 	Enums::Compute WhatToDo{Enums::SAXS};
 
 	/// @endcond
@@ -96,8 +97,6 @@ protected:
 	ofstream * fout_binx{nullptr};///< binary output stream
 
 	/// @cond TEST
-	ifstream * firl{nullptr};
-	ifstream * fidb{nullptr};
 	ifstream * fin_contrast{nullptr};
 	ofstream * fout_saxsx{nullptr};
 	/// @endcond

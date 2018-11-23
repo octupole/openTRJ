@@ -50,6 +50,7 @@ protected:
 	 *
 	 * @param x Instantiated MAtoms class
 	 */
+
 	void __RunPDB(MAtoms * x);
 	void __RunPDBtest(MAtoms * x);
 

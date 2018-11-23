@@ -48,6 +48,7 @@ void Saxs::__copy(const Saxs & y ){
 	noSplineOut=y.noSplineOut;
 	Allocate(y.nx,y.ny,y.nz);
 	I_k=y.I_k;
+	I_r=y.I_r;
 	SuperCell=y.SuperCell;
 	SuperCell0=y.SuperCell0;
 
@@ -84,6 +85,7 @@ void Saxs::Allocate(size_t mx,size_t my,size_t mz){
 	}
 	nzp=nz/2+1;
 	I_k.Allocate(nx,ny,nzp,align);
+	I_r.Allocate(nx,ny,nz,sizeof(double));
 }
 void Saxs::Reduce(Parallel::NewMPI * y){
 	if(!y->Get_Size()) return;
@@ -93,6 +95,8 @@ void Saxs::Reduce(Parallel::NewMPI * y){
 	auto dim=nx*ny*nzp;
 	auto ip=&I_k[0][0][0];
 	y->ReduceSum(ip,dim);
+	auto ipr=&I_r[0][0][0];
+	y->ReduceSum(ipr,dim);
 	dim=DIM*DIM;
 	auto ip2=&MCO[0][0];
 	y->ReduceSum(ip2,dim);
@@ -103,6 +107,7 @@ void Saxs::Reduce(Parallel::NewMPI * y){
 void Saxs::Averages(){
 	bAvg=true;
 	I_k/=Complex{static_cast<double>(count),0.0};
+	I_r/=static_cast<double>(count);
 	MCO/=static_cast<double>(count);
 	MOC/=static_cast<double>(count);
 }
@@ -263,8 +268,9 @@ void Saxs::SetupQdf(){
 		qdfx=new SaxsHistogramSpline;
 }
 
-void Saxs::Setup(const vector<string> & at, bool mySans){
+void Saxs::Setup(const vector<string> & at, bool mySans,bool myDens){
 	bSans=mySans;
+	bElDens=myDens;
 	vector<string> at_loc=at;
 	sort(at_loc.begin(),at_loc.end());
 	auto it=unique(at_loc.begin(),at_loc.end());
@@ -282,8 +288,9 @@ void Saxs::Setup(const vector<string> & at, bool mySans){
 	}
 	cout << "\n"<<endl;
 }
-void Saxs::Setup(const vector<int> & Lst,const vector<string> & at1,bool mySans){
+void Saxs::Setup(const vector<int> & Lst,const vector<string> & at1,bool mySans,bool myDens){
 	bSans=mySans;
+	bElDens=myDens;
 	Sfacts.clear();
 	iSfacts.clear();
 	MyFs.clear();
@@ -358,10 +365,75 @@ SaxsHistogram & SaxsHistogram::operator^=(const SaxsHistogram & z){
 
 	return *this;
 }
+void Saxs::WriteI_r(std::ostream & fout){
+	double dx=MCO[XX][XX]/static_cast<double>(nx);
+	double dy=MCO[YY][YY]/static_cast<double>(ny);
+	double dz=MCO[ZZ][ZZ]/static_cast<double>(nz);
+	float dvol=static_cast<float>(dx*dy*dz);
+	I_r/=dvol;
+#ifdef HAVE_VTK
+	float x[3], a, v[3], rMin = 0.5, rMax = 1., deltaRad, deltaZ;
+	int dims[3]={static_cast<int>(nx),static_cast<int>(ny),static_cast<int>(nz)};
+	  // Create the structured grid.
+	vtkStructuredGrid *sgrid = vtkStructuredGrid::New();
+	sgrid->SetDimensions(dims);
+
+	  // Create points.
+	vtkPoints *points = vtkPoints::New();
+	points->Allocate(dims[0]*dims[1]*dims[2]);
+
+	  // Create scalars. No need to allocate size, as the array will expand automatically as we add new
+	  // values with InsertNextValue.
+	vtkFloatArray *scalars = vtkFloatArray::New();
+
+	scalars->SetName("density");
+	for (size_t k{0}; k < nz; k++) {
+		x[ZZ]=dz*k;
+		int kOffset = k*nx*ny;
+	    for (size_t j{0}; j<ny; j++) {
+	    	int jOffset = j * nx;
+			x[YY]=dy*j;
+	    	for (size_t i{0}; i<nx; i++) {
+	    		int offset = i + jOffset + kOffset;
+	    		x[XX]=dx*i;
+
+	    		float Val=I_r[i][j][k];
+			    if(Val != 0.0)
+	    		cout << std::scientific<< Val <<endl;
+	    		points->InsertPoint(offset,x);
+	    		scalars->InsertNextValue(Val);
+	    	}
+	    }
+	}
+	sgrid->SetPoints(points);
+	points->Delete();
+	sgrid->GetPointData()->SetScalars(scalars);
+	scalars->Delete();
+	vtkXMLStructuredGridWriter *Writer = vtkXMLStructuredGridWriter::New();
+	Writer->SetInputData(sgrid);
+	Writer->SetFileName("halfCylinder.vts");
+	Writer->Write();
+
+	// Delete objects.
+	Writer->Delete();
+	sgrid->Delete();
+
+#else
+	for(size_t i{0};i<nx;i++)
+		for(size_t j{0};j<ny;j++)
+			for(size_t k{0};k<nz;k++){
+				fout << dx*i<< ", " << dy*j<< ", " << dz*k<< ", " << I_r[i][j][k] << endl;
+			}
+#endif
+}
 void Saxs::WriteIt(std::ostream & fout){
 	try{
 		if(!bAvg) throw string("\nCannot write to file without averaging.");
 	} catch(const string & s){cout << s<<endl;Finale::Finalize::Final();}
+	if(bElDens){
+		WriteI_r(fout);
+		return;
+	}
 	if(qdfx == nullptr){
 		if(noSplineOut)
 			qdfx=new SaxsHistogram;
@@ -596,7 +668,9 @@ void Saxs::ComputeSq(RhoSaxs * Rho_ex,const MAtoms * y){
 	Ntot=1;
 	delete [] x;
 }
-void Saxs::ComputeSAXS(RhoSaxs * Rho_ex,const MAtoms * y){
+
+
+void Saxs::ComputeSAXS(RhoSaxs * Rho_ex,const MAtoms * y,bool bDens){
 	AtomsD * x0{new MAtoms(*y)};
 	if(SuperCell0 >1 )
 		if(!x0->CenterAtoms()) return;
@@ -663,10 +737,19 @@ void Saxs::ComputeSAXS(RhoSaxs * Rho_ex,const MAtoms * y){
 		Rho_e.Density(order,x0,iSfacts[it->first],it->first);
 		(Rho_alt.*Padding)(Rho_ex,Nx,Ny,Nz);
 		ro_k=Complex{0.0,0.0};
-		Forward3.fft(ro_r[0],ro_k);
 		auto ff=it->second;
 		auto Na=iSfacts[it->first].size();
 		N_t+=Na;
+//		if(bDens){
+//			auto myFF=ff(0.0);
+//			for(size_t i{0};i<nx;i++)
+//				for(size_t j{0};j<ny;j++)
+//					for(size_t k{0};k<nz;k++){
+//						I_r[i][j][k]+=myFF*Rho_e[0][i][j][k];
+//					}
+//		}
+
+		Forward3.fft(ro_r[0],ro_k);
 
 #pragma omp parallel for
 		for(auto i=0;i<nx;i++){

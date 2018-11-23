@@ -27,8 +27,8 @@ public:
 	SaxsBSP();
 	SaxsBSP(int,double, double);
 
-	virtual void Setup(const vector<string> &,bool);
-	virtual void Setup(const vector<int> &, const vector<string> &,bool);
+	virtual void Setup(const vector<string> &,bool,bool=false);
+	virtual void Setup(const vector<int> &, const vector<string> &,bool,bool=false);
 
 	virtual ~SaxsBSP();
 	friend std::ofstream & operator<<(std::ofstream &, SaxsBSP & );

@@ -11,7 +11,7 @@
 namespace Enums{
 enum Padding {zero, avgDensity, myDensity, Periodic};
 enum myAtoms {Reference, Selection, fftPadding};
-enum Compute {SQ, SAXS, SANS};
+enum Compute {SQ, SAXS, SANS,ELDENS};
 enum myWriteOptions { noJSON, JSON};
 }
 

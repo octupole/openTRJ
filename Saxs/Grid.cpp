@@ -265,149 +265,149 @@ inline Grid<Ndim> operator*(const T & a,const Grid<Ndim> & y){
 	return temp;
 }
 
-template<unsigned int Ndim>
-inline void Grid<Ndim>::Filter(){
-	try{
-	if(!filter) throw "Filter must be initialized, continuing with no filter! ";
-
-	}
-	catch(const char * a){
-		if(!Fcounter) std::cout << a << std::endl;
-		Fcounter=1;
-		return;
-	}
-	array3<Complex> & Mfilter=*filter;
-
-	int nfx,nfy,nfz;
-	nfx=(nnx % 2 == 0)? nnx/2: nnx/2+1;
-	nfy=(nny % 2 == 0)? nny/2: nny/2+1;
-	nfz=(nnz % 2 == 0)? nnz/2: nnz/2+1;
-
-	int nx0=static_cast<int>(nnx);
-	int ny0=static_cast<int>(nny);
-	int nz0=static_cast<int>(nnz);
-
-	array3<Complex> ro[Ndim];
-
-	for(unsigned no=0;no<Ndim;no++){
-		ro[no].Allocate(nnx,nny,nnz);
-		for(int i=0;i<nx0;i++)
-			for(int j=0;j<ny0;j++)
-				for(int k=0;k<nz0;k++){
-					ro[no][i][j][k]=Complex{(*this)[no][i][j][k],0.0};
-				}
-	}
-
-		fft3d Forward3(nnx,nny,nnz,-1);
-		fft3d Backward3(nnx,nny,nnz,1);
-
-
-		for(unsigned no=0;no<Ndim;no++){
-			Forward3.fft(ro[no]);
-			for(int i=0;i<nx0;i++)
-				for(int j=0;j<ny0;j++)
-					for(int k=0;k<nz0;k++){
-						ro[no][i][j][k]=ro[no][i][j][k]*Mfilter[i][j][k];
-					}
-		}
-
-		for(unsigned no=0;no<Ndim;no++){
-			Backward3.fftNormalized(ro[no]);
-			for(int i=0;i<nx0;i++)
-				for(int j=0;j<ny0;j++)
-					for(int k=0;k<nz0;k++)
-						(*this)[no][i][j][k]=ro[no][i][j][k].real();
-		}
-}
-
-
-template<unsigned int Ndim>
-inline void Grid<Ndim>::MakeFilter(int mx,int my, int mz){
-	if(!filter) {
-
-		filter=new array3<Complex>;
-		filter->Allocate(nnx,nny,nnz);
-
-	}
-	int nfx,nfy,nfz;
-	nfx=(nnx % 2 == 0)? nnx/2: nnx/2+1;
-	nfy=(nny % 2 == 0)? nny/2: nny/2+1;
-	nfz=(nnz % 2 == 0)? nnz/2: nnz/2+1;
-	array3<Complex> & Mfilter=*filter;
-
-	fft3d Forward3(nnx,nny,nnz,-1);
-	for(unsigned int i=0;i<nnx;i++){
-		for(unsigned int j=0;j<nny;j++){
-			for(unsigned int k=0;k<nnz;k++){
-				Mfilter(i,j,k)=Complex{0.0,0.0};
-			}
-		}
-	}
-
-	double fact=1.0/(double) ((2*mx+1)*(2*my+1)*(2*mz+1));
-	for(int i=-mx;i<=mx;i++){
-		int ia=(i<0)?i+nnx:i;
-		for(int j=-my;j<=my;j++){
-			int ja=(j<0)?j+nny:j;
-			for(int k=-mz;k<=mz;k++){
-				int ka=(k<0)?k+nnz:k;
-				Mfilter[ia][ja][ka]=Complex{fact,0.0};
-			}
-		}
-	}
-
-	Forward3.fft(Mfilter);
-}
-
-template<unsigned int Ndim>
-inline void Grid<Ndim>::MakeFilter(const double sigma){
-	unsigned int nzp=nnz/2+1;
-	size_t align=sizeof(Complex);
-	if(!filter && !filterrc) {
-		filter=new array3<Complex>;
-		filter->Allocate(nnx,nny,nnz);
-		filterrc=new array3<Complex>;
-		filterrc->Allocate(nnx,nny,nzp,align);
-	}
-	int nfx,nfy,nfz;
-	nfx=(nnx % 2 == 0)? nnx/2: nnx/2+1;
-	nfy=(nny % 2 == 0)? nny/2: nny/2+1;
-	nfz=(nnz % 2 == 0)? nnz/2: nnz/2+1;
-	int nx0=static_cast<int>(nnx);
-	int ny0=static_cast<int>(nny);
-	int nz0=static_cast<int>(nnz);
-	array3<Complex> & Mfilter=*filter;
-	array3<Complex> & Mfilterrc=*filterrc;
-	Mfilter=Complex(0.0,0.0);
-
-	double alpha=1.0/(sigma*sqrt(2.0));
-	double fac=alpha>99?0.0:M_PI*M_PI/(alpha*alpha);
-	for(auto i=0;i<nx0;i++){
-		auto ia=(i<nfx)?i : i-nx0;
-		for(auto j=0;j<ny0;j++){
-			auto ja=(j<nfy)?j : j-ny0;
-			for(auto k=0;k<nz0;k++){
-				auto ka=(k<nfz)?k : k-nz0;
-				auto mw1=oc[XX][XX]*ia+oc[XX][YY]*ja+oc[XX][ZZ]*ka;
-				auto mw2=oc[YY][XX]*ia+oc[YY][YY]*ja+oc[YY][ZZ]*ka;
-				auto mw3=oc[ZZ][XX]*ia+oc[ZZ][YY]*ja+oc[ZZ][ZZ]*ka;
-				auto mw=mw1*mw1+mw2*mw2+mw3*mw3;
-				auto fact=exp(-fac*mw);
-				Mfilter[i][j][k]=Complex{fact,0.0};
-			}
-			for(auto k=0;k<nz0/2+1;k++){
-				auto ka=(k<nfz)?k : k-nz0;
-				auto mw1=oc[XX][XX]*ia+oc[XX][YY]*ja+oc[XX][ZZ]*ka;
-				auto mw2=oc[YY][XX]*ia+oc[YY][YY]*ja+oc[YY][ZZ]*ka;
-				auto mw3=oc[ZZ][XX]*ia+oc[ZZ][YY]*ja+oc[ZZ][ZZ]*ka;
-				auto mw=mw1*mw1+mw2*mw2+mw3*mw3;
-				auto fact=exp(-fac*mw);
-				Mfilterrc[i][j][k]=Complex{fact,0.0};
-			}
-		}
-	}
-}
-
+//template<unsigned int Ndim>
+//inline void Grid<Ndim>::Filter(){
+//	try{
+//	if(!filter) throw "Filter must be initialized, continuing with no filter! ";
+//
+//	}
+//	catch(const char * a){
+//		if(!Fcounter) std::cout << a << std::endl;
+//		Fcounter=1;
+//		return;
+//	}
+//	array3<Complex> & Mfilter=*filter;
+//
+//	int nfx,nfy,nfz;
+//	nfx=(nnx % 2 == 0)? nnx/2: nnx/2+1;
+//	nfy=(nny % 2 == 0)? nny/2: nny/2+1;
+//	nfz=(nnz % 2 == 0)? nnz/2: nnz/2+1;
+//
+//	int nx0=static_cast<int>(nnx);
+//	int ny0=static_cast<int>(nny);
+//	int nz0=static_cast<int>(nnz);
+//
+//	array3<Complex> ro[Ndim];
+//
+//	for(unsigned no=0;no<Ndim;no++){
+//		ro[no].Allocate(nnx,nny,nnz);
+//		for(int i=0;i<nx0;i++)
+//			for(int j=0;j<ny0;j++)
+//				for(int k=0;k<nz0;k++){
+//					ro[no][i][j][k]=Complex{(*this)[no][i][j][k],0.0};
+//				}
+//	}
+//
+//		fft3d Forward3(nnx,nny,nnz,-1);
+//		fft3d Backward3(nnx,nny,nnz,1);
+//
+//
+//		for(unsigned no=0;no<Ndim;no++){
+//			Forward3.fft(ro[no]);
+//			for(int i=0;i<nx0;i++)
+//				for(int j=0;j<ny0;j++)
+//					for(int k=0;k<nz0;k++){
+//						ro[no][i][j][k]=ro[no][i][j][k]*Mfilter[i][j][k];
+//					}
+//		}
+//
+//		for(unsigned no=0;no<Ndim;no++){
+//			Backward3.fftNormalized(ro[no]);
+//			for(int i=0;i<nx0;i++)
+//				for(int j=0;j<ny0;j++)
+//					for(int k=0;k<nz0;k++)
+//						(*this)[no][i][j][k]=ro[no][i][j][k].real();
+//		}
+//}
+//
+//
+//template<unsigned int Ndim>
+//inline void Grid<Ndim>::MakeFilter(int mx,int my, int mz){
+//	if(!filter) {
+//
+//		filter=new array3<Complex>;
+//		filter->Allocate(nnx,nny,nnz);
+//
+//	}
+//	int nfx,nfy,nfz;
+//	nfx=(nnx % 2 == 0)? nnx/2: nnx/2+1;
+//	nfy=(nny % 2 == 0)? nny/2: nny/2+1;
+//	nfz=(nnz % 2 == 0)? nnz/2: nnz/2+1;
+//	array3<Complex> & Mfilter=*filter;
+//
+//	fft3d Forward3(nnx,nny,nnz,-1);
+//	for(unsigned int i=0;i<nnx;i++){
+//		for(unsigned int j=0;j<nny;j++){
+//			for(unsigned int k=0;k<nnz;k++){
+//				Mfilter(i,j,k)=Complex{0.0,0.0};
+//			}
+//		}
+//	}
+//
+//	double fact=1.0/(double) ((2*mx+1)*(2*my+1)*(2*mz+1));
+//	for(int i=-mx;i<=mx;i++){
+//		int ia=(i<0)?i+nnx:i;
+//		for(int j=-my;j<=my;j++){
+//			int ja=(j<0)?j+nny:j;
+//			for(int k=-mz;k<=mz;k++){
+//				int ka=(k<0)?k+nnz:k;
+//				Mfilter[ia][ja][ka]=Complex{fact,0.0};
+//			}
+//		}
+//	}
+//
+//	Forward3.fft(Mfilter);
+//}
+//
+//template<unsigned int Ndim>
+//inline void Grid<Ndim>::MakeFilter(const double sigma){
+//	unsigned int nzp=nnz/2+1;
+//	size_t align=sizeof(Complex);
+//	if(!filter && !filterrc) {
+//		filter=new array3<Complex>;
+//		filter->Allocate(nnx,nny,nnz);
+//		filterrc=new array3<Complex>;
+//		filterrc->Allocate(nnx,nny,nzp,align);
+//	}
+//	int nfx,nfy,nfz;
+//	nfx=(nnx % 2 == 0)? nnx/2: nnx/2+1;
+//	nfy=(nny % 2 == 0)? nny/2: nny/2+1;
+//	nfz=(nnz % 2 == 0)? nnz/2: nnz/2+1;
+//	int nx0=static_cast<int>(nnx);
+//	int ny0=static_cast<int>(nny);
+//	int nz0=static_cast<int>(nnz);
+//	array3<Complex> & Mfilter=*filter;
+//	array3<Complex> & Mfilterrc=*filterrc;
+//	Mfilter=Complex(0.0,0.0);
+//
+//	double alpha=1.0/(sigma*sqrt(2.0));
+//	double fac=alpha>99?0.0:M_PI*M_PI/(alpha*alpha);
+//	for(auto i=0;i<nx0;i++){
+//		auto ia=(i<nfx)?i : i-nx0;
+//		for(auto j=0;j<ny0;j++){
+//			auto ja=(j<nfy)?j : j-ny0;
+//			for(auto k=0;k<nz0;k++){
+//				auto ka=(k<nfz)?k : k-nz0;
+//				auto mw1=oc[XX][XX]*ia+oc[XX][YY]*ja+oc[XX][ZZ]*ka;
+//				auto mw2=oc[YY][XX]*ia+oc[YY][YY]*ja+oc[YY][ZZ]*ka;
+//				auto mw3=oc[ZZ][XX]*ia+oc[ZZ][YY]*ja+oc[ZZ][ZZ]*ka;
+//				auto mw=mw1*mw1+mw2*mw2+mw3*mw3;
+//				auto fact=exp(-fac*mw);
+//				Mfilter[i][j][k]=Complex{fact,0.0};
+//			}
+//			for(auto k=0;k<nz0/2+1;k++){
+//				auto ka=(k<nfz)?k : k-nz0;
+//				auto mw1=oc[XX][XX]*ia+oc[XX][YY]*ja+oc[XX][ZZ]*ka;
+//				auto mw2=oc[YY][XX]*ia+oc[YY][YY]*ja+oc[YY][ZZ]*ka;
+//				auto mw3=oc[ZZ][XX]*ia+oc[ZZ][YY]*ja+oc[ZZ][ZZ]*ka;
+//				auto mw=mw1*mw1+mw2*mw2+mw3*mw3;
+//				auto fact=exp(-fac*mw);
+//				Mfilterrc[i][j][k]=Complex{fact,0.0};
+//			}
+//		}
+//	}
+//}
+//
 template <>
 inline Grid<1> & Grid<1>::operator=(const array3<double> & a){
 	try{

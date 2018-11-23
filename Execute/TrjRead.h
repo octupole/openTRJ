@@ -99,8 +99,6 @@ class TrjRead: public trjInput {
 	ofstream * fclust{nullptr};
 	ifstream * fin1{nullptr};
 	ifstream * fin2{nullptr};
-	ifstream * firl{nullptr};
-	ifstream * fidb{nullptr};
 	ifstream * fin_contrast{nullptr};
 	ifstream * fin_padding{nullptr};
 	ofstream * fout_saxsx{nullptr};
@@ -214,7 +212,6 @@ public:
 	Streams<ofstream> gFoutsaxs;
 	Streams<ifstream> gFincontrast;
 	Streams<ofstream> gFdomain;
-	Streams<ifstream> gFirl;
 	Streams<ifstream> gFidb;
 	Streams<ifstream> gFin1;
 	Streams<ifstream> gFin2;

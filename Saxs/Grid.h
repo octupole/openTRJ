@@ -9,7 +9,6 @@
 #define GRID_H_
 //#include "vec.h"
 #include "Array.h"
-#include "fftw++.h"
 #include <cstdlib>
 #include <cmath>
 #include "MyVec.h"
@@ -19,8 +18,13 @@
 #include "DiffCoeffs.h"
 #include "MyUtilClass.h"
 typedef float Real;
+#ifndef __Complex_h__
+#include <complex>
+typedef std::complex<double> Complex;
+#endif
+
 using namespace Array;
-using namespace fftwpp;
+//using namespace fftwpp;
 using std::vector;
 using std::string;
 using std::cout;
@@ -119,9 +123,9 @@ public:
 	void RdfK(FILE * fp, std::string, const double & = 200.0, const double & = 0.02);
 
 	void setname(std::string & nme){name=nme;};
-	void MakeFilter(int, int, int);
-	void MakeFilter(const double);
-	void Filter();
+//	void MakeFilter(int, int, int);
+//	void MakeFilter(const double);
+//	void Filter();
 	template <unsigned int Ndima>
 	friend Grid<Ndima>  operator-(const Grid<Ndima> &);
 	template <class T,unsigned int Ndima>

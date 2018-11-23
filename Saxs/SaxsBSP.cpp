@@ -29,12 +29,12 @@ void SaxsBSP::__shift(AtomsD * atm){
 		x[i][ZZ] =co[ZZ][XX]*xa[i][XX]+co[ZZ][YY]*xa[i][YY]+co[ZZ][ZZ]*xa[i][ZZ];
 	}
 }
-void SaxsBSP::Setup(const vector<string> & at,bool mySans){
-	Saxs::Setup(at,mySans);
+void SaxsBSP::Setup(const vector<string> & at,bool mySans, bool myElDens){
+	Saxs::Setup(at,mySans,myElDens);
 	bsp_modx=new BSpmod(nx,ny,nz);
 }
-void SaxsBSP::Setup(const vector<int> & Lst,const vector<string> & at,bool mySans){
-	Saxs::Setup(Lst,at,mySans);
+void SaxsBSP::Setup(const vector<int> & Lst,const vector<string> & at,bool mySans, bool myElDens){
+	Saxs::Setup(Lst,at,mySans,myElDens);
 	bsp_modx=new BSpmod(nx,ny,nz);
 }
 void SaxsBSP::Modulus(array3<Complex> & ro_k,array3<Complex> & ro_k1){

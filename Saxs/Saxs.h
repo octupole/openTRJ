@@ -7,7 +7,22 @@
 
 #ifndef SRC_SAXS_H_
 #define SRC_SAXS_H_
-
+//#ifdef HAVE_VTK
+#include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkFloatArray.h"
+#include "vtkHedgeHog.h"
+#include "vtkMath.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkStructuredGrid.h"
+#include "vtkXMLStructuredGridWriter.h"
+//#endif
 #include "ScatteringFactors.h"
 #include "ScatteringFactorsN.h"
 #include <map>
@@ -30,6 +45,7 @@
 #include "myEnums.hpp"
 #include "NewMPI.h"
 #include "CenterMassBW3.h"
+#include "fftw++.h"
 #ifdef HAVE_OPENMP
 #include "omp.h"
 #endif
@@ -85,7 +101,9 @@ protected:
 	vector<int>  Lst_i;
 	vector<string> at1_i;
 	void WriteIt(std::ostream &);
+	void WriteI_r(std::ostream &);
 	array3<Complex> I_k;
+	array3<double> I_r;
 	SaxsHistogram * qdfx{nullptr};
 	SaxsHistogram * gofrx{nullptr};
 	bool bAvg{false};
@@ -97,7 +115,9 @@ protected:
 	double unitsQ{1.0/unitsR};
 	double MassSolute{-1.0};
 	bool bSans{false};
+	bool bElDens{false};
 	void __copy(const Saxs &);
+
 	virtual void Modulus(array3<Complex> &,array3<Complex> &);
 	virtual SaxsHistogram __Qhistogram();
 	virtual void __shift(AtomsD * y) {};
@@ -131,10 +151,10 @@ public:
 	void setSuperCell(double);
 	void setbAvgTrue(){bAvg=true;}
 
-	virtual void Setup(const vector<string> &,bool);
-	virtual void Setup(const vector<int> &, const vector<string> &, bool);
+	virtual void Setup(const vector<string> &,bool,bool=false);
+	virtual void Setup(const vector<int> &, const vector<string> &, bool,bool=false);
 	virtual void ComputeSq(RhoSaxs *,const MAtoms *);
-	virtual void ComputeSAXS(RhoSaxs *,const MAtoms *);
+	virtual void ComputeSAXS(RhoSaxs *,const MAtoms *,bool=false);
 	virtual void ComputeSANS(RhoSaxs *,const MAtoms *);
 	void GofR();
 

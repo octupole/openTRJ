@@ -156,6 +156,7 @@ int main(int argc, char ** argv)
 		atm->InitSelection<Enums::Reference>(MyIn.gReference(),MyTop);
 		if(myPadd.Have_MyPadding()) myPadd.setMapResidue(MyTop.gMapElements());
 	}
+
 	if(MyIn.gFin1())
 		MyRun=new ExecbSaxsPost(MyIn);
 	else

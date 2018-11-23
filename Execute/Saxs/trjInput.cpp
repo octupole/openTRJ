@@ -123,9 +123,6 @@ trjInput::trjInput(int ntot,char ** v) {
 	Usage[21]="\t -grid <int Nx=128> <int Ny=Nx> <int Nz=Nx>\n"
 			"\t\tDefine the direct and reciprocal space grid of the SAXS intensity calculation. It expects at least\n"
 			"\t\tNx, or in alternative the three dimensions, Nx, Ny and Nz.\n";
-	Usage[22]="\t -irl   // Input radius list to be used with the -w option. Default values:\n"
-			"\t\t Tsai et al., J Mol Biol 290:253 (1999) \n";
-	Usage[23]="\t -idb   // Input residue database for radius to be used with the -w option \n";
 	Usage[24]="\t -rd // Use atomic radii in the Micelle calculation \n";
 	Usage[25]="\t -clust <float cutoff [0.0] in Angstroems>\n"
 			"\t\tDo clustering by percolation of the solute. This is used to make sure that the solute is at the\n"
@@ -186,7 +183,7 @@ trjInput::trjInput(int ntot,char ** v) {
 
 	Usage[55]="\t -nofluct <int nacc> Run calculation without fluctuations. Averaged on nacc steps\n";
 	Usage[56]="\t -nosolv Run calculation without solvent.\n";
-	Usage[57]="\t -what <sq,[saxs],sans> do SQ/SAXS/SANS calculation \n";
+	Usage[57]="\t -what <sq,[saxs],sans,el> do SQ/SAXS/SANS/ELDENS calculation \n";
 	Usage[58]="\t -lagrange <int order=1> <float dq=0.05> <float qcut=4>\n"
 			"\t\tSAXS by linear (order=1) or Langrangian (order >1 ) interpolation. dq is the bin size and qcut is\n"
 			"\t\tthe cutoff of the spherical averaged SAXS intensity histogram, printed at the end of each run. dq\n"
@@ -196,7 +193,7 @@ trjInput::trjInput(int ntot,char ** v) {
 
 //	Usage[56]="\t -help // write some on line help \n";
 	// Delete inactive commands
-	ClrU({7,8,9,10,13,14,15,16,17,18,19,20,22,23,24,26,27,28,29,30,31,32,33,36,37,38,39,40,43,44,46,49});
+	ClrU({7,8,9,10,13,14,15,16,17,18,19,20,24,26,27,28,29,30,31,32,33,36,37,38,39,40,43,44,46,49});
 	if(ntot <2){
 		return ;
 	}

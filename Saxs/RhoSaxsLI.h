@@ -14,7 +14,7 @@
  *
  */
 class RhoSaxsLI: public RhoSaxs {
-	void __Density(const int x,const AtomsD * y, vector<size_t> & z, string w
+	virtual void __Density(const int x,const AtomsD * y, vector<size_t> & z, string w
 			, vector<double> & wei);
 public:
 	RhoSaxsLI();

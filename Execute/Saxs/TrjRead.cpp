@@ -186,6 +186,10 @@ void TrjRead::Input(){
 			if(inmap["-dip"].size() != 1) throw string(" No argument for " + inmap["-dip"][0] + " option ");
 			bdip=true;
 		}
+		if(!inmap["-edens"].empty()) {
+			if(inmap["-edens"].size() != 1) throw string(" No argument for " + inmap["-edens"][0] + " option ");
+			bedens=true;
+		}
 		if(!inmap["-b"].empty()) {
 			if(inmap["-b"].size() != 2) throw string(" Number of first frame needed for " + inmap["-b"][0] + " option ");
 			stringstream(inmap["-b"][1])>> nstart;
@@ -313,20 +317,6 @@ void TrjRead::Input(){
 			}catch(const string & s){
 				cout << s <<endl;
 			}
-		}
-		if(!inmap["-irl"].empty()) {
-			if(inmap["-irl"].size() != 2) throw string(" filename expected for " + inmap["-irl"][0] + " option ");
-			string fileirl=inmap["-irl"][1];
-			firl=new ifstream;
-			firl->open(fileirl.c_str(),ios::in);
-			if(!(*firl)) throw string("\n Cannot open " + fileirl + "!!\n");
-		}
-		if(!inmap["-idb"].empty()) {
-			if(inmap["-idb"].size() != 2) throw string(" filename expected for " + inmap["-idn"][0] + " option ");
-			string fileidb=inmap["-idb"][1];
-			fidb=new ifstream;
-			fidb->open(fileidb.c_str(),ios::in);
-			if(!(*fidb)) throw string("\n Cannot open " + fileidb + "!!\n");
 		}
 		if(!inmap["-Voro"].empty()) {
 			if(inmap["-Voro"].size() != 1) throw string(" No argument for " + inmap["-Voro"][0] + " option ");
@@ -469,8 +459,11 @@ void TrjRead::Input(){
 				WhatToDo=Enums::SAXS;
 			else if(myWhat == "sans")
 				WhatToDo=Enums::SANS;
+			else if(myWhat == "el")
+				WhatToDo=Enums::ELDENS;
+
 			else{
-				throw string("\n -what can only choose argument SQ,SAXS or SANS not "+myWhat+" !! ");
+				throw string("\n -what can only choose argument SQ,SAXS,SANS and ELDENS not "+myWhat+" !! ");
 			}
 		}
 		if(!inmap["-debye"].empty()) {
@@ -599,7 +592,11 @@ void TrjRead::Input(){
 		}
 	}
 
-
+	if(WhatToDo==Enums::ELDENS)
+		if(SuperCellSide > 1.0){
+			SuperCellSide=1.0;
+			cout << "\n -------> When computing Density supcell reset to 1! <--------\n\n"<<endl;
+		}
 	gFinx=finx;
 	gFin2x=fin2x;
 	gFout_xtcx=fout_xtcx;
@@ -614,8 +611,6 @@ void TrjRead::Input(){
 	gFoutp3=foutp3;
 	gFclust=fclust;
 	gFdomain=&fdomain;
-	gFirl=firl;
-	gFidb=fidb;
 	gFin_rcmx=fin_rcmx;
 	gFin1=fin1;
 	gFin2=fin2;

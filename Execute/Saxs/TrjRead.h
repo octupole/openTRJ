@@ -99,8 +99,6 @@ class TrjRead: public trjInput {
 	ofstream * fclust{nullptr};
 	ifstream * fin1{nullptr};
 	ifstream * fin2{nullptr};
-	ifstream * firl{nullptr};
-	ifstream * fidb{nullptr};
 	ifstream * fin_rcmx{nullptr};
 	ifstream * fin_contrast{nullptr};
 	ifstream * fin_padding{nullptr};
@@ -128,6 +126,7 @@ class TrjRead: public trjInput {
 	bool bClust{false};
 	bool bOnce{false};
 	bool bdip{false};
+	bool bedens{false};
 	bool bLagrange{false};
 	bool bBSP{false};
 	bool bOutBin{false};
@@ -138,6 +137,7 @@ class TrjRead: public trjInput {
 	bool bSaxsBSP{false};
 	bool bSans{false};
 	bool bPost{false};
+	bool bElDens{false};
 
 	int MyOrder{1};
 	size_t BoxMultiply{1};
@@ -216,6 +216,7 @@ public:
 	Values<bool> bbClust{bClust};
 	Values<bool> bbOnce{bOnce};
 	Values<bool> bbdip{bdip};
+	Values<bool> bbedens{bedens};
 	Values<bool> bbLagrange{bLagrange};
 	Values<bool> bbBSP{bBSP};
 	Values<bool> bbOutBin{bOutBin};
@@ -245,7 +246,6 @@ public:
 	Streams<ofstream> gFoutsaxs;
 	Streams<ifstream> gFincontrast;
 	Streams<ofstream> gFdomain;
-	Streams<ifstream> gFirl;
 	Streams<ifstream> gFidb;
 	Streams<ifstream> gFin1;
 	Streams<ifstream> gFin2;
