@@ -175,6 +175,7 @@ void TrjRead::Input(){
 			int Nm=inmap["-dens"].size();
 			std::stringstream ss;
 			ss << Nm;
+			ModeCompute(inmap["-dens"][1]);
 			try{
 				if(Nm == 3){
 					stringstream(inmap["-dens"][2])>> MyOrder;

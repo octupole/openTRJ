@@ -851,8 +851,7 @@ void Saxs::ComputeDENS(RhoSaxs * Rho_ex,MAtoms * y){
 	RhoSaxs & Rho_e=*Rho_ex;
 	array3<Complex> ro_k(nx,ny,nzp,align);
 	array3<Complex> ro_ktot(nx,ny,nzp,align);
-	RhoSaxs Rho_alt(nx,ny,nz);
-	array4<double> & ro_r=Rho_alt;
+	array4<double> & ro_r=Rho_e;
 	crfft3d Backward3(nx,ro_k,ro_r[0]);
 	rcfft3d Forward3(nx,ro_r[0],ro_k);
 
@@ -876,19 +875,61 @@ void Saxs::ComputeDENS(RhoSaxs * Rho_ex,MAtoms * y){
 
 	map<const string,ScatteringFactors::opsfact>::iterator it;
 	this->__shift(x0);
+	cout << DensPick <<endl;
+	if(DensPick["R"]){
 
-	for(it=Sfacts.begin();it!=Sfacts.end();it++){
+		for(it=Sfacts.begin();it!=Sfacts.end();it++){
+			Rho_e=0.0;
+			Rho_e.Density(order,x0,iSfacts[it->first],it->first);
+			auto ff=it->second;
+			auto myFF=ff(0.0);
+			for(size_t i{0};i<nx;i++)
+				for(size_t j{0};j<ny;j++)
+					for(size_t k{0};k<nz;k++){
+						I_r[i][j][k]+=myFF*Rho_e[0][i][j][k];
+					}
+		}
+	}else{
+		ro_ktot={0.0,0.0};
+		for(it=Sfacts.begin();it!=Sfacts.end();it++){
+			Rho_e=0.0;
+			Rho_e.Density(order,x0,iSfacts[it->first],it->first);
+			ro_k=Complex{0.0,0.0};
+			auto ff=it->second;
+			Forward3.fft(ro_r[0],ro_k);
+
+	#pragma omp parallel for
+			for(auto i=0;i<nx;i++){
+				int ia=(i<nfx)?i : i-nx;
+				for(auto j=0;j<ny;j++){
+					int ja=(j<nfy)?j : j-ny;
+					for(auto k=0;k<nzp;k++){
+						int ka=(k<nfz)?k : k-nz;
+						double mw1,mw2,mw3,mw;
+						mw1=oc[XX][XX]*ia+oc[XX][YY]*ja+oc[XX][ZZ]*ka;
+						mw2=oc[YY][XX]*ia+oc[YY][YY]*ja+oc[YY][ZZ]*ka;
+						mw3=oc[ZZ][XX]*ia+oc[ZZ][YY]*ja+oc[ZZ][ZZ]*ka;
+						mw1=2.0*M_PI*mw1;
+						mw2=2.0*M_PI*mw2;
+						mw3=2.0*M_PI*mw3;
+						mw=sqrt(mw1*mw1+mw2*mw2+mw3*mw3);
+						double fq=ff(mw);
+						ro_ktot[i][j][k]+=fq*ro_k[i][j][k];
+					}
+				}
+			}
+
+		}
 		Rho_e=0.0;
-		Rho_e.Density(order,x0,iSfacts[it->first],it->first);
-		auto ff=it->second;
-		auto myFF=ff(0.0);
+		Backward3.fftNormalized(ro_ktot,ro_r[0]);
 		for(size_t i{0};i<nx;i++)
 			for(size_t j{0};j<ny;j++)
 				for(size_t k{0};k<nz;k++){
-					I_r[i][j][k]+=myFF*Rho_e[0][i][j][k];
+					I_r[i][j][k]+=ro_r[0][i][j][k];
 				}
-	}
 
+
+	}
 	count++;
 	delete x0;
 }
