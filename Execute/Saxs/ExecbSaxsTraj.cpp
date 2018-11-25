@@ -174,6 +174,11 @@ void ExecbSaxsTraj::__SetUp(trj::TrjRead & MyIn){
 		Rho_ex->selectPadding(exPadding);
 		Rho_ex->setPadding(MyIn.gfftPadding().getMapResidue());
 	}
+	if(WhatToDo==Enums::ELDENS){
+		auto fileDens=MyIn.gfileout();
+		MySaxs->setDens(myDensAvg,fileout,myDens);
+	}
+
 	MySaxs->Allocate(nnx,nny,nnz);
 	if(bnoSplineOut)
 		MySaxs->SetSplineout();
@@ -210,7 +215,7 @@ void ExecbSaxsTraj::__AllocateRho(MAtoms * atm){
 
 	Rho_ex->Allocate(mx,my,mz);
 }
-void ExecbSaxsTraj::__Compute(const MAtoms * atm){
+void ExecbSaxsTraj::__Compute(MAtoms * atm){
 	switch(WhatToDo){
 	case Enums::SAXS:
 		MySaxs->ComputeSAXS(Rho_ex,atm);
@@ -222,7 +227,7 @@ void ExecbSaxsTraj::__Compute(const MAtoms * atm){
 		MySaxs->ComputeSq(Rho_ex,atm);
 		break;
 	case Enums::ELDENS:
-		MySaxs->ComputeSAXS(Rho_ex,atm,true);
+		MySaxs->ComputeDENS(Rho_ex,atm);
 		break;
 
 
@@ -277,6 +282,10 @@ void ExecbSaxsTraj::__RunTrajectory(MAtoms * atm){
 	ContactsD * Con0;
 	if(Rcut_in < 0) Rcut_in=15.0;
 	Con0=new ContactsD(Rcut,Rcut_in);
+	if(myDens["R"])
+		cout << "\n ------> Compute Electron Density in R-space <-------\n"<<endl;
+	else if(myDens["Q"])
+		cout << "\n ------> Compute Electron Density in Q-space <-------\n"<<endl;
 
 	while((++iter_atm).isReferenced()){
 		MAtoms * atmA=iter_atm();
@@ -294,7 +303,6 @@ void ExecbSaxsTraj::__RunTrajectory(MAtoms * atm){
 			atmA->Reconstruct(Con0);
 			atmA->CompCM();
 		}
-
 		__Compute(atmA);
 		int nStep=iter_atm.getTime();
 		double Step=atmA->getTime();

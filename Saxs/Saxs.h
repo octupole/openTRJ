@@ -7,7 +7,7 @@
 
 #ifndef SRC_SAXS_H_
 #define SRC_SAXS_H_
-//#ifdef HAVE_VTK
+#ifdef HAVE_VTK
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkFloatArray.h"
@@ -22,7 +22,7 @@
 #include "vtkRenderer.h"
 #include "vtkStructuredGrid.h"
 #include "vtkXMLStructuredGridWriter.h"
-//#endif
+#endif
 #include "ScatteringFactors.h"
 #include "ScatteringFactorsN.h"
 #include <map>
@@ -53,6 +53,7 @@
 #include "interpolation.h"
 #include "specialfunctions.h"
 #include "Spline1DInterpolant.h"
+#include "DensMode.h"
 
 
 
@@ -77,6 +78,7 @@ protected:
 	using Matrix=MATRIX::MMatrix<double>;
 	using CenterMassD=CenterMass<double>;
 
+	string fileDens{""};
 	size_t align=sizeof(Complex);
 	size_t count{0};
 	double Vol{0.0};
@@ -116,6 +118,8 @@ protected:
 	double MassSolute{-1.0};
 	bool bSans{false};
 	bool bElDens{false};
+	DensMode DensPick;
+	int DensAvg{0};
 	void __copy(const Saxs &);
 
 	virtual void Modulus(array3<Complex> &,array3<Complex> &);
@@ -150,12 +154,14 @@ public:
 	void setSuperCell0(double x){SuperCell0=x;};
 	void setSuperCell(double);
 	void setbAvgTrue(){bAvg=true;}
+	void setDens(int z,string x, DensMode y){DensAvg=z;fileDens=x; DensPick=y; };
 
 	virtual void Setup(const vector<string> &,bool,bool=false);
 	virtual void Setup(const vector<int> &, const vector<string> &, bool,bool=false);
 	virtual void ComputeSq(RhoSaxs *,const MAtoms *);
 	virtual void ComputeSAXS(RhoSaxs *,const MAtoms *,bool=false);
 	virtual void ComputeSANS(RhoSaxs *,const MAtoms *);
+	virtual void ComputeDENS(RhoSaxs *,MAtoms *);
 	void GofR();
 
 	template <Compute myCompute>

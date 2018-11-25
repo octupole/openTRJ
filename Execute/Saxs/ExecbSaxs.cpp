@@ -33,7 +33,6 @@ ExecbSaxs::ExecbSaxs(trj::TrjRead & MyIn){
 void ExecbSaxs::__SetUp(trj::TrjRead & MyIn){
 	ddx1=MyIn.gddx1();
 	cutYZ=MyIn.gcutYZ();
-	fileout=MyIn.gfileout();
 
 	bDel=MyIn.bbDel();
 	bHyd=MyIn.bbHyd();
@@ -57,6 +56,12 @@ void ExecbSaxs::__SetUp(trj::TrjRead & MyIn){
 	bnoSplineOut=MyIn.bbnoSplineOut();
 	MassSolute=MyIn.gMassSolute();
 	WhatToDo=MyIn.WhatToDo;
+
+// To compute density
+
+	myDens=MyIn.gModeCompute();
+	myDensAvg=MyIn.gMyDensAvg();
+	fileout=MyIn.gfileout();
 }
 void ExecbSaxs::__Print(ostream & fout ){
 	if(!CurrMPI->Get_Rank()){

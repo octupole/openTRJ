@@ -92,6 +92,12 @@ class Clusters(object):
 
     def trajectory(self):
         MolType=self.mols_first
+        times=[]
+        for time in self.List:
+            times.append(float(time))
+        print((times[-1]-times[0])/len(times))
+        print(len(times))
+
         for time in self.List:
             clusters = self.traj[time]['cluster']
             gyros = self.traj[time]['gyro']

@@ -197,7 +197,7 @@ public:
 	vector<Comp> & getComp(){return Perco->getClustComp();}
 	const vector<vector<int> > & getCluster() const;
 	const vector<vector<int> > & getAtoms() const;
-
+	void PrintAll(ostream &);
 	friend Fstream & operator+=(Fstream & fin, Atoms & y){
 		if(FstreamC * finC=dynamic_cast<FstreamC *> (&fin))
 			y.moveOffset(finC);

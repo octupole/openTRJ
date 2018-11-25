@@ -75,7 +75,7 @@ protected:
 	 */
 	void __MakeDummyAtoms();
 
-	void __Compute(const MAtoms *);
+	void __Compute(MAtoms *);
 
 	MAtoms * Patm{nullptr};
 

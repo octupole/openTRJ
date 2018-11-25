@@ -170,44 +170,28 @@ void TrjRead::Input(){
 			fileout_bin=inmap["-obin"][1];
 			bOutBin=true;
 		}
-		if(!inmap["-ic"].empty()) {
-			if(inmap["-ic"].size() < 2) throw string("\n filename expected for " + inmap["-ic"][0] + " option \n");
-			if(inmap["-ic"].size() > 2) throw string("\n More than one entry for " + inmap["-ic"][0] + " option \n");
-			string fileContrast=inmap["-ic"][1];
-			bContrast=true;
-		}
-		if(!inmap["-chg"].empty()) {
-			if(inmap["-chg"].size() < 2) throw string("\n filename expected for " + inmap["-chg"][0] + " option \n");
-			if(inmap["-chg"].size() > 2) throw string("\n More than one entry for " + inmap["-chg"][0] + " option \n");
-			filechg=inmap["-chg"][1];
-			bdip=true;
-		}
-		if(!inmap["-dip"].empty()) {
-			if(inmap["-dip"].size() != 1) throw string(" No argument for " + inmap["-dip"][0] + " option ");
-			bdip=true;
-		}
-		if(!inmap["-edens"].empty()) {
-			if(inmap["-edens"].size() != 1) throw string(" No argument for " + inmap["-edens"][0] + " option ");
-			bedens=true;
+		if(!inmap["-dens"].empty()) {
+			WhatToDo=Enums::ELDENS;
+			int Nm=inmap["-dens"].size();
+			std::stringstream ss;
+			ss << Nm;
+			try{
+				if(Nm == 3){
+					stringstream(inmap["-dens"][2])>> MyOrder;
+				} else if(Nm == 4){
+					stringstream(inmap["-dens"][2])>> MyOrder;
+					stringstream(inmap["-dens"][3])>> MyDensAvg;
+				} else if(Nm > 4) throw string("\n Error: No. of parameters for "
+						+ inmap["-grid"][0] + " exceeds three. It was "
+						+ ss.str()+ " Abort!\n");
+			}catch(const string & s){
+				cout << s <<endl;
+				exit(1);
+			}
 		}
 		if(!inmap["-b"].empty()) {
 			if(inmap["-b"].size() != 2) throw string(" Number of first frame needed for " + inmap["-b"][0] + " option ");
 			stringstream(inmap["-b"][1])>> nstart;
-		}
-		if(!inmap["-diffk"].empty()) {
-			if(inmap["-diffk"].size() != 1) throw string(" No argument for " + inmap["-diffk"][0] + " option ");
-			WhichDiffusion=diffk;
-
-		}
-		if(!inmap["-diffq"].empty()) {
-			if(inmap["-diffq"].size() != 2) throw string(" Three Wigner arguments in a string are needed for " + inmap["-diffq"][0] + " option ");
-			WhichDiffusion=diffq;
-			stringstream(inmap["-diffq"][1])>> WignerArgs[0]>> WignerArgs[1] >> WignerArgs[2];
-		}
-		if(!inmap["-diffm"].empty()) {
-			if(inmap["-diffm"].size() != 2) throw string(" Three Wigner arguments in a string are needed for " + inmap["-diffm"][0] + " option ");
-			WhichDiffusion=diffMicelles;
-			stringstream(inmap["-diffm"][1])>> WignerArgs[0]>> WignerArgs[1] >> WignerArgs[2];
 		}
 		if(!inmap["-e"].empty()) {
 			if(inmap["-e"].size() != 2) throw string(" Number of last frame needed for " + inmap["-e"][0] + " option ");
@@ -242,40 +226,9 @@ void TrjRead::Input(){
 			bprof=true;
 		}
 
-		if(!inmap["-cut"].empty()) {
-			if(inmap["-cut"].size() != 2) throw string(" General cutoff needed for  " + inmap["-cut"][0] + " option ");
-			stringstream(inmap["-cut"][1])>> cutYZ;
-			cutYZ*=unit_nm;
-		}
-		if(!inmap["-bsp"].empty()) {
-			if(inmap["-bsp"].size() != 1) throw string(" no argument for " + inmap["-bsp"][0] + " option ");
-			bBSP=true;
-		}
-		if(!inmap["-rcut"].empty()) {
-			if(inmap["-rcut"].size() != 2) throw string(" Linked list cutoff needed for  " + inmap["-rcut"][0] + " option ");
-			stringstream(inmap["-rcut"][1])>> Rcut;
-			Rcut*=unit_nm;
-		}
 		if(!inmap["-molw"].empty()) {
 			if(inmap["-molw"].size() != 2) throw string(" Solute molecular weight needed for  " + inmap["-molw"][0] + " option ");
 			stringstream(inmap["-molw"][1])>> MassSolute;
-		}
-		if(!inmap["-rin"].empty()) {
-			if(inmap["-rin"].size() != 2) throw string(" Linked list cutoff needed for  " + inmap["-rin"][0] + " option ");
-			stringstream(inmap["-rin"][1])>> Rcut_in;
-			Rcut_in*=unit_nm;
-		}
-
-		if(!inmap["-filter"].empty()) {
-			if(inmap["-filter"].size() != 2) throw string(" Sigma Gaussian width in Angstroems needed for  " + inmap["-filter"][0] + " option ");
-			stringstream(inmap["-filter"][1])>> ewSigma;
-			ewSigma*=unit_nm;
-		}
-
-		if(!inmap["-cutX"].empty()) {
-			if(inmap["-cutX"].size() != 2) throw string(" Out of plane cutoff needed for  " + inmap["-cutX"][0] + " option ");
-			stringstream(inmap["-cutX"][1])>> cutX;
-			cutX*=unit_nm;
 		}
 		if(!inmap["-qhist"].empty()) {
 			if(inmap["-qhist"].size() != 3) throw string(" Bin size and cutoff in q-space needed for  " + inmap["-qhist"][0] + " option ");
@@ -291,16 +244,6 @@ void TrjRead::Input(){
 			if(inmap["-pdx2"].size() != 2) throw string(" Bin size needed for  " + inmap["-pdx2"][0] + " option ");
 			stringstream(inmap["-pdx2"][1])>> ddx2;
 			ddx2*=unit_nm;
-		}
-		if(!inmap["-e0"].empty()) {
-			int Nm=inmap["-e0"].size();
-			if(Nm == 4){
-				stringstream(inmap["-e0"][1])>> e0[XX];
-				stringstream(inmap["-e0"][2])>> e0[YY];
-				stringstream(inmap["-e0"][3])>> e0[ZZ];
-				e0=e0*e0_conversion.val;
-
-			} else throw string(" Vector components needed for  " + inmap["-e0"][0] + " option ");
 		}
 		if(!inmap["-grid"].empty()) {
 			int Nm=inmap["-grid"].size();
@@ -459,8 +402,6 @@ void TrjRead::Input(){
 				WhatToDo=Enums::SAXS;
 			else if(myWhat == "sans")
 				WhatToDo=Enums::SANS;
-			else if(myWhat == "el")
-				WhatToDo=Enums::ELDENS;
 
 			else{
 				throw string("\n -what can only choose argument SQ,SAXS,SANS and ELDENS not "+myWhat+" !! ");
@@ -569,15 +510,31 @@ void TrjRead::Input(){
 		fout_elx=new ofstream(fileout.c_str(),ios_base::binary);
 	}
 
-	string tmp1=fileout.substr(0,fileout.find_first_of("."));
-	string tmp2=".dat";
-	if(bprof){
-		fileoutp1=tmp1+"-1D"+tmp2;
-		fileoutp2=tmp1+"-2D"+tmp2;
-		fileoutp3=tmp1+"-3D"+tmp2;
-		foutp1=new ofstream(fileoutp1.c_str(),ios::out);
-		foutp2=new ofstream(fileoutp2.c_str(),ios::out);
-		foutp3=new ofstream(fileoutp3.c_str(),ios::out);
+	if(WhatToDo==Enums::ELDENS){
+		bSaxs=false;
+		bOutBin=false;
+		if(SuperCellSide > 1.0){
+			SuperCellSide=1.0;
+			cout << "\n -------> When computing Density supcell reset to 1! <--------\n\n"<<endl;
+		}
+#ifdef HAVE_VTK
+		if(fileout.find_first_of(".") != std::string::npos){
+			fileout=fileout.substr(0,fileout.find_first_of(".")+1)+"vts";
+		} else{
+			fileout=fileout+".vts";
+		}
+#else
+		if(fileout.find_first_of(".") != std::string::npos){
+			fileout=fileout.substr(0,fileout.find_first_of(".")+1)+"cvs";
+		} else{
+			fileout=fileout+".cvs";
+		}
+#endif
+		foutx=new ofstream(fileout.c_str(),ios::out);
+	}
+	if(bClust && !finx){
+		cout << "\n----> Need a trajectory to run with -clust, not only a .pdb file.\n"<<endl;
+		exit(1);
 	}
 	if(bSaxs){
 		foutx=new ofstream(fileout.c_str(),ios::out);
@@ -592,11 +549,6 @@ void TrjRead::Input(){
 		}
 	}
 
-	if(WhatToDo==Enums::ELDENS)
-		if(SuperCellSide > 1.0){
-			SuperCellSide=1.0;
-			cout << "\n -------> When computing Density supcell reset to 1! <--------\n\n"<<endl;
-		}
 	gFinx=finx;
 	gFin2x=fin2x;
 	gFout_xtcx=fout_xtcx;

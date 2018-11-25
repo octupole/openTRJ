@@ -29,6 +29,7 @@
 #include "fftw++.h"
 #include "NewMPI.h"
 #include "Finalize.h"
+#include "DensMode.h"
 
 using namespace MATRIX;
 using namespace DVECT;
@@ -49,6 +50,9 @@ protected:
 	bool bFluct{true};  ///< Do the calculation including fluctuations
 	bool bFixed{false};  ///< Do the calculation including fluctuations
 	bool Clustering{false}; ///< Do clustering or not
+	DensMode myDens;
+	int myDensAvg{0};
+
 	/// @cond TEST
 	ofstream * foutp1{nullptr};
 	int nacc{1};
@@ -72,6 +76,8 @@ protected:
 	bool bIsrd{false};
 	bool bSaxs{false};
 	bool bEdens{false};
+	bool bDensR{true};
+	bool bDensQ{false};
 	Enums::Compute WhatToDo{Enums::SAXS};
 
 	/// @endcond

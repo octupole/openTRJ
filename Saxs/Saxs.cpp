@@ -366,11 +366,73 @@ SaxsHistogram & SaxsHistogram::operator^=(const SaxsHistogram & z){
 	return *this;
 }
 void Saxs::WriteI_r(std::ostream & fout){
-	double dx=MCO[XX][XX]/static_cast<double>(nx);
-	double dy=MCO[YY][YY]/static_cast<double>(ny);
-	double dz=MCO[ZZ][ZZ]/static_cast<double>(nz);
+// Everything is in Angstroems
+
+	double dx=10.0*MCO[XX][XX]/static_cast<double>(nx);
+	double dy=10.0*MCO[YY][YY]/static_cast<double>(ny);
+	double dz=10.0*MCO[ZZ][ZZ]/static_cast<double>(nz);
 	float dvol=static_cast<float>(dx*dy*dz);
 	I_r/=dvol;
+// Average I_r over M bons on both sides
+	int nx0=static_cast<int>(nx);
+	int ny0=static_cast<int>(ny);
+	int nz0=static_cast<int>(nz);
+	auto Idx=[&nx0](const int mx){return mx<0?mx+nx0:(mx<nx0?mx:mx-nx0);};
+	auto Idy=[&ny0](const int my){return my<0?my+ny0:(my<ny0?my:my-ny0);};
+	auto Idz=[&nz0](const int mz){return mz<0?mz+nz0:(mz<nz0?mz:mz-nz0);};
+
+	int M=DensAvg;
+	double Norm{static_cast<double>((2*M+1)*(2*M+1)*(2*M+1))};
+	array3<double> I_r0;
+	I_r0.Allocate(nx,ny,nz);
+	for(size_t o{0};o<nx;o++)
+		for(size_t p{0};p<ny;p++)
+			for(size_t q{0};q<nz;q++){
+				double Val{0};
+				int mj{0};
+				for(int n{-M};n<=M;n++){
+					auto ox = Idx(o + n);
+					for(int m{-M};m<=M;m++){
+						auto oy = Idy(p + m);
+						for(int l{-M};l<=M;l++){
+							auto oz = Idz(q + l);
+							Val+=I_r[ox][oy][oz];
+							mj++;
+						}
+					}
+				}
+				I_r0[o][p][q]=Val/Norm;
+			}
+// Get the average density at border
+
+	M=4;
+
+
+	double ISum0{0},ISum1{0};
+	for(size_t o{0};o<nx;o++)
+		for(size_t p{0};p<ny;p++)
+			for(size_t q{0};q<nz;q++){
+				ISum0+=I_r0[o][p][q];
+			}
+	for(int o{M};o<nx-M;o++)
+		for(int p{M};p<ny-M;p++)
+			for(int q{M};q<nz-M;q++){
+				ISum1+=I_r0[o][p][q];
+			}
+	double Bins=static_cast<double>((nx*ny*nz)-(nx-2*M)*(ny-2*M)*(nz-2*M));
+	double AvgDens=(ISum0-ISum1)/Bins;
+
+	int mm0{0},mm1{0};
+	for(size_t o{0};o<nx;o++){
+		for(size_t p{0};p<ny;p++){
+			for(size_t q{0};q<nz;q++){
+				I_r0[o][p][q]-=AvgDens;
+			}
+		}
+	}
+	cout << "\n ------> Average electron density at border is "<< AvgDens << " <-------\n"<<endl;
+
+
 #ifdef HAVE_VTK
 	float x[3], a, v[3], rMin = 0.5, rMax = 1., deltaRad, deltaZ;
 	int dims[3]={static_cast<int>(nx),static_cast<int>(ny),static_cast<int>(nz)};
@@ -385,7 +447,7 @@ void Saxs::WriteI_r(std::ostream & fout){
 	  // Create scalars. No need to allocate size, as the array will expand automatically as we add new
 	  // values with InsertNextValue.
 	vtkFloatArray *scalars = vtkFloatArray::New();
-
+	scalars->Allocate(dims[0]*dims[1]*dims[2]);
 	scalars->SetName("density");
 	for (size_t k{0}; k < nz; k++) {
 		x[ZZ]=dz*k;
@@ -397,11 +459,9 @@ void Saxs::WriteI_r(std::ostream & fout){
 	    		int offset = i + jOffset + kOffset;
 	    		x[XX]=dx*i;
 
-	    		float Val=I_r[i][j][k];
-			    if(Val != 0.0)
-	    		cout << std::scientific<< Val <<endl;
+	    		float Val=I_r0[i][j][k];
 	    		points->InsertPoint(offset,x);
-	    		scalars->InsertNextValue(Val);
+	    		scalars->InsertValue(offset,Val);
 	    	}
 	    }
 	}
@@ -411,7 +471,7 @@ void Saxs::WriteI_r(std::ostream & fout){
 	scalars->Delete();
 	vtkXMLStructuredGridWriter *Writer = vtkXMLStructuredGridWriter::New();
 	Writer->SetInputData(sgrid);
-	Writer->SetFileName("halfCylinder.vts");
+	Writer->SetFileName(fileDens.c_str());
 	Writer->Write();
 
 	// Delete objects.
@@ -422,7 +482,7 @@ void Saxs::WriteI_r(std::ostream & fout){
 	for(size_t i{0};i<nx;i++)
 		for(size_t j{0};j<ny;j++)
 			for(size_t k{0};k<nz;k++){
-				fout << dx*i<< ", " << dy*j<< ", " << dz*k<< ", " << I_r[i][j][k] << endl;
+				fout << dx*i<< ", " << dy*j<< ", " << dz*k<< ", " << I_r0[i][j][k] << endl;
 			}
 #endif
 }
@@ -474,7 +534,10 @@ template  <>
 void Saxs::Compute<Enums::SANS>(RhoSaxs * x,MAtoms * y){
 	ComputeSANS(x,y);
 }
-
+template  <>
+void Saxs::Compute<Enums::ELDENS>(RhoSaxs * x,MAtoms * y){
+	ComputeDENS(x,y);
+}
 void Saxs::ComputeSANS(RhoSaxs * Rho_ex,const MAtoms * y){
 	AtomsD * x0{new MAtoms(*y)};
 	if(SuperCell0 >1 )
@@ -740,14 +803,6 @@ void Saxs::ComputeSAXS(RhoSaxs * Rho_ex,const MAtoms * y,bool bDens){
 		auto ff=it->second;
 		auto Na=iSfacts[it->first].size();
 		N_t+=Na;
-//		if(bDens){
-//			auto myFF=ff(0.0);
-//			for(size_t i{0};i<nx;i++)
-//				for(size_t j{0};j<ny;j++)
-//					for(size_t k{0};k<nz;k++){
-//						I_r[i][j][k]+=myFF*Rho_e[0][i][j][k];
-//					}
-//		}
 
 		Forward3.fft(ro_r[0],ro_k);
 
@@ -780,14 +835,68 @@ void Saxs::ComputeSAXS(RhoSaxs * Rho_ex,const MAtoms * y,bool bDens){
 	count++;
 	delete x0;
 }
+void Saxs::ComputeDENS(RhoSaxs * Rho_ex,MAtoms * y){
 
-//void Saxs::ComputeGR(){
-//	S=Sgr;
-//	S.setFactor(10.0);
-//}
+	AtomsD * x0{new MAtoms(*y)};
+
+
+	SuperCell0=1;
+	SuperCell=1;
+
+	size_t nnr=x0->getNR();
+	vector<vector<int> > g=y->getSaxsSolute();
+	int tot{0};
+	for(auto op: g)for(auto oq:op)tot++;
+	Nsolute=tot;
+	RhoSaxs & Rho_e=*Rho_ex;
+	array3<Complex> ro_k(nx,ny,nzp,align);
+	array3<Complex> ro_ktot(nx,ny,nzp,align);
+	RhoSaxs Rho_alt(nx,ny,nz);
+	array4<double> & ro_r=Rho_alt;
+	crfft3d Backward3(nx,ro_k,ro_r[0]);
+	rcfft3d Forward3(nx,ro_r[0],ro_k);
+
+	Mt=x0->getMt();
+	Matrix oc=Mt.getOC();
+	Matrix co=Mt.getCO();
+	MCO+=co;
+	MOC+=oc;
+	Vol+=Mt.getVol();
+	size_t nfx,nfy,nfz;
+	nfx=(nx % 2 == 0)? nx/2: nx/2+1;
+	nfy=(ny % 2 == 0)? ny/2: ny/2+1;
+	nfz=(nz % 2 == 0)? nz/2: nz/2+1;
+	Complex vt,vt2,v0;
+	double Nt=static_cast<double> (Ntot);
+	ro_ktot={0.0,0.0};
+	int N_t=0;
+	Nx=Rho_ex->getnnx();
+	Ny=Rho_ex->getnny();
+	Nz=Rho_ex->getnnz();
+
+	map<const string,ScatteringFactors::opsfact>::iterator it;
+	this->__shift(x0);
+
+	for(it=Sfacts.begin();it!=Sfacts.end();it++){
+		Rho_e=0.0;
+		Rho_e.Density(order,x0,iSfacts[it->first],it->first);
+		auto ff=it->second;
+		auto myFF=ff(0.0);
+		for(size_t i{0};i<nx;i++)
+			for(size_t j{0};j<ny;j++)
+				for(size_t k{0};k<nz;k++){
+					I_r[i][j][k]+=myFF*Rho_e[0][i][j][k];
+				}
+	}
+
+	count++;
+	delete x0;
+}
+
 void Saxs::Clear(){
 	count=0;
 	I_k={0.0,0.0};
+	I_r=0.0;
 	MCO=0.0;
 	MOC=0.0;
 }

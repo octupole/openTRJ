@@ -27,6 +27,7 @@
 #include "NewMPI.h"
 #include "Finalize.h"
 #include "myEnums.hpp"
+#include "DensMode.h"
 
 #ifndef __INTEL
 #include "Units.hh"
@@ -138,8 +139,10 @@ class TrjRead: public trjInput {
 	bool bSans{false};
 	bool bPost{false};
 	bool bElDens{false};
+	DensMode ModeCompute;
 
 	int MyOrder{1};
+	int MyDensAvg{4};
 	size_t BoxMultiply{1};
 	double SuperCellSide{1.0};
 	double Mycut{4.0};
@@ -171,6 +174,7 @@ public:
 	Values<double> gPercoCutoff{PercoCutoff};
 	Values<double> gRcut_in{Rcut_in};
 	Values<double> gFactor{ConvFactor};
+	Values<DensMode> gModeCompute{ModeCompute};
 	Values<vector<string> > gSelRes{SelRes};
 	Values<vector<string> >gReference{Reference};
 	Values<SaxsPadding>gfftPadding{fftPadding};
@@ -189,6 +193,7 @@ public:
 	Values<size_t> gBoxMultiply{BoxMultiply};
 	Values<double> gSuperCellSide{SuperCellSide};
 	Values<int> gMyOrder{MyOrder};
+	Values<int> gMyDensAvg{MyDensAvg};
 	Values<unsigned int> gnnx{nnx};
 	Values<unsigned int> gnny{nny};
 	Values<unsigned int> gnnz{nny};
