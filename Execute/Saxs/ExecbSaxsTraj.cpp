@@ -286,8 +286,10 @@ void ExecbSaxsTraj::__RunTrajectory(MAtoms * atm){
 		cout << "\n ------> Compute Electron Density in R-space <-------\n"<<endl;
 	else if(myDens["Q"])
 		cout << "\n ------> Compute Electron Density in Q-space <-------\n"<<endl;
+	int nClusters{0};
 
 	while((++iter_atm).isReferenced()){
+		stringstream ss;
 		MAtoms * atmA=iter_atm();
 
 		Con0->setR(Rcut_in,Rcut_in);
@@ -296,28 +298,45 @@ void ExecbSaxsTraj::__RunTrajectory(MAtoms * atm){
 
 		if(Clustering){
 			atmA->setrd(*Top);
-			static struct Once{Once(MAtoms * atmA,Topol_NS::Topol * myTop){atmA->SetupPercolate();}} _Once(atmA,Top);
+			static struct Once{
+				Once(MAtoms * atmA,Topol_NS::Topol * myTop){
+					atmA->SetupPercolate();}
+			} _Once(atmA,Top);
 			if(bOnce){
-				static struct Once_p{explicit Once_p(MAtoms *atmA){atmA->Percolate();}} __Once_p(atmA);
-			}else atmA->Percolate();
+				static struct Once_p{int nClusters{0};explicit Once_p(MAtoms *atmA){nClusters=atmA->Percolate();}} __Once_p(atmA);
+				nClusters=__Once_p.nClusters;
+			}else {
+				nClusters=atmA->Percolate();
+			}
 			atmA->Reconstruct(Con0);
 			atmA->CompCM();
 		}
 		__Compute(atmA);
 		int nStep=iter_atm.getTime();
 		double Step=atmA->getTime();
+		switch(nClusters){
+		case 0:
+			break;
+		case 1:
+			ss << "    " <<fixed << setw(4) << nClusters<<" cluster  <-----";
+			break;
+		default:
+			ss<< "    " << fixed << setw(4) << nClusters<<" clusters <-----";
+		}
+
 		if(MPIsize >1){
 			CurrMPI->AllGather(1,&nStep,i_recv);
 			CurrMPI->AllGather(1,&Step,d_recv);
 			for(auto o=0;o<MPIsize;o++){
 				cout << fixed << setw(5) << "----> Step No. " << setw(5) << right << fixed << i_recv[o]
-															 << " -- Time = " << d_recv[o] <<" ps \n";
+															 << " -- Time = " << d_recv[o] <<" ps "<< ss.str()<<"\n";;
 			}
 		}else{
 			cout << fixed << setw(5) << "----> Step No. " << setw(5) << right << fixed << nStep
-														 << " -- Time = " << Step <<" ps \n";
+														 << " -- Time = " << Step <<" ps "<< ss.str()<<"\n";;
 			}
 		Rho_ex->Deallocate();
+
 	}
 	MySaxs->Reduce(CurrMPI);
 	MySaxs->Averages();

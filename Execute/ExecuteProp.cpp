@@ -44,6 +44,7 @@ ExecuteProp<T>::ExecuteProp(trj::TrjRead & MyIn) {
 	bTest=MyIn.bbTestVol();
 	fout_pdbx=MyIn.gFout_pdbx();
 	fout_ndxx=MyIn.gFout_ndxx();
+	bPDBavg=MyIn.bbPDBavg();
 	if(finx){
 		size_t TotFrame=finx->gFrameStep();
 		try{
@@ -137,10 +138,10 @@ void ExecuteProp<T>::__RunTrajectory(Atoms<T> * atmx){
     Contacts<T> * Con0;
     if(Rcut_in < 0) Rcut_in=Rcut;
     Con0=new Contacts<T>(Rcut,Rcut);
-
+    Atoms<T> * atmA;
 	while((++iter_atm).isReferenced()){
 		stringstream ss;
-		Atoms<T> * atmA=iter_atm();
+		atmA=iter_atm();
 		Metric<T> Mt=atmA->getMt();
 		MMatrix<T> CO=Mt.getCO();
 
@@ -178,11 +179,14 @@ void ExecuteProp<T>::__RunTrajectory(Atoms<T> * atmx){
 		default:
 			ss<< "    " << fixed << setw(4) << nClusters<<" clusters <-----";
 		}
-
 		if(fout_pdbx){
-			if(CurrMPI->Get_Rank() == 0)
-				(*fout_pdbx) << *atmA;
-			CurrMPI->Barrier();
+			if(bPDBavg){
+				atmA->PDBavg();
+			} else{
+				if(CurrMPI->Get_Rank() == 0)
+					(*fout_pdbx) << *atmA;
+				CurrMPI->Barrier();
+			}
 
 		} else if(fout_ndxx){
 			atmA->setNdx(true);
@@ -210,6 +214,9 @@ void ExecuteProp<T>::__RunTrajectory(Atoms<T> * atmx){
 		__wrapOutfile();
 	}
 	CurrMPI->~NewMPI();
+	if(fout_pdbx && bPDBavg){
+		atmA->printPDBavg(*fout_pdbx);
+	}
 	cout << "\nProgram completed: Output data written to " + fileout << "\n\n";
 
 }

@@ -43,6 +43,7 @@ class ExecuteProp {
 	bool Clustering{false}; ///< Do clustering or not
 	bool bTest{false};
 	bool bndx{false};
+	bool bPDBavg{false};
 	/// @cond TEST
 	ofstream * foutp1{nullptr};
 

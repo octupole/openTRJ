@@ -875,7 +875,6 @@ void Saxs::ComputeDENS(RhoSaxs * Rho_ex,MAtoms * y){
 
 	map<const string,ScatteringFactors::opsfact>::iterator it;
 	this->__shift(x0);
-	cout << DensPick <<endl;
 	if(DensPick["R"]){
 
 		for(it=Sfacts.begin();it!=Sfacts.end();it++){

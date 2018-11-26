@@ -77,6 +77,7 @@ class Atoms {
 	using Matrix=MMatrix<T>;
 protected:
 	static int cPrint_calls;
+	static int cPDBavg_calls;
 	bool firsttime{true};
 	const T HALF{0.5000-0.0001};
 	static int calls;
@@ -95,6 +96,8 @@ protected:
 	vector<Dvect> x;
 	vector<Dvect> xa;
 	Metric<T> Mt;
+	vector<Dvect> x_avg;
+	Matrix nCO;
 	vector<Gyration<T> *> Rg_i;
 	static int    step_c;
 	static float  prec_c,time_c;
@@ -198,6 +201,8 @@ public:
 	const vector<vector<int> > & getCluster() const;
 	const vector<vector<int> > & getAtoms() const;
 	void PrintAll(ostream &);
+	void PDBavg();
+	void printPDBavg(ostream & );
 	friend Fstream & operator+=(Fstream & fin, Atoms & y){
 		if(FstreamC * finC=dynamic_cast<FstreamC *> (&fin))
 			y.moveOffset(finC);

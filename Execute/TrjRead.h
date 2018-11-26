@@ -72,6 +72,7 @@ class TrjRead: public trjInput {
 	bool bnoSplineOut{false};
 	bool bShell{false};
 	bool bndx{false};
+	bool bPDBavg{false};
 	string filein,fileout="Micelles.out",filechg="Charges.dat",filepdb;
 	string fileoutp1,fileoutp2,fileoutp3;
 	string fileout_bin{"Micelles.bin"};
@@ -183,6 +184,7 @@ public:
 	Values<bool> bbnoSplineOut{bnoSplineOut};
 	Values<bool> bbShell{bShell};
 	Values<bool> bbNdx{bndx};
+	Values<bool> bbPDBavg{bPDBavg};
 	Values<bool> bbDel{bDel};
 	Values<bool> bbWriteFab{bWriteFab};
 	Values<bool> bbTestVol{bTestVol};

@@ -45,6 +45,8 @@ trjInput::trjInput(int ntot,char ** v, ClearUsage & clr) {
 	inmap["-det"]=in;
 	inmap["-clust"]=in;
 	inmap["-json"]=in;
+	inmap["-avgPDB"]=in;
+	inmap["-once"]=in;
 
 	map<string,vector<string> >::iterator it=inmap.begin();
 	for(int n=0;it!=inmap.end();++it,n++){
@@ -90,6 +92,8 @@ trjInput::trjInput(int ntot,char ** v, ClearUsage & clr) {
 			"\t\tLennard-Jones sigma parameters multiplied by an offset factor of 1.5\n";
 	Usage[25]="\t -json fileout \n"
 			"\t\tWrite output to a JSON format\n";
+	Usage[26]="\t -avgPDB Write averaged pdb \n";
+	Usage[27]="\t -once Do percolation only at the beginning \n";
 	clr.ClrU(Usage);
 	int n=1;
 	string key;

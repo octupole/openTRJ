@@ -144,6 +144,10 @@ void TrjRead::Input(){
 			if(inmap["-hyd"].size() != 1) throw string(" No argument for " + inmap["-hyd"][0] + " option ");
 				bHyd=true;
 		}
+		if(!inmap["-avgPDB"].empty()) {
+			if(inmap["-avgPDB"].size() != 1) throw string(" No argument for " + inmap["-bPDBavg"][0] + " option ");
+				bPDBavg=true;
+		}
 		if(!inmap["-del"].empty()) {
 			if(inmap["-del"].size() != 1) throw string(" No argument for " + inmap["-del"][0] + " option ");
 				bDel=false;
