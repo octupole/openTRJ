@@ -95,6 +95,8 @@ void Saxs::Reduce(Parallel::NewMPI * y){
 	auto dim=nx*ny*nzp;
 	auto ip=&I_k[0][0][0];
 	y->ReduceSum(ip,dim);
+
+	dim=nx*ny*nz;
 	auto ipr=&I_r[0][0][0];
 	y->ReduceSum(ipr,dim);
 	dim=DIM*DIM;
