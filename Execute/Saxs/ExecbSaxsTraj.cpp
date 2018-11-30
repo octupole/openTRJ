@@ -281,11 +281,14 @@ void ExecbSaxsTraj::__RunTrajectory(MAtoms * atm){
 	double * d_recv=new double [MPIsize];
 	ContactsD * Con0;
 	if(Rcut_in < 0) Rcut_in=15.0;
+
 	Con0=new ContactsD(Rcut,Rcut_in);
-	if(myDens["R"])
-		cout << "\n ------> Compute Electron Density in R-space <-------\n"<<endl;
-	else if(myDens["Q"])
-		cout << "\n ------> Compute Electron Density in Q-space <-------\n"<<endl;
+	if(WhatToDo==Enums::ELDENS)
+		if(myDens["R"])
+			cout << "\n ------> Compute Electron Density in R-space <-------\n"<<endl;
+		else if(myDens["Q"])
+			cout << "\n ------> Compute Electron Density in Q-space <-------\n"<<endl;
+
 	int nClusters{0};
 
 	while((++iter_atm).isReferenced()){
