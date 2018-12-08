@@ -19,3 +19,8 @@ if(FFTW3_FOUND)
 	add_library(ExecuteSaxs STATIC ${SOURCE_SAXS})
 	add_library(ExecuteFit STATIC ${SOURCE_FIT})
 endif()
+target_include_directories(Execute PUBLIC "${PROJECT_SOURCE_DIR}/Properties" "${PROJECT_SOURCE_DIR}/Molecules" 
+	"${PROJECT_SOURCE_DIR}/Voronoi" "${PROJECT_SOURCE_DIR}/libtraj")
+target_include_directories(ExecuteSaxs PUBLIC "${PROJECT_SOURCE_DIR}/Properties" "${PROJECT_SOURCE_DIR}/Molecules" 
+	"${PROJECT_SOURCE_DIR}/Saxs" "${PROJECT_SOURCE_DIR}/libtraj")
+	

@@ -8,3 +8,5 @@ endif()
 set(SOURCE Voronoi.cpp  VoronoiMicelles.cpp VoronoiSetter.cpp
 	VoronoiBinary.cpp IteratorVoronoi.cpp VoronoiMicellesJSON.cpp)
 add_library(Voronoi STATIC ${SOURCE})
+target_include_directories(Voronoi PUBLIC "${PROJECT_SOURCE_DIR}/Molecules" "${PROJECT_SOURCE_DIR}/Properties" 
+	"${PROJECT_SOURCE_DIR}/libtraj")

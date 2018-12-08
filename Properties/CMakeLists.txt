@@ -10,3 +10,5 @@ set(SOURCE CenterMass.cpp CenterMassMicelles.cpp CenterMassBW3.cpp CenterMassWig
 	CMPick.cpp DensMode.cpp)
 	
 add_library(Properties STATIC ${SOURCE})
+target_include_directories(Properties PUBLIC "${PROJECT_SOURCE_DIR}/Molecules" "${PROJECT_SOURCE_DIR}/libtraj")
+

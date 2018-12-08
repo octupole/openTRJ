@@ -10,7 +10,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include <Fstream.h>
+#include "Fstream.h"
 #include <xdrfile.h>
 #include <xdrfile_xtc.h>
 #include <xdrfile_seek.h>

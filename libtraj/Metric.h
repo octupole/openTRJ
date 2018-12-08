@@ -11,8 +11,8 @@
 #include <vector>
 
 #include <Ftypedefs.h>
-#include <MyUtilClass.h>
-#include <MyVec.h>
+#include "MyUtilClass.h"
+#include "MyVec.h"
 using std::vector;
 
 using namespace DVECT;

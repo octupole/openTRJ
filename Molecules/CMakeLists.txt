@@ -9,4 +9,5 @@ set(SOURCE AtomIndex.cpp  IteratorAtoms.cpp ResidueTypes.cpp
 	Atoms.cpp  Groups.cpp  LCells.cpp  Topol.cpp  TopolPDB.cpp Percolation.cpp 
 	Contacts.cpp Gyration.cpp GyrationJSON.cpp PercolationJSON.cpp FindCell.cpp)
 add_library(mols STATIC ${SOURCE})
-#target_include_directories(mols INTERFACE xdr/include voro++/include )
+target_include_directories(mols PUBLIC "${PROJECT_SOURCE_DIR}/Properties" 
+	"${PROJECT_SOURCE_DIR}/libtraj" "${PROJECT_SOURCE_DIR}/data" )
