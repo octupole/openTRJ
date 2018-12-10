@@ -85,7 +85,7 @@ void Saxs::Allocate(size_t mx,size_t my,size_t mz){
 	}
 	nzp=nz/2+1;
 	I_k.Allocate(nx,ny,nzp,align);
-	I_r.Allocate(nx,ny,nz,sizeof(double));
+	I_r.Allocate(nx,ny,nz,align);
 }
 void Saxs::Reduce(Parallel::NewMPI * y){
 	if(!y->Get_Size()) return;
@@ -154,7 +154,6 @@ SaxsHistogram Saxs::__Qhistogram(){
 	}
 	SaxsHistogram qdf{dq,qcut,unitsQ};
 	qdf.setDq(m_dq);
-
 	for(auto i=0;i<nx;i++){
 		int ia=(i<nfx)?i : i-nx;
 		size_t ib=i==0?0:nx-i;
@@ -385,8 +384,9 @@ void Saxs::WriteI_r(std::ostream & fout){
 
 	int M=DensAvg;
 	double Norm{static_cast<double>((2*M+1)*(2*M+1)*(2*M+1))};
-	array3<double> I_r0;
-	I_r0.Allocate(nx,ny,nz);
+	array3<double> I_r0(nx,ny,nz);
+	array3<Complex> ro_k(nx,ny,nzp,align);
+	rcfft3d Forward3(nz,I_r,ro_k);
 	for(size_t o{0};o<nx;o++)
 		for(size_t p{0};p<ny;p++)
 			for(size_t q{0};q<nz;q++){
@@ -432,8 +432,21 @@ void Saxs::WriteI_r(std::ostream & fout){
 			}
 		}
 	}
+	int N_t{0};
+	for(auto it=Sfacts.begin();it!=Sfacts.end();it++){
+		auto Na=iSfacts[it->first].size();
+		N_t+=Na;
+	}
+	I_r=I_r0;
+	I_r*=dvol;
+	ro_k=(0.0,0.0);
+	Forward3.fft(I_r,ro_k);
+	Modulus(ro_k,ro_k);
+	Complex iD{1.0/N_t,0.0};
+	ro_k*=iD;
+	I_k=ro_k;
+	count=1;
 	cout << "\n ------> Average electron density at border is "<< AvgDens << " <-------\n"<<endl;
-
 
 #ifdef HAVE_VTK
 	float x[3], a, v[3], rMin = 0.5, rMax = 1., deltaRad, deltaZ;
@@ -487,6 +500,28 @@ void Saxs::WriteI_r(std::ostream & fout){
 				fout << dx*i<< ", " << dy*j<< ", " << dz*k<< ", " << I_r0[i][j][k] << endl;
 			}
 #endif
+try{
+	if(fileDens.find_first_of(".") != std::string::npos){
+		fileDens=fileDens.substr(0,fileDens.find_first_of(".")+1)+"qout";
+	} else{
+		throw string("Output file with no extension. This is weired!!");
+	}
+}catch(const string & s){
+	cout << s <<endl;
+	exit(1);
+}
+
+	ofstream fout_n(fileDens.c_str(),ios::out);
+	if(qdfx == nullptr){
+		if(noSplineOut)
+			qdfx=new SaxsHistogram;
+		else{
+			qdfx=new SaxsHistogramSpline;
+		}
+		*qdfx=__Qhistogram();
+	}
+	fout_n <<*qdfx ;
+
 }
 void Saxs::WriteIt(std::ostream & fout){
 	try{
@@ -842,8 +877,8 @@ void Saxs::ComputeDENS(RhoSaxs * Rho_ex,MAtoms * y){
 	AtomsD * x0{new MAtoms(*y)};
 
 
-	SuperCell0=1;
-	SuperCell=1;
+	//SuperCell0=1;
+	//SuperCell=1;
 
 	size_t nnr=x0->getNR();
 	vector<vector<int> > g=y->getSaxsSolute();
