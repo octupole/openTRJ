@@ -36,12 +36,10 @@ void HeaderTrj::ReadHeader(FstreamC * fin){
 	delete [] x;
 }
 
-void HeaderTrj::ReadHeader(FstreamF * fin){
-	ReadHeader(fin->getfin());
-}
-
-void HeaderTrj::ReadHeader(ifstream & fin){
-	fin.seekg(FORTRANBYTES,ios::cur);
+void HeaderTrj::ReadHeader(FstreamF * finx){
+	ifstream & fin=finx->getfin();
+	char tmp[TDIM];
+	fin.seekg(FORTRANBYTES,ios::beg);
 	fin.read(reinterpret_cast<char *> (&hdr),sizeof(hdr));
 	fin.read(reinterpret_cast<char *> (&nfr),sizeof(nfr));
 	fin.read(reinterpret_cast<char *> (&istart),sizeof(istart));
@@ -50,15 +48,16 @@ void HeaderTrj::ReadHeader(ifstream & fin){
 	fin.seekg(FORTRANBYTES,ios::cur);
 	int ntitle;
 	fin.read(reinterpret_cast<char *> (&ntitle),sizeof(ntitle));
+	cout << "---> reading from .dcd file with header titke <----\n"<<endl;
 	for(int i=0;i<ntitle;i++){
-		char tmp[TDIM];
 		fin.read(reinterpret_cast<char *> (&tmp),sizeof(tmp));
-		title.push_back(string(tmp));
+		cout << string{tmp,tmp+79}<<endl;
 	}
 	fin.seekg(FORTRANBYTES,ios::cur);
 	fin.seekg(FORTRANBYTES,ios::cur);
 	fin.read(reinterpret_cast<char *> (&natoms),sizeof(natoms));
 	fin.seekg(FORTRANBYTES,ios::cur);
+	cout << "header "<< fin.tellg()<<endl;
 }
 
 

@@ -1006,9 +1006,10 @@ void Atoms<T>::ReadaStepF(std::ifstream & fin){
 	for(int n=0;n<nr;n++){
 		for(int o=0;o<DIM;o++) x[n][o]=X[o][n]*unit_nm;
 	}
-
 	setCoord(Met,x);
 	doCOtoOC();
+	time_c+=1.0;
+
 }
 template <typename T>
 void Atoms<T>::moveOffset(FstreamC * fin){

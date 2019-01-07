@@ -21,7 +21,6 @@ class FstreamC: public Fstream {
 	void sStep();
 	int framenumber{0};
 	void CompFrameNumber();
-	int natoms{0};
 public:
 	FstreamC(string ,string);
 	virtual int gFrameNumber(){CompFrameNumber();return framenumber;}
@@ -30,15 +29,6 @@ public:
 	XDRFILE * getfin(){return fin;}
 	int gNatoms(){return natoms;}
 	int gStep(){return dStep;}
-	virtual bool CheckFrameNumber(int y){
-		try{
-			if(framenumber <= y) throw string("Number of frames is smaller than expected:");
-		} catch(const string & s){
-			cout << s << " it is " << framenumber-1 << " rather than " << y << endl;
-			return false;
-		}
-		return true;
-	}
 	virtual void Rewind(){
 		FILE * fp=xdrfile_get_fp(fin);
 		rewind(fp);

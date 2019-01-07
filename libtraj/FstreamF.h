@@ -11,16 +11,16 @@
 
 class FstreamF: public Fstream {
 	ifstream fin;
+	off_t headerPos{0};
 public:
-	FstreamF(string & file){fin.open(file.c_str(),ios::in|ios::binary);};
+	FstreamF(string & file);
 	ifstream & getfin(){return fin;}
-	virtual bool CheckFrameNumber(int y){return true;};
-	virtual void nextFrame();
-	virtual void seekg(off_t,string);
-	virtual ios::streampos tellg();
-	virtual void Rewind(){
-		nframe=0;
-	}
+	int gFrameStep(){return framenumber;}
+	void CompFrameNumber();
+	void nextFrame();
+	void seekg(off_t,string);
+	ios::streampos tellg();
+	void Rewind();
 
 	virtual ~FstreamF();
 };

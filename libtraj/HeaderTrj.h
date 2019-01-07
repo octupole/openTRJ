@@ -18,9 +18,7 @@ using std::string;
 using std::ifstream;
 using std::ios;
 
-const int HDIM=4;
-const int TDIM=80;
-const int FORTRANBYTES=4;
+
 class HeaderTrj {
 	char hdr[HDIM];
 	int nfr{0},istart{0},natoms{0};
