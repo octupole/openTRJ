@@ -14,6 +14,7 @@ template <typename T>
 int Atoms<T>::cPDBavg_calls=0;
 
 
+
 template <typename T>
 vector<string> * Atoms<T>::ResList0=nullptr;
 
@@ -140,6 +141,49 @@ public:
 		Dvect x2=Xd+y;
 		Dvect xc1=co*x1;
 		Dvect xc2=co*x2;
+		return xc1.Norm() < xc2.Norm();
+	}
+};
+template <typename T>
+class RgComp{
+	using Dvect=DDvect<T>;
+	using Matrix=MMatrix<T>;
+	Matrix co;
+	vector<Dvect> * X{nullptr};
+	Dvect Xd{0};
+	Dvect Rcm{0};
+	T Rg{T{0}};
+	T fact{0};
+public:
+	RgComp(vector<Dvect> & x, Matrix & c): X(&x), co(c){
+		vector<Dvect> & X0=*X;
+		for(size_t o{0};o<X0.size();o++){
+			Dvect x0=co*X0[o];
+			Rg+=x0*x0;
+			Rcm+=x0;
+		}
+		fact=1.0/(T) X0.size();
+		Rg*=fact;
+		Rcm*=fact;
+		Rg+=Rcm*Rcm;
+		};
+	void setVect(Dvect x){Xd=x;}
+	bool operator()(const Dvect & x, const Dvect & y){
+		Dvect x1=Xd+x;
+		Dvect x2=Xd+y;
+		Dvect xc1=co*x1;
+		Dvect xc2=co*x2;
+
+		Dvect xc=co*Xd;
+		T rg1=xc1*xc1*fact;
+		T rg2=xc2*xc2*fact;
+		Dvect rcm=xc*fact;
+
+		T RRg1{Rg};
+		T RRg2{Rg};
+		Dvect RRcm1{Rcm};
+		Dvect RRcm2{Rcm};
+
 		return xc1.Norm() < xc2.Norm();
 	}
 };
@@ -1222,9 +1266,10 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 
 
 // Start with a reference molecule p=0;
-
+		cout << mCluster[o].size()<<endl;
 		for(size_t p=0;p<mCluster[o].size();p++){
 			size_t p0=mCluster[o][p];
+
 			Xref=xcm0[p]; // Initial reference molecule is the first on the list
 			for(size_t r=0;r<nnl[p].size();r++){
 				size_t n=nnl[p][r];
@@ -1234,7 +1279,7 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 				//				Dvect tmp{PBC(Xref,xcm0[n])};
 				if(p>n) continue;
 				for(int q=0; q < DIM;q++) xcm0[n][q]=xcm0[n][q]-tmp[q];
-				for(int q=0; q < DIM;q++) xcm[n0][q]=xcm[n0][q]-tmp[q];
+				for(int q=0; q < DIM;q++) xcm[n][q]=xcm[n][q]-tmp[q];
 				for(size_t i=0;i<mAtoms[n0].size();i++){
 				  int ia=mAtoms[n0][i];
 				  for(int q=0; q < DIM;q++) xa[ia][q]=xa[ia][q]-tmp[q];
@@ -1242,15 +1287,30 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 
 			}
 		}
-
-
+//		Xref=Dvect{0.4,0.4,0.4};
+//		for(size_t p=0;p<mCluster[o].size();p++){
+//			size_t p0=mCluster[o][p];
+//			Dvect x1{Xref-xcm0[p]};
+//			Dvect tmp=*min_element(nxyz.begin(),nxyz.end(),CellComp<T>(x1,co));
+//			for(int q=0; q < DIM;q++) xcm0[p][q]=xcm0[p][q]-tmp[q];
+//			for(size_t i=0;i<mAtoms[p0].size();i++){
+//			  int ia=mAtoms[p0][i];
+//			  for(int q=0; q < DIM;q++) xa[ia][q]=xa[ia][q]-tmp[q];
+//			}
+//		}
+//		for(size_t p=0;p<mCluster[o].size();p++){
+//			for(int q=0; q < DIM;q++) xcm[p][q]=xcm0[p][q];
+//		}
 		// Compute the center of mass of the cluster
 		xcmC[o]=0.0;
 		for(size_t p=0;p<mCluster[o].size();p++){
-			xcmC[o]+=xcm0[p];
+			xcmC[o]+=xcm[p];
 		}
 		xcmC[o]/=static_cast<double>(mCluster[o].size());
 	}
+	doOCtoCO();
+	this->PrintAll(cout);
+	exit(1);
 	if(mCluster.size() == 1) return __ReconstructOneCluster(atSolv);
 
 	FindCell<T> myCell(Mt.getCO());

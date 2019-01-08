@@ -89,16 +89,13 @@
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 			<storageModule buildDir="build/" moduleId="de.marw.cdt.cmake.core.settings">
 				<options/>
-				<linux command="/usr/local/bin/cmake" generator="UnixMakefiles">
+				<linux command="/usr/local/bin/cmake" generator="UnixMakefiles" use-default="true">
 					<defs>
 						<def name="CMAKE_CXX_COMPILER" type="STRING" val="/usr/local/bin/g++"/>
 						<def name="CMAKE_C_COMPILER" type="STRING" val="/usr/local/bin/gcc"/>
 					</defs>
-					<undefs/>
 				</linux>
 				<win32 command="cmake" generator="MinGWMakefiles" use-default="true">
-					<defs/>
-					<undefs/>
 				</win32>
 			</storageModule>
 		</cconfiguration>
