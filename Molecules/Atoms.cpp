@@ -14,7 +14,6 @@ template <typename T>
 int Atoms<T>::cPDBavg_calls=0;
 
 
-
 template <typename T>
 vector<string> * Atoms<T>::ResList0=nullptr;
 
