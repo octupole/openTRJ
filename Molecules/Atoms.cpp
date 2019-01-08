@@ -152,39 +152,55 @@ class RgComp{
 	vector<Dvect> * X{nullptr};
 	Dvect Xd{0};
 	Dvect Rcm{0};
-	T Rg{T{0}};
+	T Rg{0};
 	T fact{0};
+	T myRg{0};
 public:
 	RgComp(vector<Dvect> & x, Matrix & c): X(&x), co(c){
+		fact=1.0/(T) X->size();
+		CompRg();
+		};
+	void setVect(Dvect x){Xd=x;}
+	void CompRg(){
 		vector<Dvect> & X0=*X;
+		Rg=0;
+		Rcm=Dvect{0};
 		for(size_t o{0};o<X0.size();o++){
 			Dvect x0=co*X0[o];
 			Rg+=x0*x0;
 			Rcm+=x0;
 		}
-		fact=1.0/(T) X0.size();
 		Rg*=fact;
 		Rcm*=fact;
-		Rg+=Rcm*Rcm;
-		};
-	void setVect(Dvect x){Xd=x;}
+		myRg=Rg-Rcm*Rcm;
+	}
+	T getRg(){return myRg;}
 	bool operator()(const Dvect & x, const Dvect & y){
+		T Rg1{Rg};
+		T Rg2{Rg};
+		T myRg1{0};
+		T myRg2{0};
+		Dvect Rcm1{Rcm};
+		Dvect Rcm2{Rcm};
+
+		Dvect xc=co*Xd;
 		Dvect x1=Xd+x;
 		Dvect x2=Xd+y;
 		Dvect xc1=co*x1;
 		Dvect xc2=co*x2;
 
-		Dvect xc=co*Xd;
+
+
 		T rg1=xc1*xc1*fact;
 		T rg2=xc2*xc2*fact;
 		Dvect rcm=xc*fact;
-
-		T RRg1{Rg};
-		T RRg2{Rg};
-		Dvect RRcm1{Rcm};
-		Dvect RRcm2{Rcm};
-
-		return xc1.Norm() < xc2.Norm();
+		Rg1+=xc1*xc1*fact - xc*xc*fact;
+		Rg2+=xc2*xc2*fact - xc*xc*fact;
+		Rcm1+=xc1*fact-xc*fact;
+		Rcm2+=xc2*fact-xc*fact;
+		myRg1=Rg1-Rcm1*Rcm1;
+		myRg2=Rg2-Rcm2*Rcm2;
+		return myRg1 < myRg2;
 	}
 };
 template <typename T>
@@ -1189,6 +1205,7 @@ void Atoms<T>::__ReconstructOneCluster(vector<bool> & atSolv){
 		}
 	}
 	xcmC/=static_cast<double>(u);
+	cout << xcmC<<endl;exit(1);
 	for(auto ia=0;ia<nr;ia++){
 		for(int o=0;o<DIM;o++){
 			 xa[ia][o]-=xcmC[o]-HALF;
@@ -1203,9 +1220,181 @@ void Atoms<T>::__ReconstructOneCluster(vector<bool> & atSolv){
 			x[ia][o]=Mt.getCO()[o][XX]*xa[ia][XX]+Mt.getCO()[o][YY]*xa[ia][YY]+Mt.getCO()[o][ZZ]*xa[ia][ZZ];
 		}
 	}
+	this->PrintAll(cout);exit(1);
 }
 template <typename T>
 void Atoms<T>::Reconstruct(Contacts<T> * con0){
+	vector<Dvect> nxyz=PBCvect<T>::getVec();
+	vector<vector<int> > mCluster=Perco->getCluster();
+	vector<vector<int> > mAtoms=Perco->getAtoms();
+	auto cmSweep=[nxyz](vector<Dvect> & x,size_t size,RgComp<T> & Rgcmp){
+		bool notOk{true};
+		T Rg{1e10};
+		int M{0};
+		while(notOk && M <4){
+			for(size_t p=0;p<size;p++){
+				Rgcmp.setVect(x[p]);
+				Dvect tmp=*min_element(nxyz.begin(),nxyz.end(),Rgcmp);
+				for(int q=0; q < DIM;q++) x[p][q]=x[p][q]+tmp[q];
+				Rgcmp.CompRg();
+			}
+
+			T Rg_nw=Rgcmp.getRg();
+			if(Rg_nw == Rg){
+				notOk=false;
+			}
+			Rg=Rg_nw;
+			M++;
+		}
+	};
+
+
+	Matrix co=Mt.getCO();
+	Matrix oc=Mt.getOC();
+	vector<Dvect> xcm(mAtoms.size(),Dvect{T{0.0}});
+	vector<Dvect> xb(nr,Dvect{T{0.0}});
+	vector<bool> atSolv(nr,true);
+	for(auto o=0;o<mAtoms.size();o++){
+		for(auto p=0;p<mAtoms[o].size();p++){
+			atSolv[mAtoms[o][p]]=false;
+		}
+	}
+	for(size_t o=0;o<mAtoms.size();o++){
+		vector<Dvect> xa0(mAtoms[o].size(),Dvect{T{0}});
+
+		for(size_t p=0;p<mAtoms[o].size();p++){
+			int n=mAtoms[o][p];
+			xa0[p]=xa[n];
+		}
+		auto Rgcmp=RgComp<T>(xa0,co);
+		cmSweep(xa0,mAtoms[o].size(),Rgcmp);
+//
+//		bool notOk{true};
+//		T Rg{1e10};
+//		int M{0};
+//		while(notOk && M <4){
+//			for(size_t p=0;p<mAtoms[o].size();p++){
+//				Rgcmp.setVect(xa0[p]);
+//				Dvect tmp=*min_element(nxyz.begin(),nxyz.end(),Rgcmp);
+//				for(int q=0; q < DIM;q++) xa0[p][q]=xa0[p][q]+tmp[q];
+//				Rgcmp.CompRg();
+//			}
+//			T Rg_nw=Rgcmp.getRg();
+//			if(Rg_nw == Rg){
+//				notOk=false;
+//			}
+//			Rg=Rg_nw;
+//			M++;
+//
+//		}
+//
+		for(size_t p=0;p<mAtoms[o].size();p++){
+			Dvect xx=xa0[p];
+			xcm[o]+=xx;
+		}
+		xcm[o]/=static_cast<double>(mAtoms[o].size());
+		for(size_t p=0;p<mAtoms[o].size();p++){
+			int n=mAtoms[o][p];
+			xb[n]=xa0[p]-xcm[o];
+		}
+	}
+	vector<Dvect> xcmC(mCluster.size());
+	for(size_t o=0;o<mCluster.size();o++){
+		vector<Dvect> xcm0(mCluster[o].size());
+		for(size_t p=0;p<mCluster[o].size();p++){
+			xcm0[p]=xcm[mCluster[o][p]];
+		}
+
+		auto Rgcmp=RgComp<T>(xcm0,co);
+		cmSweep(xcm0,mCluster[o].size(),Rgcmp);
+//		bool notOk{true};
+//		T Rg{1e10};
+//		int M{0};
+//		while(notOk && M <4){
+//			for(size_t p=0;p<mCluster[o].size();p++){
+//				Rgcmp.setVect(xcm0[p]);
+//				Dvect tmp=*min_element(nxyz.begin(),nxyz.end(),Rgcmp);
+//				for(int q=0; q < DIM;q++) xcm0[p][q]=xcm0[p][q]+tmp[q];
+//				Rgcmp.CompRg();
+//			}
+//
+//			T Rg_nw=Rgcmp.getRg();
+//			if(Rg_nw == Rg){
+//				notOk=false;
+//			}
+//			Rg=Rg_nw;
+//			M++;
+//		}
+		for(size_t p=0;p<mCluster[o].size();p++){
+			xcm[mCluster[o][p]]=xcm0[p];
+			xcmC[o]+=xcm[p];
+		}
+		xcmC[o]/=static_cast<double>(mCluster[o].size());
+		for(size_t p=0;p<mCluster[o].size();p++){
+			xcm[mCluster[o][p]]-=xcmC[o];
+		}
+	}
+	auto Rgcmp=RgComp<T>(xcmC,co);
+	cmSweep(xcmC,mCluster.size(),Rgcmp);
+//	bool notOk{true};
+//	T Rg{1e10};
+//	int M{0};
+//	while(notOk && M <4){
+//		for(size_t p=0;p<mCluster.size();p++){
+//			Rgcmp.setVect(xcmC[p]);
+//			Dvect tmp=*min_element(nxyz.begin(),nxyz.end(),Rgcmp);
+//			for(int q=0; q < DIM;q++) xcmC[p][q]=xcmC[p][q]+tmp[q];
+//			Rgcmp.CompRg();
+//		}
+//
+//		T Rg_nw=Rgcmp.getRg();
+//		if(Rg_nw == Rg){
+//			notOk=false;
+//		}
+//		Rg=Rg_nw;
+//		M++;
+//	}
+	Dvect xcmCell{0};
+	for(size_t p=0;p<mCluster.size();p++){
+		xcmCell+=xcmC[p];
+	}
+	xcmCell/=(T) mCluster.size();
+	for(size_t p=0;p<mCluster.size();p++){
+		xcmC[p]-=xcmCell;
+	}
+	for(size_t o=0;o<mCluster.size();o++){
+		for(size_t p=0;p<mCluster[o].size();p++){
+				int n=mCluster[o][p];
+				Dvect tmp=xcmCell+xcmC[o]+xcm[n];
+				for(size_t i=0;i<mAtoms[n].size();i++){
+					int ia=mAtoms[n][i];
+					xa[ia]=tmp+xb[ia];
+				}
+		}
+
+	}
+	cout << xcmC[0] <<endl;
+	cout << xcmCell <<endl;
+	for(auto ia=0;ia<nr;ia++){
+		for(int o=0;o<DIM;o++){
+			 xa[ia][o]-=xcmCell[o]-HALF;
+			 if(atSolv[ia]) {
+				 xa[ia][o]-=rint(xa[ia][o]-HALF);
+			 }
+		}
+	}
+	//> Obtain new Cartesian coordinates from reduced xa's
+	for(auto ia=0;ia<nr;ia++){
+		for(int o=0;o<DIM;o++){
+			x[ia][o]=Mt.getCO()[o][XX]*xa[ia][XX]+Mt.getCO()[o][YY]*xa[ia][YY]+Mt.getCO()[o][ZZ]*xa[ia][ZZ];
+		}
+	}
+	this->PrintAll(cout);exit(1);
+
+}
+
+template <typename T>
+void Atoms<T>::Reconstruct1(Contacts<T> * con0){
 
 	vector<Dvect> nxyz=PBCvect<T>::getVec();
 	vector<vector<int> > mCluster=Perco->getCluster();
@@ -1252,6 +1441,23 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 
 	//
 	vector<Dvect> xcmC(mCluster.size());
+	auto cmSweep=[this,mCluster,mAtoms,nxyz](RgComp<T> & Rgcmp,vector<Dvect> & xcm0, int o){
+
+		for(size_t p=0;p<mCluster[o].size();p++){
+			size_t p0=mCluster[o][p];
+			Dvect Xref=xcm0[p];
+			Rgcmp.setVect(Xref);
+			Dvect tmp=*min_element(nxyz.begin(),nxyz.end(),Rgcmp);
+			for(int q=0; q < DIM;q++) xcm0[p][q]=xcm0[p][q]+tmp[q];
+			for(size_t i=0;i<mAtoms[p0].size();i++){
+			  int ia=mAtoms[p0][i];
+			  for(int q=0; q < DIM;q++) xa[ia][q]=xa[ia][q]+tmp[q];
+			}
+			Rgcmp.CompRg();
+		}
+		return Rgcmp.getRg();
+	};
+
 
 	for(size_t o=0;o<mCluster.size();o++){
 		if(mCluster[o].size() < 5) continue;
@@ -1265,42 +1471,23 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 		vector<vector<int>> & nnl=con0->NNL();
 
 
-// Start with a reference molecule p=0;
-		cout << mCluster[o].size()<<endl;
-		for(size_t p=0;p<mCluster[o].size();p++){
-			size_t p0=mCluster[o][p];
-
-			Xref=xcm0[p]; // Initial reference molecule is the first on the list
-			for(size_t r=0;r<nnl[p].size();r++){
-				size_t n=nnl[p][r];
-				size_t n0=mCluster[o][n];
-				Dvect x1{Xref-xcm0[n]};
-				Dvect tmp=*min_element(nxyz.begin(),nxyz.end(),CellComp<T>(x1,co));
-				//				Dvect tmp{PBC(Xref,xcm0[n])};
-				if(p>n) continue;
-				for(int q=0; q < DIM;q++) xcm0[n][q]=xcm0[n][q]-tmp[q];
-				for(int q=0; q < DIM;q++) xcm[n][q]=xcm[n][q]-tmp[q];
-				for(size_t i=0;i<mAtoms[n0].size();i++){
-				  int ia=mAtoms[n0][i];
-				  for(int q=0; q < DIM;q++) xa[ia][q]=xa[ia][q]-tmp[q];
-				}
-
+// Cycle on all center of mass and find the aggregate with minimum Rg;
+		auto Rgcmp=RgComp<T>(xcm0,co);
+		bool notOk{true};
+		T Rg{1e10};
+		int M{0};
+		while(notOk && M <4){
+			T Rg_nw=cmSweep(Rgcmp,xcm0,o);
+			if(Rg_nw == Rg){
+				notOk=false;
 			}
+			Rg=Rg_nw;
+			M++;
 		}
-//		Xref=Dvect{0.4,0.4,0.4};
-//		for(size_t p=0;p<mCluster[o].size();p++){
-//			size_t p0=mCluster[o][p];
-//			Dvect x1{Xref-xcm0[p]};
-//			Dvect tmp=*min_element(nxyz.begin(),nxyz.end(),CellComp<T>(x1,co));
-//			for(int q=0; q < DIM;q++) xcm0[p][q]=xcm0[p][q]-tmp[q];
-//			for(size_t i=0;i<mAtoms[p0].size();i++){
-//			  int ia=mAtoms[p0][i];
-//			  for(int q=0; q < DIM;q++) xa[ia][q]=xa[ia][q]-tmp[q];
-//			}
-//		}
-//		for(size_t p=0;p<mCluster[o].size();p++){
-//			for(int q=0; q < DIM;q++) xcm[p][q]=xcm0[p][q];
-//		}
+
+		for(size_t p=0;p<mCluster[o].size();p++){
+			xcm[p]=xcm0[p];
+		}
 		// Compute the center of mass of the cluster
 		xcmC[o]=0.0;
 		for(size_t p=0;p<mCluster[o].size();p++){
@@ -1308,9 +1495,7 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 		}
 		xcmC[o]/=static_cast<double>(mCluster[o].size());
 	}
-	doOCtoCO();
-	this->PrintAll(cout);
-	exit(1);
+	cout << xcmC[0] <<endl;
 	if(mCluster.size() == 1) return __ReconstructOneCluster(atSolv);
 
 	FindCell<T> myCell(Mt.getCO());
@@ -1536,6 +1721,10 @@ Atoms<T>::~Atoms(){
 }
 template class Atoms<float>;
 template class Atoms<double>;
+template class CellComp<float>;
+template class CellComp<double>;
+template class RgComp<float>;
+template class RgComp<double>;
 template void Atoms<double>::Gyro<Enums::noJSON>();
 template void Atoms<double>::Gyro<Enums::JSON>();
 template void Atoms<float>::Gyro<Enums::noJSON>();

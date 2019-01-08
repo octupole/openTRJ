@@ -160,6 +160,7 @@ public:
 	Dvect & operator[](const int i){return x[i];};
 	Atoms & operator()(const int);
 	void Reconstruct(Contacts<T> *);
+	void Reconstruct1(Contacts<T> *);
 	void setNdx(bool b){bndx=b;}
 	void Rot(const Matrix);
 	int getNR()const{return nr;};
