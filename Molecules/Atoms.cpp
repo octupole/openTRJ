@@ -1274,7 +1274,7 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 
 	for(size_t o=0;o<mAtoms.size();o++){
 		vector<Dvect> xa0(mAtoms[o].size(),Dvect{T{0}});
-
+		xcm[o]=Dvect{0};
 		for(size_t p=0;p<mAtoms[o].size();p++){
 			int n=mAtoms[o][p];
 			xa0[p]=xa[n];
@@ -1286,11 +1286,14 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 			Dvect xx=xa0[p];
 			xcm[o]+=xx;
 		}
+
 		xcm[o]/=static_cast<double>(mAtoms[o].size());
+
 		for(size_t p=0;p<mAtoms[o].size();p++){
 			int n=mAtoms[o][p];
 			xb[n]=xa0[p]-xcm[o];
 		}
+
 	}
 	for(size_t o=0;o<mCluster.size();o++){
 		vector<Dvect> xcm0(mCluster[o].size());
@@ -1306,40 +1309,44 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 // rewrite residue geometric center relative to cluster geometric center
 
 		for(size_t p=0;p<mCluster[o].size();p++){
-			xcm[mCluster[o][p]]=xcm0[p];
-			xcmC[o]+=xcm[p];
+			xcmC[o]+=xcm0[p];
 		}
 		xcmC[o]/=static_cast<double>(mCluster[o].size());
 		for(size_t p=0;p<mCluster[o].size();p++){
-			xcm[mCluster[o][p]]-=xcmC[o];
+			xcm[mCluster[o][p]]=xcm0[p]-xcmC[o];
 		}
+
 	}
 
 // Shuffle cluster geometry center to find the minimal size of the ensemble
+	vector<Dvect> xcmC0(mCluster.size());
+	for(size_t p=0;p<mCluster.size();p++){
+		xcmC0[p]=xcmC[p];
+	}
 
-	auto Rgcmp=RgComp<T>(xcmC,co);
+	auto Rgcmp=RgComp<T>(xcmC0,co);
 	cmSweep(xcmC,mCluster.size(),Rgcmp);
 	for(size_t p=0;p<mCluster.size();p++){
-		xcmCell+=xcmC[p];
+		xcmCell+=xcmC0[p];
 	}
 	xcmCell/=(T) mCluster.size();
 
 // Rewrite the cluster geometric center relative to the aggregate geometric center
 
 	for(size_t p=0;p<mCluster.size();p++){
-		xcmC[p]-=xcmCell;
+		xcmC[p]=xcmC0[p]-xcmCell;
 	}
 
 // Finally reconstruct the solute reduced atomic positions
 
 	for(size_t o=0;o<mCluster.size();o++){
 		for(size_t p=0;p<mCluster[o].size();p++){
-				int n=mCluster[o][p];
-				Dvect tmp=xcmCell+xcmC[o]+xcm[n];
-				for(size_t i=0;i<mAtoms[n].size();i++){
-					int ia=mAtoms[n][i];
-					xa[ia]=tmp+xb[ia];
-				}
+			int n=mCluster[o][p];
+			Dvect tmp=xcmCell+xcmC[o]+xcm[n];
+			for(size_t i=0;i<mAtoms[n].size();i++){
+				int ia=mAtoms[n][i];
+				xa[ia]=tmp+xb[ia];
+			}
 		}
 
 	}
