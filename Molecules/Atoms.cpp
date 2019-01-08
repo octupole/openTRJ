@@ -1227,6 +1227,8 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 	vector<Dvect> nxyz=PBCvect<T>::getVec();
 	vector<vector<int> > mCluster=Perco->getCluster();
 	vector<vector<int> > mAtoms=Perco->getAtoms();
+
+// Lambda function find minimum Rg for a list of vectors
 	auto cmSweep=[nxyz](vector<Dvect> & x,size_t size,RgComp<T> & Rgcmp){
 		bool notOk{true};
 		T Rg{1e10};
@@ -1251,14 +1253,25 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 
 	Matrix co=Mt.getCO();
 	Matrix oc=Mt.getOC();
-	vector<Dvect> xcm(mAtoms.size(),Dvect{T{0.0}});
-	vector<Dvect> xb(nr,Dvect{T{0.0}});
+
+// All coordinates are in reduced units
+
+	Dvect xcmCell{0}; // Geometric center of the aggregate composed of clusters
+	vector<Dvect> xcmC(mCluster.size()); // Geometric center of the clusters
+	vector<Dvect> xcm(mAtoms.size(),Dvect{T{0.0}}); // Geometric center of the solute residues
+	vector<Dvect> xb(nr,Dvect{T{0.0}}); // Atomic coordinates relative to the residue geometric center
+
 	vector<bool> atSolv(nr,true);
+
+	// find atoms which are solvent
+
 	for(auto o=0;o<mAtoms.size();o++){
 		for(auto p=0;p<mAtoms[o].size();p++){
 			atSolv[mAtoms[o][p]]=false;
 		}
 	}
+// xb is the new coordinate referred to residue geometric center
+
 	for(size_t o=0;o<mAtoms.size();o++){
 		vector<Dvect> xa0(mAtoms[o].size(),Dvect{T{0}});
 
@@ -1268,26 +1281,7 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 		}
 		auto Rgcmp=RgComp<T>(xa0,co);
 		cmSweep(xa0,mAtoms[o].size(),Rgcmp);
-//
-//		bool notOk{true};
-//		T Rg{1e10};
-//		int M{0};
-//		while(notOk && M <4){
-//			for(size_t p=0;p<mAtoms[o].size();p++){
-//				Rgcmp.setVect(xa0[p]);
-//				Dvect tmp=*min_element(nxyz.begin(),nxyz.end(),Rgcmp);
-//				for(int q=0; q < DIM;q++) xa0[p][q]=xa0[p][q]+tmp[q];
-//				Rgcmp.CompRg();
-//			}
-//			T Rg_nw=Rgcmp.getRg();
-//			if(Rg_nw == Rg){
-//				notOk=false;
-//			}
-//			Rg=Rg_nw;
-//			M++;
-//
-//		}
-//
+
 		for(size_t p=0;p<mAtoms[o].size();p++){
 			Dvect xx=xa0[p];
 			xcm[o]+=xx;
@@ -1298,33 +1292,19 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 			xb[n]=xa0[p]-xcm[o];
 		}
 	}
-	vector<Dvect> xcmC(mCluster.size());
 	for(size_t o=0;o<mCluster.size();o++){
 		vector<Dvect> xcm0(mCluster[o].size());
 		for(size_t p=0;p<mCluster[o].size();p++){
 			xcm0[p]=xcm[mCluster[o][p]];
 		}
 
+// Shuffles residue geometric center to get a cluster of minimum size
+
 		auto Rgcmp=RgComp<T>(xcm0,co);
 		cmSweep(xcm0,mCluster[o].size(),Rgcmp);
-//		bool notOk{true};
-//		T Rg{1e10};
-//		int M{0};
-//		while(notOk && M <4){
-//			for(size_t p=0;p<mCluster[o].size();p++){
-//				Rgcmp.setVect(xcm0[p]);
-//				Dvect tmp=*min_element(nxyz.begin(),nxyz.end(),Rgcmp);
-//				for(int q=0; q < DIM;q++) xcm0[p][q]=xcm0[p][q]+tmp[q];
-//				Rgcmp.CompRg();
-//			}
-//
-//			T Rg_nw=Rgcmp.getRg();
-//			if(Rg_nw == Rg){
-//				notOk=false;
-//			}
-//			Rg=Rg_nw;
-//			M++;
-//		}
+
+// rewrite residue geometric center relative to cluster geometric center
+
 		for(size_t p=0;p<mCluster[o].size();p++){
 			xcm[mCluster[o][p]]=xcm0[p];
 			xcmC[o]+=xcm[p];
@@ -1334,34 +1314,24 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 			xcm[mCluster[o][p]]-=xcmC[o];
 		}
 	}
+
+// Shuffle cluster geometry center to find the minimal size of the ensemble
+
 	auto Rgcmp=RgComp<T>(xcmC,co);
 	cmSweep(xcmC,mCluster.size(),Rgcmp);
-//	bool notOk{true};
-//	T Rg{1e10};
-//	int M{0};
-//	while(notOk && M <4){
-//		for(size_t p=0;p<mCluster.size();p++){
-//			Rgcmp.setVect(xcmC[p]);
-//			Dvect tmp=*min_element(nxyz.begin(),nxyz.end(),Rgcmp);
-//			for(int q=0; q < DIM;q++) xcmC[p][q]=xcmC[p][q]+tmp[q];
-//			Rgcmp.CompRg();
-//		}
-//
-//		T Rg_nw=Rgcmp.getRg();
-//		if(Rg_nw == Rg){
-//			notOk=false;
-//		}
-//		Rg=Rg_nw;
-//		M++;
-//	}
-	Dvect xcmCell{0};
 	for(size_t p=0;p<mCluster.size();p++){
 		xcmCell+=xcmC[p];
 	}
 	xcmCell/=(T) mCluster.size();
+
+// Rewrite the cluster geometric center relative to the aggregate geometric center
+
 	for(size_t p=0;p<mCluster.size();p++){
 		xcmC[p]-=xcmCell;
 	}
+
+// Finally reconstruct the solute reduced atomic positions
+
 	for(size_t o=0;o<mCluster.size();o++){
 		for(size_t p=0;p<mCluster[o].size();p++){
 				int n=mCluster[o][p];
@@ -1373,24 +1343,23 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 		}
 
 	}
-	cout << xcmC[0] <<endl;
-	cout << xcmCell <<endl;
+
+// Place the aggregate in the center of the cell; thus xcmCell is equal to HALF
 	for(auto ia=0;ia<nr;ia++){
 		for(int o=0;o<DIM;o++){
 			 xa[ia][o]-=xcmCell[o]-HALF;
-			 if(atSolv[ia]) {
+			 if(atSolv[ia]) {  // for solvent atoms apply pbc and place to obtain their coordinates in the (0,0,0) cell
 				 xa[ia][o]-=rint(xa[ia][o]-HALF);
 			 }
 		}
 	}
+
 	//> Obtain new Cartesian coordinates from reduced xa's
 	for(auto ia=0;ia<nr;ia++){
 		for(int o=0;o<DIM;o++){
 			x[ia][o]=Mt.getCO()[o][XX]*xa[ia][XX]+Mt.getCO()[o][YY]*xa[ia][YY]+Mt.getCO()[o][ZZ]*xa[ia][ZZ];
 		}
 	}
-	this->PrintAll(cout);exit(1);
-
 }
 
 template <typename T>
