@@ -209,7 +209,7 @@ namespace MATRIX{
 
 	template<class T>
 	struct MMatrix{
-		T m[DIM][DIM];
+		T m[DIM][DIM]{0,0,0,0,0,0,0,0,0};
 		MMatrix(){};
 		MMatrix(T y){
 			for(int o=0;o<DIM;o++)
