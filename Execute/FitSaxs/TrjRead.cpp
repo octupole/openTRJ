@@ -57,6 +57,10 @@ void TrjRead::Input(){
 			fin2=new ifstream(filein2);
 			cout << filein1 << " " << filein2 <<endl;
 		}
+		if(!inmap["-notr"].empty()) {
+			if(inmap["-notr"].size() > 1) throw string(inmap["-notr"][0] + " option need no argument!\n");
+			noTransl=true;
+		}
 		if(!inmap["-o"].empty()) {
 			if(inmap["-o"].size() < 2) throw string("\n filename expected for " + inmap["-o"][0] + " option \n");
 			if(inmap["-o"].size() > 2) throw string("\n More than one entry for " + inmap["-o"][0] + " option \n");

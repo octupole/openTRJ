@@ -13,6 +13,7 @@ trjInput::trjInput(int ntot,char ** v) {
 	vector<string> in;
 
 	inmap["-o"]=in;
+	inmap["-notr"]=in;
 	inmap["-in"]=in;
 
 	map<string,vector<string> >::iterator it=inmap.begin();
@@ -22,7 +23,8 @@ trjInput::trjInput(int ntot,char ** v) {
 	Usage[0]="\t -o fileout: The new computed function fitted to experiment\n";
 	Usage[1]="\t -in Read the computed and experimental function \n";
 
-	Usage[2]="\t -help // write some on line help \n";
+	Usage[2]="\t -notr // Only fit on one parameters \n";
+	Usage[3]="\t -help // write some on line help \n";
 
 	vector<string> vv0;
 	string vv;

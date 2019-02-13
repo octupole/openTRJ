@@ -64,6 +64,7 @@ int main(int argc, char ** argv)
 {
 	trj::TrjRead MyIn(argc,argv);
 	MyIn.Input();
+	bool notr=MyIn.gnoTransl();
 	ofstream & fout=*MyIn.gFoutx();
 	ifstream & fin1=*MyIn.gFin1();
 	ifstream & fin2=*MyIn.gFin2();
@@ -97,11 +98,17 @@ int main(int argc, char ** argv)
     linearmodel model;
     lrreport rep;
     real_1d_array c;
-    lrbuilds(xy,S,mp2.size(), 1, info, model, rep);
+    if(notr) {
+    	lrbuildzs(xy,S,mp2.size(), 1, info, model, rep);
+        lrunpack(model, c, nvars);
+        c[1]=0.0;
+    }
+    else{
+    	lrbuilds(xy,S,mp2.size(), 1, info, model, rep);
+        lrunpack(model, c, nvars);
+    }
 
-    lrunpack(model, c, nvars);
-    printf("%s\n", c.tostring(4).c_str());
-
+    cout << 1.0/c[0] << " " << c[1]/c[0]<<endl;
     for(auto op: mp1){
     	double y=(op[1]-c[1])/c[0];
     	fout << op[0] <<" " << y <<endl;

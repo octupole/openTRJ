@@ -64,6 +64,7 @@ class TrjRead: public trjInput {
 	ofstream * foutx{nullptr};
 	ifstream * fin1{nullptr};
 	ifstream * fin2{nullptr};
+	bool noTransl{false};
 public:
 	Values<string> gfilein1{filein1};
 	Values<string> gfilein2{filein2};
@@ -71,7 +72,7 @@ public:
  	Streams<ofstream> gFoutx;
  	Streams<ifstream> gFin1;
 	Streams<ifstream> gFin2;
-
+	Values<bool> gnoTransl{noTransl};
 	TrjRead(int nv,char ** v);//!< Constructor from input line
 	void Input();
 	virtual ~TrjRead();
