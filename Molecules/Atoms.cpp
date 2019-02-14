@@ -1205,7 +1205,7 @@ void Atoms<T>::__ReconstructOneCluster(vector<bool> & atSolv){
 		}
 	}
 	xcmC/=static_cast<double>(u);
-	cout << xcmC<<endl;exit(1);
+
 	for(auto ia=0;ia<nr;ia++){
 		for(int o=0;o<DIM;o++){
 			 xa[ia][o]-=xcmC[o]-HALF;
@@ -1220,7 +1220,13 @@ void Atoms<T>::__ReconstructOneCluster(vector<bool> & atSolv){
 			x[ia][o]=Mt.getCO()[o][XX]*xa[ia][XX]+Mt.getCO()[o][YY]*xa[ia][YY]+Mt.getCO()[o][ZZ]*xa[ia][ZZ];
 		}
 	}
-	this->PrintAll(cout);exit(1);
+	//> Obtain new Cartesian coordinates from reduced xa's
+	for(auto ia=0;ia<nr;ia++){
+		for(int o=0;o<DIM;o++){
+			x[ia][o]=Mt.getCO()[o][XX]*xa[ia][XX]+Mt.getCO()[o][YY]*xa[ia][YY]+Mt.getCO()[o][ZZ]*xa[ia][ZZ];
+		}
+	}
+	//this->PrintAll(cout);exit(1);
 }
 template <typename T>
 void Atoms<T>::Reconstruct(Contacts<T> * con0){
@@ -1233,7 +1239,7 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 		bool notOk{true};
 		T Rg{1e10};
 		int M{0};
-		while(notOk && M <4){
+		while(notOk && M <8){
 			for(size_t p=0;p<size;p++){
 				Rgcmp.setVect(x[p]);
 				Dvect tmp=*min_element(nxyz.begin(),nxyz.end(),Rgcmp);
@@ -1270,6 +1276,7 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 			atSolv[mAtoms[o][p]]=false;
 		}
 	}
+
 // xb is the new coordinate referred to residue geometric center
 
 	for(size_t o=0;o<mAtoms.size();o++){
@@ -1323,7 +1330,7 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 	for(size_t p=0;p<mCluster.size();p++){
 		xcmC0[p]=xcmC[p];
 	}
-
+	cout << xcmC0[0] <<endl;
 	auto Rgcmp=RgComp<T>(xcmC0,co);
 	cmSweep(xcmC,mCluster.size(),Rgcmp);
 	for(size_t p=0;p<mCluster.size();p++){
@@ -1336,6 +1343,8 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 	for(size_t p=0;p<mCluster.size();p++){
 		xcmC[p]=xcmC0[p]-xcmCell;
 	}
+	static int UI=0;
+	cout << UI++<< " " <<xcmC[0] <<endl;
 
 // Finally reconstruct the solute reduced atomic positions
 
