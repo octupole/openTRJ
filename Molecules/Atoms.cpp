@@ -1330,7 +1330,6 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 	for(size_t p=0;p<mCluster.size();p++){
 		xcmC0[p]=xcmC[p];
 	}
-	cout << xcmC0[0] <<endl;
 	auto Rgcmp=RgComp<T>(xcmC0,co);
 	cmSweep(xcmC,mCluster.size(),Rgcmp);
 	for(size_t p=0;p<mCluster.size();p++){
@@ -1344,7 +1343,6 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 		xcmC[p]=xcmC0[p]-xcmCell;
 	}
 	static int UI=0;
-	cout << UI++<< " " <<xcmC[0] <<endl;
 
 // Finally reconstruct the solute reduced atomic positions
 
@@ -1480,7 +1478,6 @@ void Atoms<T>::Reconstruct1(Contacts<T> * con0){
 		}
 		xcmC[o]/=static_cast<double>(mCluster[o].size());
 	}
-	cout << xcmC[0] <<endl;
 	if(mCluster.size() == 1) return __ReconstructOneCluster(atSolv);
 
 	FindCell<T> myCell(Mt.getCO());
