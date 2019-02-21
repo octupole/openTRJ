@@ -2062,7 +2062,7 @@ xdr_ntohl(int x)
 	}
 }
 
-static int
+int
 xdr_int (XDR *xdrs, int *ip)
 {
 	int32_t i32;
@@ -2312,7 +2312,7 @@ xdr_string (XDR *xdrs, char **cpp, unsigned int maxsize)
 
 /* Floating-point stuff */
 
-static int
+int
 xdr_float(XDR *xdrs, float *fp)
 {
 	switch (xdrs->x_op) {
