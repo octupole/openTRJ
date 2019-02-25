@@ -45,6 +45,15 @@ void TrjRead::Input(){
 	bool bPrintVols{false};
 	bool bPrintAreas{false};
 	bool bpdbOut{false};
+	auto gList=[](vector<string> x){
+		stringstream iss;
+		auto nsolute=x.size();
+		for(size_t o{1};o<nsolute;o++){
+			iss << x[o] <<endl;
+		}
+		return iss;
+	};
+
 	try{
 		if(!inmap["-dcd"].empty()) {
 			if(inmap["-dcd"].size() < 2) throw string("\n Filename expected for " + inmap["-dcd"][0] + " option \n");
@@ -75,17 +84,15 @@ void TrjRead::Input(){
 			if(!fpdb) throw string("\n Cannot open " + filepdb + "!!\n");
 		}
 		if(!inmap["-select"].empty()) {
-			if(inmap["-select"].size() != 2) throw string(" String of selected residues needed for " + inmap["-select"][0] + " option ");
-			string selection=inmap["-select"][1];
-			stringstream iss(selection);
+			if(inmap["-select"].size() == 1) throw string(" String of selected residues needed for " + inmap["-select"][0] + " option ");
+			stringstream iss=gList(inmap["-select"]);
 			copy(istream_iterator<string>(iss),
 					istream_iterator<string>(),
 					back_inserter<vector<string> >(SelRes));
 		}
 		if(!inmap["-solute"].empty()) {
-			if(inmap["-solute"].size() != 2) throw string(" Reference residue for Micelle centering needed " + inmap["-solute"][0] + " option ");
-			string Ref=inmap["-solute"][1];
-			stringstream iss(Ref);
+			if(inmap["-solute"].size() == 1) throw string(" Reference residue for Micelle centering needed " + inmap["-solute"][0] + " option ");
+			stringstream iss=gList(inmap["-solute"]);
 			copy(istream_iterator<string>(iss),
 					istream_iterator<string>(),
 					back_inserter<vector<string> >(Reference));
