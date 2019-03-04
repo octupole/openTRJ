@@ -149,7 +149,6 @@ void ExecuteProp<T>::__RunTrajectory(Atoms<T> * atmx){
 		float ntime=atmA->getTime();
 		int nClusters{0};
 		atmA->setTopol(*Top);
-
 		if(Clustering){
 
 			static struct Once{
@@ -166,10 +165,10 @@ void ExecuteProp<T>::__RunTrajectory(Atoms<T> * atmx){
 			}else {
 				nClusters=atmA->Percolate();
 			}
-
 			atmA->Reconstruct(Con0);
-
 		}
+
+		atmA->doProperty();
 		switch(nClusters){
 		case 0:
 			break;

@@ -64,6 +64,7 @@
 #include "Timer.h"
 #include "NewMPI.h"
 #include "Atoms.h"
+#include "AtomsProp.h"
 #include "Execute/ClearUsage.h"
 #include "Execute/ExecuteProp.h"
 #include "Execute/TrjRead.h"
@@ -115,13 +116,16 @@ int main(int argc, char ** argv){
 		typedef map<string,vector<vector<int> > > mappa;
 		mappa & Def=MyTop.getDef();
 		MyIn.gReference()=PickSelection(MyIn.gReference()).Select<Enums::Reference>(Def,MyTop); // Pick the Reference residue
+		MyIn.gSelRes()=PickSelection(MyIn.gSelRes()).Select<Enums::Selection>(Def,MyTop); //Pick the selection residues
 
 		int natoms=MyTop.Size();
-		atm=new Atoms<double>(natoms);
+		atm=new AtomsProp<double,radial>(natoms,32.0,0.02);
+		atm->initLists(topPDB, MyIn.gSelRes());
+		atm->InitSelection<Enums::Reference>(MyIn.gReference(),MyTop);
+		atm->InitSelection<Enums::Selection>(MyIn.gSelRes(),MyTop);
 
 		MyTop.InitSelection(MyIn.gReference(),Enums::Reference);
 		MyRun=new Properties::ExecuteProp<double>(MyIn,MyTop);
-
 	}
 
 	(*MyRun)(atm);

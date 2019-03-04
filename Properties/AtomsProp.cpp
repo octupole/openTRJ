@@ -1,0 +1,45 @@
+/*
+ * AtomsProp.cpp
+ *
+ *  Created on: Mar 1, 2019
+ *      Author: marchi
+ */
+
+#include "AtomsProp.h"
+
+template <typename T>
+void AtomsProp<T,radial>::doProperty(){
+	vector<vector<int> > mCluster=this->Perco->getCluster();
+	vector<vector<int> > mAtoms=this->Perco->getAtoms();
+	Matrix co=this->Mt.getCO();
+	Matrix oc=this->Mt.getOC();
+	Dvect xcmCell{0}; // Geometric center of the aggregate composed of clusters
+	vector<Dvect> xcmC(mCluster.size()); // Geometric center of the clusters
+	vector<Dvect> xcm(mAtoms.size(),Dvect{T{0.0}}); // Geometric center of the solute residues
+	vector<Dvect> xb(this->nr,Dvect{T{0.0}}); // Atomic coordinates relative to the residue geometric center
+
+	vector<bool> atSolv(this->nr,true);
+
+	// find atoms which are solvent
+
+	for(auto o=0;o<mAtoms.size();o++){
+		for(auto p=0;p<mAtoms[o].size();p++){
+			atSolv[mAtoms[o][p]]=false;
+		}
+	}
+
+	vector<Gyration<T> *> Rg=vector<Gyration<T>*>(mCluster.size());
+	for(auto & ip: Rg)
+		ip=new Gyration<T>();
+	Gyration<T>::setTime(this->time_c);
+
+	this->CalcGyro(this->mass,Rg);
+	for(size_t o{0};o<Rg.size();o++){
+		double R_g{5*Rg[o]->gRadg()/3};
+		double rcut=rCut+sqrt(R_g);
+		xcm[o]=Rg[o]->gXcm();
+	}
+	cout << (*this->ResIndx0).size()<<endl;
+}
+template class AtomsProp<float,radial>;
+template class AtomsProp<double,radial>;

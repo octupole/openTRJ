@@ -52,48 +52,51 @@ trjInput::trjInput(int ntot,char ** v, ClearUsage & clr) {
 	for(int n=0;it!=inmap.end();++it,n++){
 		Usage[n]=" ";
 	}
-	Usage[0]="\t -dcd file.dcd \n";
-	Usage[1]="\t -xtc file.xtc\n";
-	Usage[2]="\t -pdb file.pdb \n";
-	Usage[3]="\t -o fileout \n"
+	int N{0};
+	Usage[N++]="\t -dcd file.dcd \n";
+	Usage[N++]="\t -xtc file.xtc\n";
+	Usage[N++]="\t -pdb file.pdb \n";
+	Usage[N++]="\t -o fileout \n"
 			"\tFor a file with a .pdb extension: Write pdb files for the solute \n"
 			"\tFor a file with a .ndx extention: Write ndx files for the solute \n";
-	Usage[4]="\t -b No. First Frame \n";
-	Usage[5]="\t -e No. Last Frame\n";
-	Usage[6]="\t -obin file.bin\n";
-	Usage[7]="\t -in file.bin\n";
+	Usage[N++]="\t -b No. First Frame \n";
+	Usage[N++]="\t -e No. Last Frame\n";
+	Usage[N++]="\t -obin file.bin\n";
+	Usage[N++]="\t -in file.bin\n";
 
-	Usage[8]="\t -skip No. skipped frames \n";
-	Usage[9]="\t -nohyd // Do not include hydrogens in Voronoi [default] \n";
-	Usage[10]="\t -hyd // Include hydrogens in Voronoi\n";
-	Usage[11]="\t -nodel // Do not delete temporary files in MPI runs \n";
-	Usage[12]="\t -del // Delete temporary files in MPI runs [default]\n";
-	Usage[13]="\t -rd // Use atomic radii in the Voronoi calculation [default]\n";
-	Usage[14]="\t -nord // Do not use atomic radii in the Voronoi calculation \n";
-	Usage[15]="\t -solute <string selection>\n"
+	Usage[N++]="\t -skip No. skipped frames \n";
+	Usage[N++]="\t -nohyd // Do not include hydrogens in Voronoi [default] \n";
+	Usage[N++]="\t -hyd // Include hydrogens in Voronoi\n";
+	Usage[N++]="\t -nodel // Do not delete temporary files in MPI runs \n";
+	Usage[N++]="\t -del // Delete temporary files in MPI runs [default]\n";
+	Usage[N++]="\t -rd // Use atomic radii in the Voronoi calculation [default]\n";
+	Usage[N++]="\t -nord // Do not use atomic radii in the Voronoi calculation \n";
+	Usage[N++]="\t -solute <string selection>\n"
 			"\t\tDefine the residue of the solute to be used in the Voronoi analysis.\n";
 
-	Usage[16]="\t -test // compute total volume from Voronoi or simulation cell parameters\n";
-	Usage[17]="\t -help // write some on line help \n";
-	Usage[18]="\t -pvol // Print volume \n";
-	Usage[19]="\t -parea // Print area \n";
-	Usage[20]="\t -det filename// Define the polar segment of a detergent residue \n"
+	Usage[N++]="\t -test // compute total volume from Voronoi or simulation cell parameters\n";
+	Usage[N++]="\t -help // write some on line help \n";
+	Usage[N++]="\t -pvol // Print volume \n";
+	Usage[N++]="\t -parea // Print area \n";
+	Usage[N++]="\t -det filename// Define the polar segment of a detergent residue \n"
 			"\t\tThe file filename contains two strings:\n"
 			"\t\t   i) the first string is the name of the detergent residue \n"
 			"\t\t   ii)the second string contains the polar atoms of the residue\n"
 			"\t\t*Important*: The remaining atoms of the residues are considered as hydrophobic\n";
-	Usage[21]="\t -detP <string>// Define a name for the polar segment of a detergent residue \n";
-	Usage[22]="\t -detO <string>// Define a name for the hydrophobic segment of a detergent residue \n";
-	Usage[23]="\t -shell [2]<int n>// Compute number and average volume of the n-shell water\n"
+	Usage[N++]="\t -detP <string>// Define a name for the polar segment of a detergent residue \n";
+	Usage[N++]="\t -detO <string>// Define a name for the hydrophobic segment of a detergent residue \n";
+	Usage[N++]="\t -shell [2]<int n>// Compute number and average volume of the n-shell water\n"
 			"\t\tneighbours around solute \n";
-	Usage[24]="\t -clust <float cutoff [0.0] in \u00C5ngstr\u00F6ms>\n"
+	Usage[N++]="\t -clust <float cutoff [0.0] in \u00C5ngstr\u00F6ms>\n"
 			"\t\tDo clustering by percolation of the solute. This is used to compute the surfaces and volumes\n"
 			"\t\tof each cluster. If the cutoff is zero, the default, the cutoff is chosen according to the\n"
 			"\t\tLennard-Jones sigma parameters multiplied by an offset factor of 1.5\n";
-	Usage[25]="\t -json fileout \n"
+	Usage[N++]="\t -json fileout \n"
 			"\t\tWrite output to a JSON format\n";
-	Usage[26]="\t -avgPDB Write averaged pdb \n";
-	Usage[27]="\t -once Do percolation only at the beginning \n";
+	Usage[N++]="\t -gyro \n"
+			"\t\tCompute gyration radius for the molecular clusters\n";
+	Usage[N++]="\t -avgPDB Write averaged pdb \n";
+	Usage[N++]="\t -once Do percolation only at the beginning \n";
 	clr.ClrU(Usage);
 	int n=1;
 	string key;

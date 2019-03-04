@@ -133,7 +133,6 @@ public:
 	Atoms(): R_cmx{new CenterMassBW3<T>}{};
 	Atoms(const int);
 	Atoms(const AtomIndex &);
-	Atoms(const Atoms &);
 	virtual ~Atoms();
 	struct plane{
 		Typedefs::real xc[4];
@@ -143,6 +142,9 @@ public:
 		plane & operator=(double dd){xc[3]=dd;return *this;};
 		plane & operator=(int i){n=i;return *this;};
 	} ax;
+	virtual void doTest(){};
+	virtual void doProperty(){};
+
 	template <Enums::myWriteOptions OPT>
 	void Gyro();
 	vector<Gyration<T>*> & getRg_i(){return Rg_i;};

@@ -7,8 +7,8 @@ if (NOT CMAKE_BUILD_TYPE)
 endif()
 set(SOURCE CenterMass.cpp CenterMassMicelles.cpp CenterMassBW3.cpp CenterMassWigner.cpp
 	Quaternions.cpp QuaternionUtilities.cpp WignerDMatrices.cpp Combinatorics.cpp 
-	CMPick.cpp DensMode.cpp)
+	CMPick.cpp DensMode.cpp AtomsProp.cpp)
 	
 add_library(Properties STATIC ${SOURCE})
-target_include_directories(Properties PUBLIC "${PROJECT_SOURCE_DIR}/Molecules" "${PROJECT_SOURCE_DIR}/libtraj")
+target_include_directories(Properties PUBLIC "${PROJECT_SOURCE_DIR}/Properties" "${PROJECT_SOURCE_DIR}/Molecules" "${PROJECT_SOURCE_DIR}/libtraj")
 
