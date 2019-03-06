@@ -41,13 +41,11 @@ TrjRead::TrjRead(int nv,char ** v): trjInput::trjInput(nv,v) {
 }
 void TrjRead::Input(){
 	ifstream ftest,fdefdomain;
-	auto gList=[](vector<string> x){
-		stringstream iss;
+	auto gList=[](vector<string> x, stringstream & iss){
 		auto nsolute=x.size();
 		for(size_t o{1};o<nsolute;o++){
 			iss << x[o] <<endl;
 		}
-		return iss;
 	};
 
 #ifdef __INTEL  //  set the conversion factors by hand as until intel c++ compiler version 16 user-defined literals are not allowed
@@ -154,14 +152,16 @@ void TrjRead::Input(){
 		}
 		if(!inmap["-select"].empty()) {
 			if(inmap["-select"].size() == 1) throw string(" String of selected residues needed for " + inmap["-select"][0] + " option ");
-			stringstream iss=gList(inmap["-select"]);
+			stringstream iss;
+			gList(inmap["-select"],iss);
 			copy(istream_iterator<string>(iss),
 					istream_iterator<string>(),
 					back_inserter<vector<string> >(SelRes));
 		}
 		if(!inmap["-solute"].empty()) {
 			if(inmap["-solute"].size() == 1) throw string(" Reference residue for Micelle centering needed " + inmap["-solute"][0] + " option ");
-			stringstream iss=gList(inmap["-solute"]);
+			stringstream iss;
+			gList(inmap["-solute"], iss);
 			copy(istream_iterator<string>(iss),
 					istream_iterator<string>(),
 					back_inserter<vector<string> >(Reference));
