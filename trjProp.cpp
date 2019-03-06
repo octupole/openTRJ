@@ -119,8 +119,8 @@ int main(int argc, char ** argv){
 		MyIn.gSelRes()=PickSelection(MyIn.gSelRes()).Select<Enums::Selection>(Def,MyTop); //Pick the selection residues
 
 		int natoms=MyTop.Size();
-		//		atm=new AtomsProp<double,radial>(natoms,32.0,0.02);
-		atm=new Atoms<double>(natoms);
+		atm=new AtomsProp<double,radial>(natoms,32.0,0.02);
+//		atm=new Atoms<double>(natoms);
 		atm->initLists(topPDB, MyIn.gSelRes());
 		atm->InitSelection<Enums::Reference>(MyIn.gReference(),MyTop);
 		atm->InitSelection<Enums::Selection>(MyIn.gSelRes(),MyTop);

@@ -35,11 +35,22 @@ void AtomsProp<T,radial>::doProperty(){
 
 	this->CalcGyro(this->mass,Rg);
 	for(size_t o{0};o<Rg.size();o++){
-		double R_g{5*Rg[o]->gRadg()/3};
-		double rcut=rCut+sqrt(R_g);
+		double Rh{5*Rg[o]->gRadg()/3};
+		double rcut=rCut+sqrt(Rh);
 		xcm[o]=Rg[o]->gXcm();
 	}
-	cout << (*this->ResIndx0).size()<<endl;
+	for(size_t o{0};o<mCluster.size();o++){
+		for(size_t p{0};p<mCluster[o].size();p++){
+			auto n=mCluster[o][p];
+			for(size_t q{0};q<mAtoms[n].size();q++){
+				auto m=mAtoms[n][q];
+				auto x_a=xa[m]-xcm[o];
+
+
+			}
+		}
+
+	}
 }
 template class AtomsProp<float,radial>;
 template class AtomsProp<double,radial>;
