@@ -204,6 +204,60 @@ public:
 	}
 };
 template <typename T>
+class EnComp{
+	using Dvect=DDvect<T>;
+	using Matrix=MMatrix<T>;
+	Matrix co;
+	vector<Dvect> * X{nullptr};
+	Dvect Xd{0};
+	size_t MMax{0};
+public:
+	EnComp(vector<Dvect> & x, Matrix & c): X{&x}, co{c}{};
+	void setVect(size_t p){MMax=p+1;Xd=(*X)[p];}
+	T compEn(){
+		vector<Dvect> & X0=*X;
+		auto o=MMax-1;
+		Dvect xa_o=X0[o];
+		Dvect xc_o=co*xa_o;
+
+		T ener_x{0};
+
+		for(size_t p{0};p<MMax-1;p++){
+			Dvect xa_p=X0[p];
+			Dvect xc_p=co*xa_p;
+			Dvect xd=xc_o-xc_p;
+			T dist=sqrt(xd[XX]*xd[XX]+xd[YY]*xd[YY]+xd[ZZ]*xd[ZZ]);
+
+			ener_x+=dist;
+		}
+		return ener_x;
+
+	}
+	bool operator()(const Dvect & x, const Dvect & y){
+		vector<Dvect> & X0=*X;
+		auto o=MMax-1;
+		Dvect xa_o1=X0[o]+x;
+		Dvect xc_o1=co*xa_o1;
+		Dvect xa_o2=X0[o]+y;
+		Dvect xc_o2=co*xa_o2;
+
+		T ener_x{0},ener_y{0};
+
+		for(size_t p{0};p<MMax-1;p++){
+			Dvect xa_p=X0[p];
+			Dvect xc_p=co*xa_p;
+			Dvect xd1=xc_o1-xc_p;
+			Dvect xd2=xc_o2-xc_p;
+			T dist1=sqrt(xd1[XX]*xd1[XX]+xd1[YY]*xd1[YY]+xd1[ZZ]*xd1[ZZ]);
+			T dist2=sqrt(xd2[XX]*xd2[XX]+xd2[YY]*xd2[YY]+xd2[ZZ]*xd2[ZZ]);
+
+			ener_x+=dist1;
+			ener_y+=dist2;
+		}
+		return ener_x < ener_y;
+	}
+};
+template <typename T>
 Dvect Jacob<T>::Im_s=0.0;
 
 template<typename T>
@@ -1217,25 +1271,14 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 	vector<vector<int> > mCluster=Perco->getCluster();
 	vector<vector<int> > mAtoms=Perco->getAtoms();
 
-// Lambda function find minimum Rg for a list of vectors
-	auto cmSweep=[nxyz](vector<Dvect> & x,size_t size,RgComp<T> & Rgcmp){
+	// Lambda function find minimum Rg for a list of vectors
+		// Lambda function find minimum Rg for a list of vectors
+	auto cmSweep=[nxyz](vector<Dvect> & x,size_t size,EnComp<T> & enComp){
 		bool notOk{true};
-		T Rg{1e10};
-		int M{0};
-		while(notOk && M <8){
-			for(size_t p=0;p<size;p++){
-				Rgcmp.setVect(x[p]);
-				Dvect tmp=*min_element(nxyz.begin(),nxyz.end(),Rgcmp);
-				for(int q=0; q < DIM;q++) x[p][q]=x[p][q]+tmp[q];
-				Rgcmp.CompRg();
-			}
-
-			T Rg_nw=Rgcmp.getRg();
-			if(Rg_nw == Rg){
-				notOk=false;
-			}
-			Rg=Rg_nw;
-			M++;
+		for(size_t p=1;p<size;p++){
+			enComp.setVect(p);
+			Dvect tmp=*min_element(nxyz.begin(),nxyz.end(),enComp);
+			for(int q=0; q < DIM;q++) x[p][q]=x[p][q]+tmp[q];
 		}
 	};
 
@@ -1269,8 +1312,8 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 			int n=mAtoms[o][p];
 			xa0[p]=xa[n];
 		}
-		auto Rgcmp=RgComp<T>(xa0,co);
-		cmSweep(xa0,mAtoms[o].size(),Rgcmp);
+		auto Encmp=EnComp<T>(xa0,co);
+		cmSweep(xa0,mAtoms[o].size(),Encmp);
 
 		for(size_t p=0;p<mAtoms[o].size();p++){
 			Dvect xx=xa0[p];
@@ -1293,8 +1336,8 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 
 // Shuffles residue geometric center to get a cluster of minimum size
 
-		auto Rgcmp=RgComp<T>(xcm0,co);
-		cmSweep(xcm0,mCluster[o].size(),Rgcmp);
+		auto Encmp=EnComp<T>(xcm0,co);
+		cmSweep(xcm0,mCluster[o].size(),Encmp);
 
 // rewrite residue geometric center relative to cluster geometric center
 
@@ -1313,8 +1356,8 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 	for(size_t p=0;p<mCluster.size();p++){
 		xcmC0[p]=xcmC[p];
 	}
-	auto Rgcmp=RgComp<T>(xcmC0,co);
-	cmSweep(xcmC,mCluster.size(),Rgcmp);
+	auto Encmp=EnComp<T>(xcmC0,co);
+	cmSweep(xcmC,mCluster.size(),Encmp);
 	for(size_t p=0;p<mCluster.size();p++){
 		xcmCell+=xcmC0[p];
 	}
