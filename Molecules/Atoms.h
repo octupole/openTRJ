@@ -144,6 +144,7 @@ public:
 	} ax;
 	virtual void doTest(){};
 	virtual void doProperty(){};
+	virtual void printProperty(){};
 
 	template <Enums::myWriteOptions OPT>
 	void Gyro();

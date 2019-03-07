@@ -45,6 +45,8 @@ void TrjRead::Input(){
 	bool bPrintVols{false};
 	bool bPrintAreas{false};
 	bool bpdbOut{false};
+	double Rc,dx;
+
 	auto gList=[](vector<string> x,stringstream & iss){
 		auto nsolute=x.size();
 		for(size_t o{1};o<nsolute;o++){
@@ -96,6 +98,34 @@ void TrjRead::Input(){
 			copy(istream_iterator<string>(iss),
 					istream_iterator<string>(),
 					back_inserter<vector<string> >(Reference));
+		}
+		if(!inmap["-rho"].empty()) {
+			bAtomProperty=myOptions::radial;
+			if(inmap["-rho"].size() > 1) {
+				string str=inmap["-rho"][1];
+				Properties::RhoHistogram::setFilename(str);
+				int Nm=inmap["-rho"].size();
+				switch(Nm){
+				case 2:
+					break;
+				case 3:
+					stringstream(inmap["-rho"][2])>> Rc;
+					Rc*=unit_nm;
+					Properties::RhoHistogram::SetRcut(Rc);
+					break;
+				case 4:
+					stringstream(inmap["-rho"][2])>> Rc;
+					stringstream(inmap["-rho"][3])>> dx;
+					Rc*=unit_nm;
+					dx*=unit_nm;
+					Properties::RhoHistogram::SetRcut(Rc);
+					Properties::RhoHistogram::SetDx(dx);
+					break;
+				default:
+					throw string("\n At most 2 arguments for " + inmap["-rho"][0] + " option \n");
+				}
+
+			}
 		}
 		if(!inmap["-det"].empty()) {
 			if(inmap["-det"].size() != 2) throw string("A filename is needed for " + inmap["-det"][0] + " option ");
@@ -190,12 +220,6 @@ void TrjRead::Input(){
 			if(inmap["-detP"].size() > 2) throw string("\n More than one entry for " + inmap["-detP"][0] + " option \n");
 			string myDetP=inmap["-detP"][1];
 			Topol_NS::ResidueTypes::addDetPolar(myDetP);
-		}
-		if(!inmap["-obin"].empty()) {
-			if(inmap["-obin"].size() < 2) throw string("\n filename expected for " + inmap["-obin"][0] + " option \n");
-			if(inmap["-obin"].size() > 2) throw string("\n More than one entry for " + inmap["-obin"][0] + " option \n");
-			fileout=inmap["-obin"][1];
-			bOutBin=true;
 		}
 		if(!inmap["-in"].empty()) {
 			if(inmap["-in"].size() < 2) throw string("\n at least one filename expected for " + inmap["-in"][0] + " option\n ");
@@ -293,7 +317,6 @@ void TrjRead::Input(){
 			vector<string> ss;
 			std::sort(SelRes.begin(),SelRes.end());std::sort(Reference.begin(),Reference.end());
 			std::set_intersection(SelRes.begin(),SelRes.end(),Reference.begin(),Reference.end(),back_inserter(ss));
-			if(ss.empty()) throw string("Residue in -solute and -select must intersect");
 		}
 		if(finx && nstart > nend) throw string("Initial trajectory step is larger than the set final step. Change and rerun. ");
 	} catch(const string & s){

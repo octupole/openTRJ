@@ -204,6 +204,7 @@ void ExecuteProp<T>::__RunTrajectory(Atoms<T> * atmx){
 
 		cout << fixed << setw(5) << "----> Time Step " << ntime << ss.str()<<"\n";
 	}
+	atmA->printProperty();
 	__lastBuffer(Comms->getStream());
 	Comms->appendStreams();
 	if(bDel) Comms->removeFiles();

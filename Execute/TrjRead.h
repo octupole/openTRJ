@@ -25,9 +25,10 @@
 #include "NewMPI.h"
 #include "Finalize.h"
 #include "myEnums.hpp"
+#include "properties.hpp"
 #include "MyUtilClass.h"
 #include "ResidueTypes.h"
-
+#include "RhoHistogram.h"
 
 using namespace std;
 
@@ -141,6 +142,7 @@ public:
 	static void SetComm(Parallel::NewMPI * y){
 		CurrMPI=y;
 	}
+	myOptions bAtomProperty{noprop};
 	Values<vector<int> > gWignerArgs{WignerArgs};
 	Values<Dvect> gE0{e0};
 

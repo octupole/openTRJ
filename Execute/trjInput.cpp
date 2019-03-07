@@ -47,6 +47,7 @@ trjInput::trjInput(int ntot,char ** v, ClearUsage & clr) {
 	inmap["-json"]=in;
 	inmap["-avgPDB"]=in;
 	inmap["-once"]=in;
+	inmap["-rho"]=in;
 
 	map<string,vector<string> >::iterator it=inmap.begin();
 	for(int n=0;it!=inmap.end();++it,n++){
@@ -61,7 +62,6 @@ trjInput::trjInput(int ntot,char ** v, ClearUsage & clr) {
 			"\tFor a file with a .ndx extention: Write ndx files for the solute \n";
 	Usage[N++]="\t -b No. First Frame \n";
 	Usage[N++]="\t -e No. Last Frame\n";
-	Usage[N++]="\t -obin file.bin\n";
 	Usage[N++]="\t -in file.bin\n";
 
 	Usage[N++]="\t -skip No. skipped frames \n";
@@ -97,6 +97,7 @@ trjInput::trjInput(int ntot,char ** v, ClearUsage & clr) {
 			"\t\tCompute gyration radius for the molecular clusters\n";
 	Usage[N++]="\t -avgPDB Write averaged pdb \n";
 	Usage[N++]="\t -once Do percolation only at the beginning \n";
+	Usage[N++]="\t -rho <string filename> <float cutoff> <float dx> Compute density solvent profile around cluster \n";
 	clr.ClrU(Usage);
 	int n=1;
 	string key;

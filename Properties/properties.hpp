@@ -9,7 +9,7 @@
 #define PROPERTIES_PROPERTIES_HPP_
 
 
-enum myOptions { radial, hist2D, noprop};
+enum myOptions { radial, hist2D, noprop, pdb};
 
 
 #endif /* PROPERTIES_PROPERTIES_HPP_ */

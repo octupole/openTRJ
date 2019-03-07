@@ -88,6 +88,9 @@ Quantity<U> operator *(double x, Quantity<U> y) {
 constexpr Quantity<M> operator"" _m(long double d) {
 	return Quantity<M> { d };
 }
+constexpr Quantity<M> operator"" _dm(long double d) {
+	return Quantity<M> { d / 1e1};
+}
 
 constexpr Quantity<M> operator"" _nm(long double d) {
 	return Quantity<M> { d / 1e9 };
