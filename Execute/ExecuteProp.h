@@ -12,6 +12,7 @@
 #include "FstreamF.h"
 #include "MyUtilClass.h"
 #include <iterator>
+#include <tuple>
 
 #include "../Execute/TrjRead.h"
 #include "Finalize.h"
@@ -21,6 +22,7 @@
 #include "Finalize.h"
 #include "Percolation.h"
 #include "Atoms.h"
+#include "AtomsProp.h"
 #include "Gyration.h"
 #include "GyrationJSON.h"
 #include "myEnums.hpp"
@@ -91,7 +93,7 @@ class ExecuteProp {
 	void __wrapOutfile();
 public:
 	ExecuteProp(trj::TrjRead & x);
-	ExecuteProp(trj::TrjRead & x, Topol & y);
+	ExecuteProp(myOptions opt,trj::TrjRead & x, Topol & y);
 	ExecuteProp()=delete;
 	/** \brief Initiate communication class
 	 *

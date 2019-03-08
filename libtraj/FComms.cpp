@@ -87,6 +87,7 @@ FComms::FComms(NewMPI * currMPI,int nstartx,int nendx,int ntot,int nskip){
 	}
 }
 void FComms::appendStreams(){
+	if(!fout) return;
 	int nsize=comm->Get_Size();
 	if(nsize < 2) return;
 	int nrank=comm->Get_Rank();

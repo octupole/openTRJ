@@ -13,12 +13,16 @@
 #include <fstream>
 #include <ostream>
 #include <cmath>
+#include <map>
+#include <algorithm>
 #include "Units.hh"
+#include "NewMPI.h"
 
 using namespace Units;
 using std::cout;
 using std::endl;
 using std::vector;
+using std::map;
 using std::string;
 using std::ofstream;
 using std::ostream;
@@ -28,6 +32,7 @@ namespace Properties {
 class RhoHistogram {
 	static double rcut;
 	static double dx;
+	static string headerXVG;
 	vector<double> Histo;
 	vector<double> Avg;
 	vector<size_t> nHisto;
@@ -55,12 +60,13 @@ public:
 	RhoHistogram operator++(int);
 	void Averages();
 	void Averages(double);
-	friend ostream & operator << (ostream & fout , RhoHistogram  & y ){
-		y.cPrint(fout);
-		return fout;
-	};
+	void Reduce(Parallel::NewMPI *);
+
+	friend ostream & operator << (ostream & , RhoHistogram  &  );
+	friend ostream & operator << (ostream & , map<string,RhoHistogram *> &  );
 	virtual ~RhoHistogram();
 };
+
 
 } /* namespace Properties */
 

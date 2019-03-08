@@ -117,8 +117,8 @@ int main(int argc, char ** argv){
 		mappa & Def=MyTop.getDef();
 		MyIn.gReference()=PickSelection(MyIn.gReference()).Select<Enums::Reference>(Def,MyTop); // Pick the Reference residue
 		MyIn.gSelRes()=PickSelection(MyIn.gSelRes()).Select<Enums::Selection>(Def,MyTop); //Pick the selection residues
-
 		int natoms=MyTop.Size();
+
 		switch(MyIn.bAtomProperty){
 		case myOptions::noprop:
 			atm=new Atoms<double>(natoms);
@@ -126,17 +126,22 @@ int main(int argc, char ** argv){
 		case myOptions::radial:
 			atm=new AtomsProp<double,radial>(natoms);
 			break;
+		case myOptions::gyro:
+			atm=new AtomsProp<double,gyro>(natoms);
+			break;
+		case myOptions::gyroJ:
+			atm=new AtomsProp<double,gyroJ>(natoms);
+			break;
 		default:
 			break;
 		}
-
 
 		atm->initLists(topPDB, MyIn.gSelRes());
 		atm->InitSelection<Enums::Reference>(MyIn.gReference(),MyTop);
 		atm->InitSelection<Enums::Selection>(MyIn.gSelRes(),MyTop);
 
 		MyTop.InitSelection(MyIn.gReference(),Enums::Reference);
-		MyRun=new Properties::ExecuteProp<double>(MyIn,MyTop);
+		MyRun=new Properties::ExecuteProp<double>(atm->getProperty(),MyIn,MyTop);
 	}
 
 	(*MyRun)(atm);

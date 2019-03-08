@@ -10,6 +10,7 @@
 #include "Atoms.h"
 
 namespace Properties {
+using RhoHist=std::map<string,Properties::RhoHistogram *>;
 
 template <typename T>
 size_t ExecuteProp<T>::nnx=1;
@@ -65,13 +66,12 @@ ExecuteProp<T>::ExecuteProp(trj::TrjRead & MyIn) {
 
 }
 template <typename T>
-ExecuteProp<T>::ExecuteProp(trj::TrjRead & MyIn, Topol & Topology):
+ExecuteProp<T>::ExecuteProp(myOptions opt,trj::TrjRead & MyIn, Topol & Topology):
  	 ExecuteProp<T>::ExecuteProp(MyIn){
 	Top=&Topology;
 	ios::streampos len;
 	HeaderTrj header;
 // Read header of dcd file
-
 	try{
 		if(finx) {
 			finx->seekg(0,"end");
@@ -87,14 +87,19 @@ ExecuteProp<T>::ExecuteProp(trj::TrjRead & MyIn, Topol & Topology):
 							+ss1.str()+") does not match!");}
 			}
 			catch(const string & s){cout << s<<endl;Finale::Finalize::Final();}
-			ofstream & fout=*foutx;
-
 			CurrMPI->Barrier();
-
-			Comms=new Parallel::FComms(CurrMPI,fout,fileout,nstart,nend,header.getNFR(),nskip);
+			if(opt == myOptions::gyro || opt == myOptions::pdb || opt == myOptions::gyroJ){
+				ofstream & fout=*foutx;
+				Comms=new Parallel::FComms(CurrMPI,fout,fileout,nstart,nend,header.getNFR(),nskip);
+			} else {
+				Comms=new Parallel::FComms(CurrMPI,nstart,nend,header.getNFR(),nskip);
+				if(!CurrMPI->Get_Rank())
+					foutx->open(fileout.c_str(),ios::out);
+				else
+					foutx->setstate(std::ios_base::badbit);
+			}
 			nstart=Comms->getStart();
 			nend=Comms->getEnd();
-
 		}else{
 			ofstream & fout=*foutx;
 			CurrMPI->Barrier();
@@ -133,7 +138,11 @@ void ExecuteProp<T>::operator()(Atoms<T> * atx){
 
 template <typename T>
 void ExecuteProp<T>::__RunTrajectory(Atoms<T> * atmx){
+	bool dcastGyro{dynamic_cast<AtomsProp<T,gyro> *> (atmx)};
+	bool dcastGyroJ{dynamic_cast<AtomsProp<T,gyroJ> *> (atmx)};
+	bool dcastRadial{dynamic_cast<AtomsProp<T,radial> *> (atmx)};
 
+	void * ptrProperty;
 	myiterators::IteratorAtoms<T> iter_atm(atmx,finx,nstart,nend,nskip);
     Contacts<T> * Con0;
     if(Rcut_in < 0) Rcut_in=Rcut;
@@ -167,8 +176,7 @@ void ExecuteProp<T>::__RunTrajectory(Atoms<T> * atmx){
 			}
 			atmA->Reconstruct(Con0);
 		}
-
-		atmA->doProperty();
+		ptrProperty=atmA->doProperty();
 		switch(nClusters){
 		case 0:
 			break;
@@ -178,45 +186,30 @@ void ExecuteProp<T>::__RunTrajectory(Atoms<T> * atmx){
 		default:
 			ss<< "    " << fixed << setw(4) << nClusters<<" clusters <-----";
 		}
-		if(fout_pdbx){
-			if(bPDBavg){
-				atmA->PDBavg();
-			} else{
-				if(CurrMPI->Get_Rank() == 0)
-					(*fout_pdbx) << *atmA;
-				CurrMPI->Barrier();
-			}
-
-		} else if(fout_ndxx){
-			atmA->setNdx(true);
-			if(CurrMPI->Get_Rank() == 0)
-				(*fout_ndxx) << *atmA;
-			CurrMPI->Barrier();
-		} else{
-			if(this->JSONOutput)
-				atmA->template Gyro<Enums::JSON>();
-			else
-				atmA->template Gyro<Enums::noJSON>();
-			Comms->getStream() << atmA->getRg_i();
-			Comms->getStream() << *atmA->gPerco();
+		if(dcastGyro || dcastGyroJ){
+			std::tuple<vector<Gyration<T>*>, Percolation<T> *> * gp0=
+					static_cast<std::tuple<vector<Gyration<T>*>, Percolation<T> *> *>(ptrProperty);
+			Comms->getStream() << std::get<0>(*gp0);
+			Comms->getStream() << *std::get<1>(*gp0);
 		}
-
-
 		cout << fixed << setw(5) << "----> Time Step " << ntime << ss.str()<<"\n";
 	}
-	atmA->printProperty();
-	__lastBuffer(Comms->getStream());
-	Comms->appendStreams();
-	if(bDel) Comms->removeFiles();
-	Comms->closeStream();   // close stream!!!
+	if(dcastRadial){
+		RhoHist * gp0=static_cast<RhoHist *>(ptrProperty);
+		atmA->Reduce(CurrMPI);
+		*foutx << *gp0;
+	}
+	if(dcastGyro || dcastGyroJ){
+		__lastBuffer(Comms->getStream());
+		Comms->appendStreams();
+		if(bDel) Comms->removeFiles();
+		Comms->closeStream();   // close stream!!!
+	}
 	CurrMPI->Barrier();
-	if(this->JSONOutput){
+	if(dcastGyroJ){
 		__wrapOutfile();
 	}
 	CurrMPI->~NewMPI();
-	if(fout_pdbx && bPDBavg){
-		atmA->printPDBavg(*fout_pdbx);
-	}
 	cout << "\nProgram completed: Output data written to " + fileout << "\n\n";
 
 }
@@ -309,5 +302,32 @@ ofstream & operator<<(ofstream & fout, ExecuteProp<T> & y)
 	}
 template class ExecuteProp<float>;
 template class ExecuteProp<double>;
+//		if(fout_pdbx){
+//			if(bPDBavg){
+//				atmA->PDBavg();
+//			} else{
+//				if(CurrMPI->Get_Rank() == 0)
+//					(*fout_pdbx) << *atmA;
+//				CurrMPI->Barrier();
+//			}
+//
+//		} else if(fout_ndxx){
+//			atmA->setNdx(true);
+//			if(CurrMPI->Get_Rank() == 0)
+//				(*fout_ndxx) << *atmA;
+//			CurrMPI->Barrier();
+//		} else{
+//			if(this->JSONOutput)
+//				atmA->template Gyro<Enums::JSON>();
+//			else
+//				atmA->template Gyro<Enums::noJSON>();
+//			Comms->getStream() << atmA->getRg_i();
+//			Comms->getStream() << *atmA->gPerco();
+//		}
+//
+
+//	if(fout_pdbx && bPDBavg){
+//		atmA->printPDBavg(*fout_pdbx);
+//	}
 
 } /* namespace Voronoi */

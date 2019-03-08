@@ -221,6 +221,12 @@ inline void NewMPI::ReduceSum<double>(vector<double> & buffer0){
 	comm.Barrier();
 	};
 template<>
+inline void NewMPI::ReduceSum<size_t>(size_t * buffer,const int nbuffer){
+	comm.Barrier();
+	if(comm.Get_rank()) comm.Reduce(buffer,NULL,nbuffer,MPI::INT,MPI::SUM,0);
+	else comm.Reduce(MPI::IN_PLACE,buffer,nbuffer,MPI::INT,MPI::SUM,0);
+	};
+template<>
 inline void NewMPI::ReduceSum<int>(int * buffer,const int nbuffer){
 	comm.Barrier();
 	if(comm.Get_rank()) comm.Reduce(buffer,NULL,nbuffer,MPI::INT,MPI::SUM,0);

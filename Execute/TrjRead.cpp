@@ -100,32 +100,51 @@ void TrjRead::Input(){
 					back_inserter<vector<string> >(Reference));
 		}
 		if(!inmap["-rho"].empty()) {
-			bAtomProperty=myOptions::radial;
+			if(bAtomProperty == myOptions::noprop)
+				bAtomProperty=myOptions::radial;
+			else
+				throw string("Can only calculate one property at the time, but you picked at least two.");
 			if(inmap["-rho"].size() > 1) {
 				string str=inmap["-rho"][1];
 				Properties::RhoHistogram::setFilename(str);
 				int Nm=inmap["-rho"].size();
 				switch(Nm){
 				case 2:
-					break;
-				case 3:
-					stringstream(inmap["-rho"][2])>> Rc;
+					stringstream(inmap["-rho"][1])>> Rc;
 					Rc*=unit_nm;
 					Properties::RhoHistogram::SetRcut(Rc);
 					break;
-				case 4:
-					stringstream(inmap["-rho"][2])>> Rc;
-					stringstream(inmap["-rho"][3])>> dx;
+				case 3:
+					stringstream(inmap["-rho"][1])>> Rc;
+					stringstream(inmap["-rho"][2])>> dx;
 					Rc*=unit_nm;
 					dx*=unit_nm;
 					Properties::RhoHistogram::SetRcut(Rc);
 					Properties::RhoHistogram::SetDx(dx);
 					break;
 				default:
-					throw string("\n At most 2 arguments for " + inmap["-rho"][0] + " option \n");
+					throw string("\n At most 3 arguments for " + inmap["-rho"][0] + " option \n");
 				}
 
 			}
+		}
+		if(!inmap["-gyro"].empty()) {
+			if(bAtomProperty == myOptions::noprop)
+				bAtomProperty=myOptions::gyro;
+			else
+				throw string("Can only calculate one property at the time, but you picked at least two.");
+			if(inmap["-gyro"].size() > 1)
+				throw string("\n No argument for " + inmap["-gyro"][0] + " option \n");
+
+		}
+		if(!inmap["-gyroj"].empty()) {
+			if(bAtomProperty == myOptions::noprop)
+				bAtomProperty=myOptions::gyroJ;
+			else
+				throw string("Can only calculate one property at the time, but you picked at least two.");
+			if(inmap["-gyroj"].size() > 1)
+				throw string("\n No argument for " + inmap["-gyroj"][0] + " option \n");
+
 		}
 		if(!inmap["-det"].empty()) {
 			if(inmap["-det"].size() != 2) throw string("A filename is needed for " + inmap["-det"][0] + " option ");

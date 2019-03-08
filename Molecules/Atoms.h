@@ -29,6 +29,8 @@
 #include "myEnums.hpp"
 #include <CenterMassBW3.h>
 #include "FindCell.h"
+#include "properties.hpp"
+#include "RhoHistogram.h"
 
 
 using namespace DVECT;
@@ -143,8 +145,10 @@ public:
 		plane & operator=(int i){n=i;return *this;};
 	} ax;
 	virtual void doTest(){};
-	virtual void doProperty(){};
+	virtual void * doProperty(){return nullptr;};
 	virtual void printProperty(){};
+	virtual void Reduce(Parallel::NewMPI *){};
+	virtual myOptions getProperty(){return myOptions::noprop;}
 
 	template <Enums::myWriteOptions OPT>
 	void Gyro();
@@ -207,6 +211,7 @@ public:
 	void PrintAll(ostream &);
 	void PDBavg();
 	void printPDBavg(ostream & );
+
 	friend Fstream & operator+=(Fstream & fin, Atoms & y){
 		if(FstreamC * finC=dynamic_cast<FstreamC *> (&fin))
 			y.moveOffset(finC);

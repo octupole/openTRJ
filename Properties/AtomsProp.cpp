@@ -75,41 +75,22 @@ string AtomsProp<T,radial>::headerXVG=R"(
 @timestamp char size 1.000000
 @timestamp def "Mon Oct  8 15:33:20 2012"
 )";
+
+
 template <typename T>
-void AtomsProp<T,radial>::printProperty(){
-	ofstream fout;
-	fout.open(Properties::RhoHistogram::getFilename(),ios::out);
-	fout << headerXVG<<endl;
+void AtomsProp<T,radial>::Reduce(Parallel::NewMPI * y){
 	for(auto it{histograms.begin()};it != histograms.end();it++){
-		it->second->setMass(masses[it->first]);
-		string key=it->first;
-		fout << *it->second ;
-		fout << "&"<<endl;
+		it->second->Reduce(y);
 	}
-};
+}
 
 
 template <typename T>
-void AtomsProp<T,radial>::doProperty(){
-
+void * AtomsProp<T,radial>::doProperty(){
+	static bool firstTime{true};
 	vector<vector<int> > mCluster=this->Perco->getCluster();
-	vector<vector<int> > mAtoms=this->Perco->getAtoms();
 	Matrix co=this->Mt.getCO();
-	Matrix oc=this->Mt.getOC();
-	Dvect xcmCell{0}; // Geometric center of the aggregate composed of clusters
-	vector<Dvect> xcmC(mCluster.size()); // Geometric center of the clusters
-	vector<Dvect> xcm(mAtoms.size(),Dvect{T{0.0}}); // Geometric center of the solute residues
-	vector<Dvect> xb(this->nr,Dvect{T{0.0}}); // Atomic coordinates relative to the residue geometric center
-
-	vector<bool> atSolv(this->nr,true);
-
-	// find atoms which are solvent
-
-	for(auto o=0;o<mAtoms.size();o++){
-		for(auto p=0;p<mAtoms[o].size();p++){
-			atSolv[mAtoms[o][p]]=false;
-		}
-	}
+	vector<Dvect> xcm(mCluster.size(),Dvect{T{0.0}}); // Geometric center of the solute residues
 
 	vector<Gyration<T> *> Rg=vector<Gyration<T>*>(mCluster.size());
 	for(auto & ip: Rg)
@@ -123,29 +104,34 @@ void AtomsProp<T,radial>::doProperty(){
 		if(r < Rh) r=Rh;
 		xcm[o]=Rg[o]->gXcm();
 	}
-	double rcut=sqrt(r)*unit_nm;
-	vector<T> tmp{co[XX][XX],co[YY][YY],co[ZZ][ZZ]};
-	T rMax=*std::max_element(tmp.begin(),tmp.end());
-	rcut=rcut > rMax?rMax:rcut;
+	if(firstTime){
+		rcut=sqrt(r)*unit_nm;
+		vector<T> tmp{co[XX][XX],co[YY][YY],co[ZZ][ZZ]};
+		T rMax=*std::max_element(tmp.begin(),tmp.end());
+		rcut=rcut > rMax?rMax:rcut;
+		firstTime=false;
+	}
 
-// Initialize histogram only once.
-	static struct myAlloc{ myAlloc(map<string,Properties::RhoHistogram *> & h, double r,vector<string> strs){
-		for(auto str: strs)
-			h[str]=new Properties::RhoHistogram(r);}} Once(histograms,rcut,*this->ResList0);
+	// Initialize histogram only once.
+	static struct myAlloc{
+		myAlloc(map<string,Properties::RhoHistogram *> & h, double r,vector<string> strs){
+			for(auto str: strs)
+			h[str]=new Properties::RhoHistogram(r);}
+	} Once(histograms,rcut,*this->ResList0);
 
-// Obtain the mass of each molecule selected
-	static struct myMasses{ myMasses(vector<string> atres, vector<vector<int> > Sel, vector<double> mass, map<string,double> & Masses){
-		for(size_t p{0};p<Sel.size();p++){
-			double tmass{0};
-			for(size_t q{0}; q< Sel[p].size();q++){
-				size_t n=Sel[p][q];
-				tmass+=mass[n];
+	// Obtain the mass of each molecule selected
+	static struct myMasses{
+		myMasses(vector<string> atres, vector<vector<int> > Sel, vector<double> mass, map<string,double> & Masses){
+			for(size_t p{0};p<Sel.size();p++){
+				double tmass{0};
+				for(size_t q{0}; q< Sel[p].size();q++){
+					size_t n=Sel[p][q];
+					tmass+=mass[n];
+				}
+				Masses[atres[Sel[p][0]]]=tmass;
 			}
-			Masses[atres[Sel[p][0]]]=tmass;
 		}
-
-	}} OnceMass(this->atres,this->SelRes,this->mass,masses);
-
+	}OnceAllMasses(this->atres,this->SelRes,this->mass,masses);
 
 	for(size_t o{0};o<mCluster.size();o++){
 		for(size_t p{0};p<this->SelRes.size();p++){
@@ -169,6 +155,51 @@ void AtomsProp<T,radial>::doProperty(){
 	for(auto it{histograms.begin()};it != histograms.end();it++){
 		(*it->second)++;
 	}
+	// Define the molecule mass for each molecule once and for all
+	static struct myType{
+		myType(map<string,Properties::RhoHistogram *> & hist, map<string,double>  & mass){
+			for(auto it{hist.begin()};it != hist.end();it++){
+				it->second->setMass(mass[it->first]);
+
+			}
+		}
+	} OnceMass(histograms,masses);
+	return &histograms;
+};
+
+template <typename T>
+void * AtomsProp<T,gyro>::doProperty(){
+	vector<vector<int> > mCluster=this->Perco->getCluster();
+	vector<Gyration<T> *> Rg=vector<Gyration<T>*>(mCluster.size());
+	for(auto & ip: Rg)
+		ip=new Gyration<T>();
+	Gyration<T>::setTime(this->time_c);
+
+	this->CalcGyro(this->mass,Rg);
+	this->template Gyro<Enums::noJSON>();
+
+	out=std::make_tuple(this->getRg_i(),this->gPerco());
+	return &out;
 }
+
+template <typename T>
+void * AtomsProp<T,gyroJ>::doProperty(){
+	vector<vector<int> > mCluster=this->Perco->getCluster();
+	vector<Gyration<T> *> Rg=vector<Gyration<T>*>(mCluster.size());
+	for(auto & ip: Rg)
+		ip=new Gyration<T>();
+	Gyration<T>::setTime(this->time_c);
+
+	this->CalcGyro(this->mass,Rg);
+	this->template Gyro<Enums::JSON>();
+
+	out=std::make_tuple(this->getRg_i(),this->gPerco());
+	return &out;
+}
+
 template class AtomsProp<float,radial>;
 template class AtomsProp<double,radial>;
+template class AtomsProp<float,gyro>;
+template class AtomsProp<double,gyro>;
+template class AtomsProp<float,gyroJ>;
+template class AtomsProp<double,gyroJ>;

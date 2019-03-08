@@ -48,6 +48,7 @@ trjInput::trjInput(int ntot,char ** v, ClearUsage & clr) {
 	inmap["-avgPDB"]=in;
 	inmap["-once"]=in;
 	inmap["-rho"]=in;
+	inmap["-gyro"]=in;
 
 	map<string,vector<string> >::iterator it=inmap.begin();
 	for(int n=0;it!=inmap.end();++it,n++){

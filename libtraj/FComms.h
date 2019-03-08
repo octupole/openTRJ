@@ -51,6 +51,7 @@ public:
 	const string getFilename(int n){return filename[n];}
 	ofstream & getStream(){return *fout;}
 	void removeFiles(){
+		if(!fout) return;
 		if(comm->Get_Size() == 1) return;
 		if(!comm->Get_Rank()) {
 			for(size_t n=0;n<comm->Get_Size();n++){
@@ -61,7 +62,7 @@ public:
 		}
 		comm->Barrier();
 	}
-	void closeStream(){fout->close();}
+	void closeStream(){if(fout) fout->close();}
 	void appendStreams();
 	virtual ~FComms();
 };
