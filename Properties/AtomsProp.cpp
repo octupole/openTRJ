@@ -196,6 +196,20 @@ void * AtomsProp<T,gyroJ>::doProperty(){
 	out=std::make_tuple(this->getRg_i(),this->gPerco());
 	return &out;
 }
+template <typename T>
+void * AtomsProp<T,pdb>::doProperty(){
+	vector<vector<int> > mCluster=this->Perco->getCluster();
+	vector<Gyration<T> *> Rg=vector<Gyration<T>*>(mCluster.size());
+	for(auto & ip: Rg)
+		ip=new Gyration<T>();
+	Gyration<T>::setTime(this->time_c);
+
+	this->CalcGyro(this->mass,Rg);
+	this->template Gyro<Enums::JSON>();
+
+	out=std::make_tuple(this->getRg_i(),this->gPerco());
+	return &out;
+}
 
 template class AtomsProp<float,radial>;
 template class AtomsProp<double,radial>;
