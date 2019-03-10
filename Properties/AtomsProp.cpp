@@ -136,6 +136,19 @@ void * AtomsProp<T,pdb>::doProperty(){
 }
 
 template <typename T>
+void * AtomsProp<T,pdbavg>::doProperty(){
+	vector<vector<int> > mCluster=this->Perco->getCluster();
+	vector<vector<int> > mAtoms=this->Perco->getAtoms();
+	Matrix co=this->Mt.getCO();
+	for(size_t o=0;o<mCluster.size();o++){
+		for(size_t p=0;p<mCluster[o].size();p++){
+
+		}
+	}
+	return this;
+}
+
+template <typename T>
 void AtomsProp<T,pdb>::cPrint(ostream & fout){
 	vector<Dvect> xc=vector<Dvect>(this->nr);
 	for(int n=0;n<this->nr;n++)

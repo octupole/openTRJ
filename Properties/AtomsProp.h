@@ -91,5 +91,20 @@ public:
 	myOptions getProperty(){return myOptions::pdb;}
 	void Reduce(Parallel::NewMPI *){};
 };
+template <typename T>
+class AtomsProp<T,pdbavg>: public Atoms<T>{
+	using Dvect=DDvect<T>;
+	using Matrix=MMatrix<T>;
+	void * out{nullptr};
+	void cPrint(ostream &);
+	vector<Dvect> Xavg;
+public:
+	AtomsProp(): Atoms<T>(){}
+	AtomsProp(const int n): Atoms<T>(n){};
+	AtomsProp(const AtomIndex & x):Atoms<T>(x){};
+	void * doProperty();
+	myOptions getProperty(){return myOptions::pdbavg;}
+	void Reduce(Parallel::NewMPI *){};
+};
 
 #endif /* PROPERTIES_ATOMSPROP_H_ */
