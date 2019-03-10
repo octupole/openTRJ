@@ -49,6 +49,9 @@ trjInput::trjInput(int ntot,char ** v, ClearUsage & clr) {
 	inmap["-once"]=in;
 	inmap["-rho"]=in;
 	inmap["-gyro"]=in;
+	inmap["-PDB"]=in;
+	inmap["-PDBClust"]=in;
+	inmap["-PDBAvg"]=in;
 
 	map<string,vector<string> >::iterator it=inmap.begin();
 	for(int n=0;it!=inmap.end();++it,n++){
@@ -99,6 +102,9 @@ trjInput::trjInput(int ntot,char ** v, ClearUsage & clr) {
 	Usage[N++]="\t -avgPDB Write averaged pdb \n";
 	Usage[N++]="\t -once Do percolation only at the beginning \n";
 	Usage[N++]="\t -rho <string filename> <float cutoff> <float dx> Compute density solvent profile around cluster \n";
+	Usage[N++]="\t -PDB Write pdb file of the whole system \n";
+	Usage[N++]="\t -PDBClust Write pdb file of the clusters, no solvent for instance\n";
+	Usage[N++]="\t -PDBAvg Write the average pdb coordinates of the clusters\n";
 	clr.ClrU(Usage);
 	int n=1;
 	string key;

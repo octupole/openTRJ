@@ -144,6 +144,64 @@ int  Percolation<T>::gCluster(){
 	}
 	return Clusters.size();
 }
+template <typename T>
+void Percolation<T>::rCluster(vector<Dvect> & x,size_t n,size_t m){
+	bAtoms[m]=m;
+	Dvect xa=x[m]-x[n];
+	Dvect xaa=xa;
+	for(size_t o{0}; o< DIM;o++)
+		x[m][o]=x[m][o]-rint(xa[o]);
+
+	for(size_t o=0; o < Contacts[m].size(); o++){
+		size_t na=Contacts[m][o];
+		if(bAtoms[na] < 0) rCluster(x,m,na);
+	}
+	return;
+}
+template <typename T>
+int  Percolation<T>::gCluster(vector<Dvect> & x){
+	bAtoms.clear();
+	Clusters.clear();
+	bAtoms=vector<int>(Atoms.size(),-1);
+	vector<int> bbAtoms=vector<int>(Atoms.size());
+	size_t n=0;
+	int ma=0;
+	do{
+		bbAtoms=bAtoms;
+		vector<int> cluster;
+		if(bAtoms[n] < 0) rCluster(x,n,n);
+
+		vector<int> tmp1;
+		tmp1.assign(bAtoms.begin(),bAtoms.end());
+		vector<int> tmp2;
+		tmp2.assign(bbAtoms.begin(),bbAtoms.end());
+		std::sort(tmp1.begin(),tmp1.end());
+		std::sort(tmp2.begin(),tmp2.end());
+		std::set_difference(tmp1.begin(),tmp1.end(),tmp2.begin(),tmp2.end(),std::back_inserter(cluster));
+		Clusters.push_back(cluster);
+		do{
+			if(bAtoms[n]<0) break;
+			n++;
+		} while(n < bAtoms.size() );
+	} while(n < bAtoms.size());
+	std::sort(Clusters.begin(),Clusters.end(),op_mysort());
+	ClustComp.clear();
+	ClustComp=vector<Comp>(Clusters.size());
+	for(size_t o=0;o<Clusters.size();o++){
+		map<string,vector<int> > maps;
+		for(size_t p=0;p<Clusters[o].size();p++){
+			maps[pResn[Clusters[o][p]]].push_back(Clusters[o][p]);
+		}
+		map<string,vector<int> >::iterator ip=maps.begin();
+		for(;ip!=maps.end();ip++){
+			int n=ip->second.size();
+			ClustComp[o].Res.push_back(ip->first);
+			ClustComp[o].No.push_back(n);
+		}
+
+	}
+	return Clusters.size();
+}
 
 template <typename T>
 void Percolation<T>::doContacts(vector<Dvect> & v){
@@ -189,8 +247,12 @@ void Percolation<T>::doContacts(vector<Dvect> & v){
 
 	}
 }
+
+// Do contacts between residues. These are not atomic contacts!!
 template <typename T>
 void Percolation<T>::doContacts(vector<Dvect> & v, Matrix & co, Matrix & oc){
+	CO=co;
+	OC=oc;
 	Contacts.clear();
 	Contacts=vector<vector<int> >(nr);
 	vector<Dvect> X;
@@ -242,8 +304,6 @@ void Percolation<T>::doContacts(vector<Dvect> & v, Matrix & co, Matrix & oc){
 			Contacts[n]=tmp[n];
 		}
 	}
-	CO=co;
-	OC=oc;
 }
 template <typename T>
 void Percolation<T>::__Writeit(ostream & fout){

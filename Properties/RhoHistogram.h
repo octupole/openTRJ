@@ -17,7 +17,8 @@
 #include <algorithm>
 #include "Units.hh"
 #include "NewMPI.h"
-
+#include <cmath>
+#include <sstream>
 using namespace Units;
 using std::cout;
 using std::endl;
@@ -32,7 +33,7 @@ namespace Properties {
 class RhoHistogram {
 	static double rcut;
 	static double dx;
-	static string headerXVG;
+
 	vector<double> Histo;
 	vector<double> Avg;
 	vector<size_t> nHisto;

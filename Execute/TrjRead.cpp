@@ -99,6 +99,19 @@ void TrjRead::Input(){
 					istream_iterator<string>(),
 					back_inserter<vector<string> >(Reference));
 		}
+		if(!inmap["-PDB"].empty()) {
+			if(bAtomProperty == myOptions::noprop)
+				bAtomProperty=myOptions::pdb;
+			else
+				throw string("Can only calculate one property at the time, but you picked at least two.");
+		}
+		if(!inmap["-PDBClust"].empty()) {
+			if(bAtomProperty == myOptions::noprop)
+				bAtomProperty=myOptions::pdbclust;
+			else
+				throw string("Can only calculate one property at the time, but you picked at least two.");
+		}
+
 		if(!inmap["-rho"].empty()) {
 			if(bAtomProperty == myOptions::noprop)
 				bAtomProperty=myOptions::radial;
@@ -318,7 +331,6 @@ void TrjRead::Input(){
 		fout_ndxx=new ofstream(fileout.c_str(),ios::out);
 		bClust=true;
 	}
-
 	gFinx=finx;
 	gFin1=fin1;
 	gFout_xtcx=fout_xtcx;

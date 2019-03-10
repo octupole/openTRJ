@@ -23,7 +23,6 @@ class AtomsProp<T,radial>: public Atoms<T>{
 	using Matrix=MMatrix<T>;
 	map<string,Properties::RhoHistogram *> histograms;
 	map<string,double> masses;
-	static string headerXVG;
 	T rcut{0};
 
 public:
@@ -65,9 +64,25 @@ public:
 
 };
 template <typename T>
+class AtomsProp<T,pdbclust>: public Atoms<T>{
+	using Dvect=DDvect<T>;
+	using Matrix=MMatrix<T>;
+	void * out{nullptr};
+public:
+	AtomsProp(): Atoms<T>(){}
+	AtomsProp(const int n): Atoms<T>(n){};
+	AtomsProp(const AtomIndex & x):Atoms<T>(x){};
+	void * doProperty();
+	myOptions getProperty(){return myOptions::pdb;}
+	void Reduce(Parallel::NewMPI *){};
+};
+template <typename T>
 class AtomsProp<T,pdb>: public Atoms<T>{
 	using Dvect=DDvect<T>;
 	using Matrix=MMatrix<T>;
+	void * out{nullptr};
+	void cPrint(ostream &);
+
 public:
 	AtomsProp(): Atoms<T>(){}
 	AtomsProp(const int n): Atoms<T>(n){};

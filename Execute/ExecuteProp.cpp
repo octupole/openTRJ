@@ -141,6 +141,8 @@ void ExecuteProp<T>::__RunTrajectory(Atoms<T> * atmx){
 	bool dcastGyro{dynamic_cast<AtomsProp<T,gyro> *> (atmx)};
 	bool dcastGyroJ{dynamic_cast<AtomsProp<T,gyroJ> *> (atmx)};
 	bool dcastRadial{dynamic_cast<AtomsProp<T,radial> *> (atmx)};
+	bool dcastPDBclust{dynamic_cast<AtomsProp<T,pdbclust> *> (atmx)};
+	bool dcastPDB{dynamic_cast<AtomsProp<T,pdb> *> (atmx)};
 
 	void * ptrProperty;
 	myiterators::IteratorAtoms<T> iter_atm(atmx,finx,nstart,nend,nskip);
@@ -158,6 +160,7 @@ void ExecuteProp<T>::__RunTrajectory(Atoms<T> * atmx){
 		float ntime=atmA->getTime();
 		int nClusters{0};
 		atmA->setTopol(*Top);
+
 		if(Clustering){
 
 			static struct Once{
@@ -192,6 +195,16 @@ void ExecuteProp<T>::__RunTrajectory(Atoms<T> * atmx){
 			Comms->getStream() << std::get<0>(*gp0);
 			Comms->getStream() << *std::get<1>(*gp0);
 		}
+		if(dcastPDB){
+			AtomsProp<T,pdb> * gp0=static_cast<AtomsProp<T,pdb> *> (ptrProperty);
+			Comms->getStream() << *gp0;
+
+		}
+		if(dcastPDBclust){
+			AtomsProp<T,pdbclust> * gp0=static_cast<AtomsProp<T,pdbclust> *> (ptrProperty);
+			Comms->getStream() << *gp0;
+		}
+
 		cout << fixed << setw(5) << "----> Time Step " << ntime << ss.str()<<"\n";
 	}
 	if(dcastRadial){
@@ -199,7 +212,7 @@ void ExecuteProp<T>::__RunTrajectory(Atoms<T> * atmx){
 		atmA->Reduce(CurrMPI);
 		*foutx << *gp0;
 	}
-	if(dcastGyro || dcastGyroJ){
+	if(dcastGyro || dcastGyroJ || dcastPDB || dcastPDBclust){
 		__lastBuffer(Comms->getStream());
 		Comms->appendStreams();
 		if(bDel) Comms->removeFiles();

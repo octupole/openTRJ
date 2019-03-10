@@ -21,7 +21,7 @@
 #include "MyUtilClass.h"
 #include "LCells.h"
 #include <functional>
-
+#include "PBCvect.h"
 using std::cout;
 using std::endl;
 using std::vector;
@@ -79,6 +79,7 @@ protected:
 	vector<Comp> ClustComp;
 	double Rcut{CUTOFF};
 	void rCluster(size_t);
+	void rCluster(vector<DDvect<T>> &,size_t,size_t);
 	int count{0};
 	function<double(int,int)> myPercoCutoff;
 	virtual void __Writeit(ostream &);
@@ -95,6 +96,7 @@ public:
 	void doContacts(vector<DDvect<T>> &);
 	void doContacts(vector<DDvect<T>> &, MMatrix<T> &, MMatrix<T> &);
 	int gCluster();
+	int gCluster(vector<DDvect<T>> &);
 	const listcon & getCluster() const {return Clusters;}
 	const vector<int> & getFirstCluster() const {return Clusters[0];}
 	listcon & getAtoms(){return Atoms;}

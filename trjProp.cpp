@@ -132,6 +132,12 @@ int main(int argc, char ** argv){
 		case myOptions::gyroJ:
 			atm=new AtomsProp<double,gyroJ>(natoms);
 			break;
+		case myOptions::pdb:
+			atm=new AtomsProp<double,pdb>(natoms);
+			break;
+		case myOptions::pdbclust:
+			atm=new AtomsProp<double,pdbclust>(natoms);
+			break;
 		default:
 			break;
 		}

@@ -31,7 +31,7 @@
 #include "FindCell.h"
 #include "properties.hpp"
 #include "RhoHistogram.h"
-
+#include "PBCvect.h"
 
 using namespace DVECT;
 using namespace MATRIX;
@@ -122,7 +122,7 @@ protected:
 	Percolation<T> * Perco{nullptr};
 	void CalcGyro(vector<double> &,vector<Gyration<T> *> &);
 	Dvect __FindCell(const vector<vector<int>> & ,const vector<vector<int>> & );
-	void cPrint(ostream &);
+	virtual void cPrint(ostream &);
 	void ndxPrint(ostream &);
 	Topol_NS::TopolPDB PDB;
 	vector<Topol_NS::PDBdata> PDBs;
@@ -130,7 +130,6 @@ protected:
 	bool bndx{false};
 	vector<vector<int> > SaxsSolute;
 	vector<vector<int> > MyRes,SelRes,myPadding;
-
 public:
 	Atoms(): R_cmx{new CenterMassBW3<T>}{};
 	Atoms(const int);
@@ -167,7 +166,6 @@ public:
 	Dvect & operator[](const int i){return x[i];};
 	Atoms & operator()(const int);
 	void Reconstruct(Contacts<T> *);
-	void Reconstruct1(Contacts<T> *);
 	void setNdx(bool b){bndx=b;}
 	void Rot(const Matrix);
 	int getNR()const{return nr;};
@@ -208,7 +206,6 @@ public:
 	vector<Comp> & getComp(){return Perco->getClustComp();}
 	const vector<vector<int> > & getCluster() const;
 	const vector<vector<int> > & getAtoms() const;
-	void PrintAll(ostream &);
 	void PDBavg();
 	void printPDBavg(ostream & );
 
