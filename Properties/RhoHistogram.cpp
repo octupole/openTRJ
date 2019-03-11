@@ -106,13 +106,13 @@ ostream & operator << (ostream & fout , RhoHistogram  & y ){
 ostream & operator << (ostream & fout , map<string,RhoHistogram *> & y ){
 	int N{0};
 	std::stringstream ss;
-	for(auto it{y.begin()};it != y.end();it++){
+	for(auto it=y.begin();it != y.end();it++){
 		string key=it->first;
 		ss << "@    s"<<N<<" legend  \""<<key<<"\""<<endl;
 		N++;
 	}
 	fout << ss.str();
-	for(auto it{y.begin()};it != y.end();it++){
+	for(auto it=y.begin();it != y.end();it++){
 		string key=it->first;
 		fout << *(y[key]) ;
 		fout << "&"<<endl;

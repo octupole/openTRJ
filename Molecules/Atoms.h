@@ -134,6 +134,7 @@ public:
 	Atoms(): R_cmx{new CenterMassBW3<T>}{};
 	Atoms(const int);
 	Atoms(const AtomIndex &);
+	Atoms(const Atoms &);
 	virtual ~Atoms();
 	struct plane{
 		Typedefs::real xc[4];

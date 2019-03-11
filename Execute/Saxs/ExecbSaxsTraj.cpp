@@ -317,6 +317,7 @@ void ExecbSaxsTraj::__RunTrajectory(MAtoms * atm){
 			atmA->Reconstruct(Con0);
 			atmA->CompCM();
 		}
+
 		__Compute(atmA);
 		int nStep=iter_atm.getTime();
 		double Step=atmA->getTime();

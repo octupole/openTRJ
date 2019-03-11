@@ -9,7 +9,7 @@
 
 template <typename T>
 void AtomsProp<T,radial>::Reduce(Parallel::NewMPI * y){
-	for(auto it{histograms.begin()};it != histograms.end();it++){
+	for(auto it=histograms.begin();it != histograms.end();it++){
 		it->second->Reduce(y);
 	}
 }
@@ -82,13 +82,13 @@ void * AtomsProp<T,radial>::doProperty(){
 		}
 
 	}
-	for(auto it{histograms.begin()};it != histograms.end();it++){
+	for(auto it=histograms.begin();it != histograms.end();it++){
 		(*it->second)++;
 	}
 	// Define the molecule mass for each molecule once and for all
 	static struct myType{
 		myType(map<string,Properties::RhoHistogram *> & hist, map<string,double>  & mass){
-			for(auto it{hist.begin()};it != hist.end();it++){
+			for(auto it=hist.begin();it != hist.end();it++){
 				it->second->setMass(mass[it->first]);
 
 			}

@@ -147,9 +147,8 @@ int main(int argc, char ** argv)
 
 		myPadd.CheckIt(MyIn.gSelRes(),MyIn.gReference());
 
-		atm=new MAtoms(MyIn.WhichDiffusion);
 		int natoms=MyTop.Size();
-		atm->setDim(natoms);
+		atm=new MAtoms(natoms);
 		atm->setTopol(MyTop);
 		atm->initLists(topPDB, MyIn.gSelRes());
 		atm->InitSelection<Enums::Selection>(MyIn.gSelRes(),MyTop);

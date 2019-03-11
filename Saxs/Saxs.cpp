@@ -771,6 +771,7 @@ void Saxs::ComputeSq(RhoSaxs * Rho_ex,const MAtoms * y){
 
 
 void Saxs::ComputeSAXS(RhoSaxs * Rho_ex,const MAtoms * y,bool bDens){
+
 	AtomsD * x0{new MAtoms(*y)};
 	if(SuperCell0 >1 )
 		if(!x0->CenterAtoms()) return;
@@ -800,6 +801,7 @@ void Saxs::ComputeSAXS(RhoSaxs * Rho_ex,const MAtoms * y,bool bDens){
 	default:
 		break;
 	}
+
 	size_t nnr=x0->getNR();
 	vector<vector<int> > g=y->getSaxsSolute();
 	int tot{0};
@@ -842,7 +844,6 @@ void Saxs::ComputeSAXS(RhoSaxs * Rho_ex,const MAtoms * y,bool bDens){
 		N_t+=Na;
 
 		Forward3.fft(ro_r[0],ro_k);
-
 #pragma omp parallel for
 		for(auto i=0;i<nx;i++){
 			int ia=(i<nfx)?i : i-nx;

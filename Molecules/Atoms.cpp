@@ -423,7 +423,23 @@ Atoms<T>::Atoms(const AtomIndex & id): R_cmx{new CenterMassBW3<T>}{
 		xa=vector<Dvect>(nr);
 	}
 }
-
+template <typename T>
+Atoms<T>::Atoms(const Atoms<T> & y): R_cmx{new CenterMassBW3<T>}{
+	nr=y.nr;
+	x=vector<Dvect>(nr);
+	xa=vector<Dvect>(nr);
+	for(int i=0;i<nr;i++) {
+		x[i][0]=y.x[i][0];
+		x[i][1]=y.x[i][1];
+		x[i][2]=y.x[i][2];
+		xa[i][0]=y.xa[i][0];
+		xa[i][1]=y.xa[i][1];
+		xa[i][2]=y.xa[i][2];
+	}
+	Mt(y.Mt);
+	(*R_cmx)=*y.R_cmx;
+	
+}
 
 template <typename T>
 Atoms<T> & Atoms<T>::operator()(const int natoms){
