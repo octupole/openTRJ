@@ -1279,7 +1279,6 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 		for(size_t p=0;p<mCluster[o].size();p++){
 			xcm0[p]=xcm[mCluster[o][p]];
 		}
-		int result=this->Perco->gCluster(xcm0);
 
 // rewrite residue geometric center relative to cluster geometric center
 
