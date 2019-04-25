@@ -91,6 +91,15 @@ void TrjRead::Input(){
 					istream_iterator<string>(),
 					back_inserter<vector<string> >(SelRes));
 		}
+		if(!inmap["-myres"].empty()) {
+			if(inmap["-myres"].size() == 1) throw string(" String of selected residues needed for " + inmap["-myres"][0] + " option ");
+			stringstream iss;
+			gList(inmap["-myres"],iss);
+			double a;
+			while (iss>>a){
+				MyRes.push_back(a);
+			}
+		}
 		if(!inmap["-solute"].empty()) {
 			if(inmap["-solute"].size() == 1) throw string(" Reference residue for Micelle centering needed " + inmap["-solute"][0] + " option ");
 			stringstream iss;
@@ -136,7 +145,7 @@ void TrjRead::Input(){
 					Properties::RhoHistogram::SetDx(dx);
 					break;
 				default:
-					throw string("\n At most 3 arguments for " + inmap["-rho"][0] + " option \n");
+					throw string("\n At most 2 arguments for " + inmap["-rho"][0] + " option \n");
 				}
 
 			}

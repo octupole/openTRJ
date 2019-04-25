@@ -129,7 +129,8 @@ protected:
 
 	bool bndx{false};
 	vector<vector<int> > SaxsSolute;
-	vector<vector<int> > MyRes,SelRes,myPadding;
+	vector<vector<int> > SelRes,myPadding;
+	vector<int> MyRes;
 public:
 	Atoms(): R_cmx{new CenterMassBW3<T>}{};
 	Atoms(const int);
@@ -162,6 +163,7 @@ public:
 	void setCoord(const Metric<T> &, const rvec *, const AtomIndex & );
 	void setCoord(const Metric<T> &, const rvec *);
 	void setMT(const Metric<T> &);
+	void setMyRes(vector<int>);
 	Atoms &  operator=(const Atoms &);
 	Atoms & operator=(const T);
 	Dvect & operator[](const int i){return x[i];};

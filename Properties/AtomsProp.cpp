@@ -20,6 +20,7 @@ void * AtomsProp<T,radial>::doProperty(){
 	static bool firstTime{true};
 	vector<vector<int> > mCluster=this->Perco->getCluster();
 	Matrix co=this->Mt.getCO();
+	Matrix oc=this->Mt.getOC();
 	vector<Dvect> xcm(mCluster.size(),Dvect{T{0.0}}); // Geometric center of the solute residues
 
 	vector<Gyration<T> *> Rg=vector<Gyration<T>*>(mCluster.size());
@@ -32,7 +33,8 @@ void * AtomsProp<T,radial>::doProperty(){
 	for(size_t o{0};o<Rg.size();o++){
 		double Rh{5.0*Rg[o]->gRadg()/3.0};
 		if(r < Rh) r=Rh;
-		xcm[o]=Rg[o]->gXcm();
+		Dvect xcm0=Rg[o]->gXcm();
+		xcm[o]=oc*xcm0;
 	}
 	if(firstTime){
 		rcut=sqrt(r)*unit_nm;
@@ -50,19 +52,40 @@ void * AtomsProp<T,radial>::doProperty(){
 	} Once(histograms,rcut,*this->ResList0);
 
 	// Obtain the mass of each molecule selected
+	vector<int> * CMRes{nullptr};
 	static struct myMasses{
 		myMasses(vector<string> atres, vector<vector<int> > Sel, vector<double> mass, map<string,double> & Masses){
-			for(size_t p{0};p<Sel.size();p++){
-				double tmass{0};
-				for(size_t q{0}; q< Sel[p].size();q++){
-					size_t n=Sel[p][q];
-					tmass+=mass[n];
+				for(size_t p{0};p<Sel.size();p++){
+					double tmass{0};
+					for(size_t q{0}; q< Sel[p].size();q++){
+						size_t n=Sel[p][q];
+						tmass+=mass[n];
+					}
+					Masses[atres[Sel[p][0]]]=tmass;
 				}
-				Masses[atres[Sel[p][0]]]=tmass;
-			}
+
 		}
 	}OnceAllMasses(this->atres,this->SelRes,this->mass,masses);
 
+	// Find out if CMRes is null, if not null apply only to a single cluster, cluster 0.
+	if(!this->MyRes.empty()){
+		CMRes=new vector<int>{this->MyRes};
+
+		//  Compute xcm[0] if there is a non null CMRes
+		xcm[0]=Dvect{0};
+		int NN{0};
+		for(size_t o{0};o<CMRes->size();o++){
+
+			auto p=CMRes->at(o);
+			for(size_t q{0}; q< this->SelRes[p].size();q++){
+				size_t n=this->SelRes[p][q];
+				xcm[0]+=this->xa[n];
+				NN++;
+			}
+
+		}
+		xcm[0]/=static_cast<double>(NN);
+	}
 	for(size_t o{0};o<mCluster.size();o++){
 		for(size_t p{0};p<this->SelRes.size();p++){
 			Dvect xa{0};

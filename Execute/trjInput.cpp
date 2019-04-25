@@ -52,6 +52,7 @@ trjInput::trjInput(int ntot,char ** v, ClearUsage & clr) {
 	inmap["-PDB"]=in;
 	inmap["-PDBClust"]=in;
 	inmap["-PDBAvg"]=in;
+	inmap["-myres"]=in;
 
 	map<string,vector<string> >::iterator it=inmap.begin();
 	for(int n=0;it!=inmap.end();++it,n++){
@@ -105,6 +106,7 @@ trjInput::trjInput(int ntot,char ** v, ClearUsage & clr) {
 	Usage[N++]="\t -PDB Write pdb file of the whole system \n";
 	Usage[N++]="\t -PDBClust Write pdb file of the clusters, no solvent for instance\n";
 	Usage[N++]="\t -PDBAvg Write the average pdb coordinates of the clusters\n";
+	Usage[N++]="\t -myres Residues defining the center of mass of the cluster\n";
 	clr.ClrU(Usage);
 	int n=1;
 	string key;

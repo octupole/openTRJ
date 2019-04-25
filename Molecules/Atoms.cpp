@@ -281,6 +281,11 @@ void Atoms<T>::setDim(int n){
 	x=vector<Dvect>(n,T{0});
 	xa=vector<Dvect>(n,T{0});
 }
+template<typename T>
+void Atoms<T>::setMyRes(vector<int> y){
+	for(auto it: y)
+		MyRes.push_back(it);
+}
 
 template <typename T>
 void Atoms<T>::setTopol(Topol_NS::Topol & y){

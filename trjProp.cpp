@@ -145,6 +145,7 @@ int main(int argc, char ** argv){
 		atm->initLists(topPDB, MyIn.gSelRes());
 		atm->InitSelection<Enums::Reference>(MyIn.gReference(),MyTop);
 		atm->InitSelection<Enums::Selection>(MyIn.gSelRes(),MyTop);
+		atm->setMyRes(MyIn.gMyRes());
 
 		MyTop.InitSelection(MyIn.gReference(),Enums::Reference);
 		MyRun=new Properties::ExecuteProp<double>(atm->getProperty(),MyIn,MyTop);

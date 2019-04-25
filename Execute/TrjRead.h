@@ -113,6 +113,7 @@ class TrjRead: public trjInput {
 
 	matrix MyCO={{0,0,0},{0,0,0},{0,0,0}};
 	vector<string> SelRes;
+	vector<int> MyRes;
 	vector<string> Reference;
 
 	bool bDel{true};
@@ -156,6 +157,7 @@ public:
 	Values<double> gRcut_in{Rcut_in};
 	Values<double> gFactor{ConvFactor};
 	Values<vector<string> > gSelRes{SelRes};
+	Values<vector<int> > gMyRes{MyRes};
 	Values<vector<string> >gReference{Reference};
 
 	Values<string> gfilein{filein};
