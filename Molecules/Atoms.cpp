@@ -1285,6 +1285,11 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 			xcm0[p]=xcm[mCluster[o][p]];
 		}
 
+// Shuffles residue geometric center to get a cluster of minimum size
+
+		auto Encmp=EnComp<T>(xcm0,co);
+		cmSweep(xcm0,mCluster[o].size(),Encmp);
+
 // rewrite residue geometric center relative to cluster geometric center
 
 		for(size_t p=0;p<mCluster[o].size();p++){
@@ -1329,52 +1334,13 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 		}
 
 	}
-// reconstruct all remaining molecules
 
-	map<size_t,vector<Dvect>> X;
-	map<size_t,vector<size_t>> nX;
-	map<size_t,Dvect> xcmS;
-	for(size_t o{0};o<nr;o++){
-		if(atSolv[o]){
-			X[PDB[o].res].push_back(xa[o]);
-			nX[PDB[o].res].push_back(o);
-		}
-	}
-	for(auto it=X.begin();it!= X.end();it++){
-		auto o=it->first;
-		vector<Dvect> x=it->second;
-		auto x0=x[0];
-		for(size_t p{1};p<x.size();p++){
-			Dvect xb=x[p]-x0;
-			for(size_t q{0};q<DIM;q++)
-				x[p][q]=x[p][q]-rint(xb[q]);
-		}
-		Dvect xcm{0};
-		for(size_t p{0};p<x.size();p++){
-			xcm+=x[p];
-		}
-		xcm/=(T) x.size();
-		for(size_t p{0};p<x.size();p++){
-			x[p]=x[p]-xcm;
-		}
-// Apply boundary conditions to the center of mass of the remaining molecules
-// and place them in the main cell (0-1,0-1,0-1)
-		 xcm-=xcmCell-HALF;
-		 for(int q=0;q<DIM;q++){
-			 xcm[q]-=rint(xcm[q]-HALF);
-		 }
-
-		for(size_t p{0};p<nX[o].size();p++){
-			size_t ia=nX[o][p];
-			xa[ia]=x[p]+xcm;
-		}
-		xcmS[o]=xcm;
-	}
 // Place the aggregate in the center of the cell; thus xcmCell is equal to HALF
 	for(auto ia=0;ia<nr;ia++){
 		for(int o=0;o<DIM;o++){
-			 if(!atSolv[ia]) {
-				 xa[ia][o]-=xcmCell[o]-HALF;
+			 xa[ia][o]-=xcmCell[o]-HALF;
+			 if(atSolv[ia]) {  // for solvent atoms apply pbc and place to obtain their coordinates in the (0,0,0) cell
+				 xa[ia][o]-=rint(xa[ia][o]-HALF);
 			 }
 		}
 	}
@@ -1386,6 +1352,7 @@ void Atoms<T>::Reconstruct(Contacts<T> * con0){
 		}
 	}
 }
+
 
 //template <typename T>
 //void Atoms<T>::Reconstruct(Contacts<T> * con0){
