@@ -143,7 +143,6 @@ void ExecuteProp<T>::__RunTrajectory(Atoms<T> * atmx){
 	bool dcastRadial{dynamic_cast<AtomsProp<T,radial> *> (atmx)};
 	bool dcastPDBclust{dynamic_cast<AtomsProp<T,pdbclust> *> (atmx)};
 	bool dcastPDB{dynamic_cast<AtomsProp<T,pdb> *> (atmx)};
-
 	void * ptrProperty;
 	myiterators::IteratorAtoms<T> iter_atm(atmx,finx,nstart,nend,nskip);
     Contacts<T> * Con0;

@@ -11,7 +11,7 @@ namespace Properties {
 
 
 double RhoHistogram::dx=0.005;
-double RhoHistogram::rcut=1.0;
+double RhoHistogram::rcut=-1.0;
 string RhoHistogram::fileout="undefined";
 
 void RhoHistogram::cPrint(ostream & fout){
@@ -21,7 +21,7 @@ void RhoHistogram::cPrint(ostream & fout){
 	}
 }
 RhoHistogram::RhoHistogram(double R) {
-	Rc=R+rcut;
+	Rc=rcut<0?R:rcut;
 	Histo=vector<double>(static_cast<size_t>(floor(Rc/dx)+1),0.0);
 	Avg=Histo;
 }
