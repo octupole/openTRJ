@@ -231,6 +231,33 @@ public:
 		return ener_x < ener_y;
 	}
 };
+
+auto AtomsPerResidue=[](vector<string> & vs){
+	vector<string> vs1=vs;
+	auto mySize=std::distance(vs1.begin(),std::unique(vs1.begin(),vs1.end()));
+	vector<vector<size_t> > Result(mySize);
+	auto result=Result.begin();
+	auto first=vs.begin();
+	auto last=vs.end();
+	size_t M{0};
+	if (first!=last) {
+		string val,prev;
+		prev=*first;
+		while (++first!=last) {
+			val = *first;
+			result->push_back(M);
+
+			if(prev != val)
+				result++;
+
+			prev = val;
+			M++;
+		}
+		result->push_back(M);
+	}
+	return Result;
+};
+
 template <typename T>
 Dvect Jacob<T>::Im_s=0.0;
 
@@ -328,6 +355,7 @@ void Atoms<T>::initLists(Topol_NS::TopolPDB & y,vector<string> & L){
 		}
 		ia++;
 	}
+	AtsPerRes=AtomsPerResidue(atres);
 }
 
 template <typename T>

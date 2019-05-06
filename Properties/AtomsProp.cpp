@@ -77,8 +77,8 @@ void * AtomsProp<T,radial>::doProperty(){
 		for(size_t o{0};o<CMRes->size();o++){
 
 			auto p=CMRes->at(o);
-			for(size_t q{0}; q< this->SelRes[p].size();q++){
-				size_t n=this->SelRes[p][q];
+			for(size_t q{0}; q< this->AtsPerRes[p].size();q++){
+				size_t n=this->AtsPerRes[p][q];
 				xcm[0]+=this->xa[n];
 				NN++;
 			}

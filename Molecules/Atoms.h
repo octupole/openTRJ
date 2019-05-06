@@ -108,6 +108,8 @@ protected:
 	int Rg_count{0};
 	CenterMass<T> * R_cmx{nullptr};
 	vector<int> TypeNo;
+	vector<vector<size_t>> AtsPerRes;
+
 
 	virtual void ReadaStep(FstreamC * );
 	virtual void ReadaStep(FstreamF * );
@@ -145,6 +147,7 @@ public:
 		plane & operator=(double dd){xc[3]=dd;return *this;};
 		plane & operator=(int i){n=i;return *this;};
 	} ax;
+
 	virtual void doTest(){};
 	virtual void * doProperty(){return nullptr;};
 	virtual void printProperty(){};
