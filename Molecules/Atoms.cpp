@@ -232,8 +232,8 @@ public:
 	}
 };
 
-auto AtomsPerResidue=[](vector<string> & vs){
-	vector<string> vs1=vs;
+auto AtomsPerResidue=[](vector<int> & vs){
+	vector<int> vs1=vs;
 	auto mySize=std::distance(vs1.begin(),std::unique(vs1.begin(),vs1.end()));
 	vector<vector<size_t> > Result(mySize);
 	auto result=Result.begin();
@@ -241,7 +241,7 @@ auto AtomsPerResidue=[](vector<string> & vs){
 	auto last=vs.end();
 	size_t M{0};
 	if (first!=last) {
-		string val,prev;
+		int val,prev;
 		prev=*first;
 		while (++first!=last) {
 			val = *first;
@@ -335,11 +335,15 @@ void Atoms<T>::initLists(Topol_NS::TopolPDB & y,vector<string> & L){
 	ResList0=new vector<string>(L);
 	ResIndx0=new vector<int>;
 	int ia=0;
+	vector<int> atresNo;
 	for(size_t o=0;o<PDBs.size();o++){
 		string sub1=PDBs[o].atn;
 		string sub2=PDBs[o].resn;
+		int ResNo=PDBs[o].res;
+
 		atres.push_back(sub2);
 		atname.push_back(sub1);
+		atresNo.push_back(ResNo);
 		size_t mst=sub1.find_first_not_of("1234")?1:0;
 
 		if(MIons.find(sub2) == string::npos) {
@@ -355,7 +359,7 @@ void Atoms<T>::initLists(Topol_NS::TopolPDB & y,vector<string> & L){
 		}
 		ia++;
 	}
-	AtsPerRes=AtomsPerResidue(atres);
+	AtsPerRes=AtomsPerResidue(atresNo);
 }
 
 template <typename T>

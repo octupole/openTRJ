@@ -76,7 +76,7 @@ void * AtomsProp<T,radial>::doProperty(){
 		int NN{0};
 		for(size_t o{0};o<CMRes->size();o++){
 
-			auto p=CMRes->at(o);
+			auto p=CMRes->at(o)-1;
 			for(size_t q{0}; q< this->AtsPerRes[p].size();q++){
 				size_t n=this->AtsPerRes[p][q];
 				xcm[0]+=this->xa[n];
@@ -86,6 +86,7 @@ void * AtomsProp<T,radial>::doProperty(){
 		}
 		xcm[0]/=static_cast<double>(NN);
 	}
+
 	for(size_t o{0};o<mCluster.size();o++){
 		for(size_t p{0};p<this->SelRes.size();p++){
 			Dvect xa{0};
