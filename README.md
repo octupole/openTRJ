@@ -35,7 +35,7 @@ Mac OS X systems supporting those versions of the C++ compilers.
 
 ## How to cite openTRJ: 
 
-To be added
+M. Marchi, A first principle particle mesh method for solution SAXS of large bio-molecular systems, J. Chem. Phys. 145, 045101 (2016).
 
 ## License
 

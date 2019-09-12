@@ -5,7 +5,7 @@ import argparse
 import math
 exclusion=['SOD','CLA','CAL','MG','ZN']
 
-parser = argparse.ArgumentParser(prog='createNonnonded',description='Compute nonbonded weighte interactions')
+parser = argparse.ArgumentParser(prog='createNonnonded',description='Compute nonbonded weighted interactions')
 parser.add_argument('--input','-i', action = 'store', type = str, help = 'Input pdb file', required=True)
 parser.add_argument('--factor','-f', action = 'store', type = float, help = 'Fudge factor', default=1.1)
 parser.add_argument('--water','-w', action = 'store', type = str, help = 'Water oxygen', default='OWT3')
