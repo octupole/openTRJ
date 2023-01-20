@@ -25,7 +25,7 @@ protected:
 	long int ntime{0};
 	long int nstart{0},nend{-1},nskip{1};
 	vector<long int> Nst,Nnd,Nskp;
-	ios::streampos len;
+	streampos len;
 public:
 	IteratorMAtoms(){};
 	IteratorMAtoms(pointer x, Fstream * y,long int nstrt,long int nnd,long int nskp): p{x}

@@ -11,7 +11,7 @@ namespace myiterators {
 
 IteratorVoronoi::IteratorVoronoi(pointer x, ifstream * y,long int nstrt,long int nnd): p{x},
 finx{y},nstart{nstrt}, nend{nnd}{
-	ios::streampos whereIwas=finx->tellg();
+	streampos whereIwas=finx->tellg();
 	finx->seekg(0,finx->end);
 	len=finx->tellg();
 	finx->seekg(0,finx->beg);

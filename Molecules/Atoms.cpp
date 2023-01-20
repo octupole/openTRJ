@@ -1102,7 +1102,7 @@ template <typename T>
 void Atoms<T>::moveOffset(std::ifstream & fin){
 	const int DOUBLE=8;
 	const int FLOAT=4;
-	ios::streamoff OFFSET=FORTRANBYTES*2+6*DOUBLE+(FORTRANBYTES*2+nr*FLOAT)*DIM;
+	std::streamoff OFFSET=FORTRANBYTES*2+6*DOUBLE+(FORTRANBYTES*2+nr*FLOAT)*DIM;
 	fin.seekg(OFFSET,ios::cur);
 }
 

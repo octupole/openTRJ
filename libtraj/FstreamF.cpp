@@ -10,9 +10,9 @@
 void FstreamF::seekg(off_t n,string x){
 	try{
 		if(x.find("beg") != string::npos)
-			fin.seekg(static_cast<ios::streamoff> (n),ios::beg);
+			fin.seekg(static_cast<std::streamoff> (n),ios::beg);
 		else if(x.find("end") != string::npos)
-			fin.seekg(static_cast<ios::streamoff> (n),ios::end);
+			fin.seekg(static_cast<std::streamoff> (n),ios::end);
 		else
 			throw string("Seek direction unknown ");
 	}

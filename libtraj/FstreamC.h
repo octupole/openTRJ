@@ -38,7 +38,7 @@ public:
 	virtual void nextFrame();
 	virtual void seekg(off_t,string);
 
-	virtual ios::streampos tellg();
+        virtual std::streampos tellg();
 	virtual ~FstreamC();
 };
 

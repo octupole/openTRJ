@@ -59,7 +59,7 @@ protected:
 	Matrix oc{0};
 	static int nresid,nr,nc;
 	int nWaters{0};
-	static ios::streampos sizeHeader,sizeBody;
+	static streampos sizeHeader,sizeBody;
 	bool readBinary{false};
 	bool writeBinary{false};
 	vector<int> SelectedResidues;

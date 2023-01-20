@@ -19,7 +19,7 @@ public:
 	void CompFrameNumber();
 	void nextFrame();
 	void seekg(off_t,string);
-	ios::streampos tellg();
+        std::streampos tellg();
 	void Rewind();
 
 	virtual ~FstreamF();

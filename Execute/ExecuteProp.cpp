@@ -69,7 +69,7 @@ template <typename T>
 ExecuteProp<T>::ExecuteProp(myOptions opt,trj::TrjRead & MyIn, Topol & Topology):
  	 ExecuteProp<T>::ExecuteProp(MyIn){
 	Top=&Topology;
-	ios::streampos len;
+	streampos len;
 	HeaderTrj header;
 // Read header of dcd file
 	try{

@@ -130,7 +130,7 @@ void ExecbSaxsTraj::__SetUp(trj::TrjRead & MyIn){
 
 	if(exPadding == Enums::Periodic) Filter.Allocate(nnx,nny,nnz);
 
-	ios::streampos len;
+	std::streampos len;
 	HeaderTrj header;
 // Read header of dcd file
 	if(finx) {

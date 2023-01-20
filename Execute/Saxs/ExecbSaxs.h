@@ -44,7 +44,7 @@ protected:
 	using Matrix=MATRIX::MMatrix<double>;
 	using Dvect=DVECT::DDvect<double>;
 	int nstart{0},nend{-1},nskip{1}; ///< Where to start to end and how many steps to skip in between
-	ios::streampos len;
+	std::streampos len;
 	static size_t nnx,nny,nnz; ///< The three dimension of the grid
 	bool bBSP{false};  ///< calculation with or without cardinal B-spline
 	bool bFluct{true};  ///< Do the calculation including fluctuations

@@ -28,7 +28,7 @@ protected:
 	long int ntime{0};
 	long int nstart{0},nend{-1};
 	vector<long int> Nst,Nnd;
-	ios::streampos len;
+	streampos len;
 public:
 	IteratorVoronoi(){};
 	IteratorVoronoi(pointer , ifstream *,long int ,long int );
