@@ -21,7 +21,7 @@
 using vvector_q=vector<vector<Quaternion> >;
 
 struct mysort{
-	bool operator()(const string & i, const string & j){
+	bool operator()(const string & i, const string & j) const {
 		if(i[0] != j[0])
 			return i>j;
 		else{

@@ -5,6 +5,7 @@
  *      Author: marchi
  */
 
+#include <iterator>
 #include "../libtraj/Split.h"
 const string toErase{"\t \n"};
 vector<string> split(const string & s){

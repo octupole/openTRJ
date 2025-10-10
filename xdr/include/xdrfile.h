@@ -652,26 +652,8 @@ enum xdr_op
 };
 
 
-/* We need integer types that are guaranteed to be 4 bytes wide.
- * If ANSI C99 headers were included they are already defined
- * as int32_t and uint32_t. Check, and if not define them ourselves.
- * Since it is just our workaround for missing ANSI C99 types, avoid adding
- * it to the doxygen documentation.
- */
-#if !(defined INT32_MAX || defined DOXYGEN)
-#    if (INT_MAX == 2147483647)
-#        define int32_t int
-#        define uint32_t unsigned int
-#        define INT32_MAX 2147483647
-#    elif (LONG_MAX == 2147483647)
-#        define int32_t long
-#        define uint32_t unsigned long
-#        define INT32_MAX 2147483647L
-#    else
-#        error ERROR: No 32 bit wide integer type found!
-#        error Use system XDR libraries instead, or update xdrfile.c
-#    endif
-#endif
+/* Use standard C99/C++11 integer types from stdint.h */
+#include <stdint.h>
 #ifndef XDR_H_
 #define XDR_H_
 typedef struct XDR XDR;
